@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h2>📊 Dashboard PRO Business</h2>
+
+<hr>
+
+<h3>💰 Résumé financier</h3>
+
+<ul>
+    <li>💰 Vente totale : {{ ventes_total }} FCFA</li>
+    <li>💸 Dépenses : {{ depenses }} FCFA</li>
+    <li>📈 Bénéfice : <b>{{ benefice }} FCFA</b></li>
+</ul>
+
+<hr>
+
+<h3>📦 Activité</h3>
+
+<ul>
+    <li>Factures : {{ nb_factures }}</li>
+    <li>Produits : {{ nb_produits }}</li>
+</ul>
+
+<hr>
+
+<h3>🏆 Produit le plus vendu</h3>
+
+{% if best_product %}
+<p>{{ best_product.nom }} ({{ best_product.total_vendu }} ventes)</p>
+{% else %}
+<p>Aucune vente</p>
+{% endif %}
+
+<hr>
+
+<h3>⚠️ Stock faible</h3>
+
+{% if stock_faible %}
+<ul>
+    {% for p in stock_faible %}
+        <li>{{ p.nom }} - {{ p.quantite }} restant</li>
+    {% endfor %}
+</ul>
+{% else %}
+<p>✔️ Aucun stock faible</p>
+{% endif %}
+
+<hr>
+
+<a href="/produits">📦 Produits</a><br>
+<a href="/factures">📄 Factures</a><br>
+<a href="/logout">🚪 Déconnexion</a>
+
+{% endblock %}

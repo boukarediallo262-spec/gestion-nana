@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Factures</h2>
+
+<a href="/ajouter_facture">➕ Nouvelle facture</a><br><br>
+
+<table border="1">
+<tr>
+    <th>ID</th>
+    <th>Produit</th>
+    <th>Quantité</th>
+    <th>Total</th>
+    <th>Statut</th>
+</tr>
+
+{% for f in factures %}
+<tr>
+    <td>{{ f.id }}</td>
+    <td>{{ f.nom_produit }}</td>
+    <td>{{ f.quantite }}</td>
+    <td>{{ f.total }}</td>
+    <td>{{ f.statut }}</td>
+</tr>
+{% endfor %}
+</table>
+
+<br>
+<a href="/dashboard">⬅ Retour</a>
+{% endblock %}

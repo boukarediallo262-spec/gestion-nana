@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Créer une facture</h2>
+
+<form method="POST">
+    Produit :
+    <select name="produit_id">
+        {% for p in produits %}
+        <option value="{{ p.id }}">{{ p.nom }}</option>
+        {% endfor %}
+    </select><br><br>
+
+    Quantité : <input type="number" name="quantite"><br><br>
+
+    Statut :
+    <select name="statut">
+        <option value="payé">Payé</option>
+        <option value="non payé">Non payé</option>
+    </select><br><br>
+
+    <button>Créer</button>
+</form>
+
+<br>
+<a href="/factures">⬅ Retour</a>
+{% endblock %}
