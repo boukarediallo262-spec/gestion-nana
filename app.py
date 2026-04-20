@@ -85,22 +85,21 @@ def register():
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
-    error = None
+    error = None  # ✅ IMPORTANT (évite crash)
 
     if request.method == "POST":
-        username = request.form["username"]
-        password = request.form["password"]
-
-        print("DEBUG:", username, password)  # 👈 ajoute ça
+        username = request.form.get("username")
+        password = request.form.get("password")
 
         conn = get_db()
-        user = conn.execute(
+        cursor = conn.cursor()
+
+        user = cursor.execute(
             "SELECT * FROM users WHERE username=? AND password=?",
             (username, password)
         ).fetchone()
-        conn.close()
 
-        print("USER FOUND:", user)  # 👈 ajoute ça
+        conn.close()
 
         if user:
             session["user_id"] = user["id"]
@@ -109,7 +108,6 @@ def login():
             error = "❌ Identifiant ou mot de passe incorrect"
 
     return render_template("login.html", error=error)
-
 
 @app.route("/logout")
 def logout():
@@ -372,4 +370,3 @@ def ajouter_facture():
 if __name__ == "__main__":
     init_db()
     app.run(host="0.0.0.0", port=5000)
-
