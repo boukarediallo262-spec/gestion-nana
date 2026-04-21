@@ -82,32 +82,9 @@ def register():
 
     return render_template("register.html")
 
-
-@app.route("/login", methods=["GET", "POST"])
+@app.route("/login")
 def login():
-    error = None  # ✅ IMPORTANT (évite crash)
-
-    if request.method == "POST":
-        username = request.form.get("username")
-        password = request.form.get("password")
-
-        conn = get_db()
-        cursor = conn.cursor()
-
-        user = cursor.execute(
-            "SELECT * FROM users WHERE username=? AND password=?",
-            (username, password)
-        ).fetchone()
-
-        conn.close()
-
-        if user:
-            session["user_id"] = user["id"]
-            return redirect("/dashboard")
-        else:
-            error = "❌ Identifiant ou mot de passe incorrect"
-
-    return render_template("login.html", error=error)
+    return "LOGIN OK"
 
 @app.route("/logout")
 def logout():
