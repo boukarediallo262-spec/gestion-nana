@@ -89,9 +89,18 @@ def register():
 def login():
     error = None
 
+    # Vérifier si déjà connecté
+    if "user_id" in session:
+        return redirect("/dashboard")
+
     if request.method == "POST":
         username = request.form.get("username")
         password = request.form.get("password")
+
+        # Vérification simple
+        if not username or not password:
+            error = "❌ Tous les champs sont obligatoires"
+            return render_template("login.html", error=error)
 
         conn = get_db()
         cursor = conn.cursor()
