@@ -1,55 +1,75 @@
 {% extends "base.html" %}
 {% block content %}
 
-<h2>📊 Dashboard PRO Business</h2>
+<h2>📊 Dashboard</h2>
+
+<!-- 🔢 STATISTIQUES -->
+<div class="card">
+    <h3>📦 Produits</h3>
+    <p>{{ total_produits }}</p>
+</div>
+
+<div class="card">
+    <h3>📄 Factures</h3>
+    <p>{{ total_factures }}</p>
+</div>
+
+<div class="card">
+    <h3>📦 Stock faible</h3>
+    <p>{{ stock_faible }}</p>
+</div>
+
+<div class="card">
+    <h3>💰 Ventes</h3>
+    <p>{{ ventes }} FCFA</p>
+</div>
+
+<div class="card">
+    <h3>💸 Dépenses</h3>
+    <p>{{ depenses }} FCFA</p>
+</div>
+
+<div class="card">
+    <h3>📈 Bénéfice</h3>
+    <p>{{ benefice }} FCFA</p>
+</div>
 
 <hr>
 
-<h3>💰 Résumé financier</h3>
+<!-- 📦 LISTE PRODUITS (comme avant) -->
+<h3>Produits récents</h3>
+<table border="1">
+<tr>
+    <th>Nom</th>
+    <th>Quantité</th>
+</tr>
 
-<ul>
-    <li>💰 Vente totale : {{ ventes_total }} FCFA</li>
-    <li>💸 Dépenses : {{ depenses }} FCFA</li>
-    <li>📈 Bénéfice : <b>{{ benefice }} FCFA</b></li>
-</ul>
-
-<hr>
-
-<h3>📦 Activité</h3>
-
-<ul>
-    <li>Factures : {{ nb_factures }}</li>
-    <li>Produits : {{ nb_produits }}</li>
-</ul>
-
-<hr>
-
-<h3>🏆 Produit le plus vendu</h3>
-
-{% if best_product %}
-<p>{{ best_product.nom }} ({{ best_product.total_vendu }} ventes)</p>
-{% else %}
-<p>Aucune vente</p>
-{% endif %}
+{% for p in produits %}
+<tr>
+    <td>{{ p.nom }}</td>
+    <td>{{ p.quantite }}</td>
+</tr>
+{% endfor %}
+</table>
 
 <hr>
 
-<h3>⚠️ Stock faible</h3>
+<!-- 📄 FACTURES -->
+<h3>Factures récentes</h3>
+<table border="1">
+<tr>
+    <th>ID</th>
+    <th>Total</th>
+    <th>Statut</th>
+</tr>
 
-{% if stock_faible %}
-<ul>
-    {% for p in stock_faible %}
-        <li>{{ p.nom }} - {{ p.quantite }} restant</li>
-    {% endfor %}
-</ul>
-{% else %}
-<p>✔️ Aucun stock faible</p>
-{% endif %}
-
-<hr>
-
-<a href="/produits">📦 Produits</a><br>
-<a href="/factures">📄 Factures</a><br>
-<a href="/logout">🚪 Déconnexion</a>
+{% for f in factures %}
+<tr>
+    <td>{{ f.id }}</td>
+    <td>{{ f.total }}</td>
+    <td>{{ f.statut }}</td>
+</tr>
+{% endfor %}
+</table>
 
 {% endblock %}
