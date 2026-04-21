@@ -72,4 +72,33 @@
 {% endfor %}
 </table>
 
+<hr>
+
+<h3>📊 Évolution des ventes</h3>
+
+<canvas id="ventesChart"></canvas>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+const ctx = document.getElementById('ventesChart');
+
+new Chart(ctx, {
+    type: 'line',
+    data: {
+        labels: {{ labels | safe }},
+        datasets: [{
+            label: 'Ventes (FCFA)',
+            data: {{ ventes_data | safe }},
+            borderColor: 'green',
+            borderWidth: 2,
+            fill: false
+        }]
+    },
+    options: {
+        responsive: true
+    }
+});
+</script>
+
 {% endblock %}
