@@ -140,70 +140,56 @@ def dashboard():
         return redirect("/login")
 
     conn = get_db()
+    cursor = conn.cursor()
+
     user_id = session["user_id"]
 
-    user = conn.execute(
-        "SELECT * FROM users WHERE id=?",
-        (user_id,)
-    ).fetchone()
-
-    # 💰 VENTES
-    ventes_total = conn.execute(
-        "SELECT SUM(total) FROM factures WHERE user_id=?",
-        (user_id,)
-    ).fetchone()[0] or 0
-
-    # 💸 DÉPENSES RÉELLES
-    depenses = conn.execute("""
-        SELECT SUM(factures.quantite * produits.prix_achat)
-        FROM factures
-        JOIN produits ON produits.id = factures.produit_id
-        WHERE factures.user_id=?
-    """, (user_id,)).fetchone()[0] or 0
-
-    # 📈 BÉNÉFICE GLOBAL
-    benefice = ventes_total - depenses
-
-    # 📄 FACTURES
-    nb_factures = conn.execute(
-        "SELECT COUNT(*) FROM factures WHERE user_id=?",
-        (user_id,)
-    ).fetchone()[0]
-
     # 📦 PRODUITS
-    nb_produits = conn.execute(
-        "SELECT COUNT(*) FROM produits WHERE user_id=?",
-        (user_id,)
-    ).fetchone()[0]
-
-    # 🏆 BEST PRODUCT
-    best_product = conn.execute("""
-        SELECT produits.nom, SUM(factures.quantite) as total_vendu
-        FROM factures
-        JOIN produits ON produits.id = factures.produit_id
-        WHERE factures.user_id=?
-        GROUP BY factures.produit_id
-        ORDER BY total_vendu DESC
-        LIMIT 1
-    """, (user_id,)).fetchone()
-
-    # ⚠️ STOCK FAIBLE
-    stock_faible = conn.execute(
-        "SELECT * FROM produits WHERE user_id=? AND quantite < 5",
+    produits = cursor.execute(
+        "SELECT * FROM produits WHERE user_id=?",
         (user_id,)
     ).fetchall()
 
+    total_produits = len(produits)
+
+    # 📄 FACTURES
+    factures = cursor.execute(
+        "SELECT * FROM factures WHERE user_id=?",
+        (user_id,)
+    ).fetchall()
+
+    total_factures = len(factures)
+
+    # 💰 VENTES
+    ventes = cursor.execute("""
+        SELECT SUM(total) as total FROM factures
+        WHERE user_id=? AND statut='payé'
+    """, (user_id,)).fetchone()["total"] or 0
+
+    # 💸 DÉPENSES
+    depenses = cursor.execute("""
+        SELECT SUM(p.prix_achat * f.quantite) as total
+        FROM factures f
+        JOIN produits p ON f.produit_id = p.id
+        WHERE f.user_id=? AND f.statut='payé'
+    """, (user_id,)).fetchone()["total"] or 0
+
+    # 📈 BÉNÉFICE
+    benefice = ventes - depenses
+
+    # 📦 STOCK FAIBLE
+    stock_faible = len([p for p in produits if p["quantite"] < 5])
+
     conn.close()
 
-    return render_template(
-        "dashboard.html",
-        user=user,
-        ventes_total=ventes_total,
+    return render_template("dashboard.html",
+        produits=produits,
+        factures=factures,
+        total_produits=total_produits,
+        total_factures=total_factures,
+        ventes=ventes,
         depenses=depenses,
         benefice=benefice,
-        nb_factures=nb_factures,
-        nb_produits=nb_produits,
-        best_product=best_product,
         stock_faible=stock_faible
     )
 # -------------------------
