@@ -2,10 +2,70 @@
 <html>
 <head>
     <title>Gestion Nana</title>
+    <style>
+        body {
+            font-family: Arial;
+            margin: 0;
+            background: #f4f6f9;
+        }
+
+        header {
+            background: #2c3e50;
+            color: white;
+            padding: 15px;
+        }
+
+        nav a {
+            color: white;
+            margin-right: 15px;
+            text-decoration: none;
+        }
+
+        .container {
+            padding: 20px;
+        }
+
+        .card {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        button {
+            background: #27ae60;
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        input {
+            padding: 8px;
+            width: 100%;
+            margin-bottom: 10px;
+        }
+    </style>
 </head>
+
 <body>
-    <h1>Gestion Nana</h1>
-    <hr>
+
+<header>
+    <h2>📊 Gestion Nana</h2>
+    <nav>
+        <a href="/dashboard">Page d'accueille!</a>
+        <a href="/produits">Produits</a>
+        <a href="/factures">Factures</a>
+        <a href="/abonnement">Abonnement</a>
+        <a href="/logout">Déconnexion</a>
+    </nav>
+</header>
+
+<div class="container">
     {% block content %}{% endblock %}
+</div>
+
 </body>
 </html>
