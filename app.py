@@ -182,16 +182,30 @@ def dashboard():
 
     conn.close()
 
-    return render_template("dashboard.html",
-        produits=produits,
-        factures=factures,
-        total_produits=total_produits,
-        total_factures=total_factures,
-        ventes=ventes,
-        depenses=depenses,
-        benefice=benefice,
-        stock_faible=stock_faible
-    )
+    import json
+
+# ...
+
+labels = []
+ventes_data = []
+
+for f in factures[-10:]:
+    labels.append(str(f["id"]))
+    ventes_data.append(f["total"])
+
+return render_template(
+    "dashboard.html",
+    produits=produits,
+    factures=factures,
+    total_produits=total_produits,
+    total_factures=total_factures,
+    ventes=ventes,
+    depenses=depenses,
+    benefice=benefice,
+    stock_faible=stock_faible,
+    labels=json.dumps(labels),
+    ventes_data=json.dumps(ventes_data)
+)
 # -------------------------
 # PRODUITS (ABONNEMENT REQUIS)
 # -------------------------
