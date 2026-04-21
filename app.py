@@ -66,26 +66,32 @@ def home():
 
 @app.route("/register", methods=["GET", "POST"])
 def register():
+    error = None
+
     if request.method == "POST":
-        username = request.form.get("username")
-        password = request.form.get("password")
+        try:
+            username = request.form.get("username")
+            password = request.form.get("password")
 
-        conn = get_db()
-        cursor = conn.cursor()
+            conn = get_db()
+            cursor = conn.cursor()
 
-        cursor.execute(
-            "INSERT INTO users (username, password) VALUES (?, ?)",
-            (username, password)
-        )
+            cursor.execute(
+                "INSERT INTO users (username, password) VALUES (?, ?)",
+                (username, password)
+            )
 
-        conn.commit()
-        conn.close()
+            conn.commit()
+            conn.close()
 
-        return redirect("/login")
+            return redirect("/login")
 
-    return render_template("register.html")
+        except Exception as e:
+            return f"ERREUR: {str(e)}"  # 🔥 pour voir vrai problème
 
-@app.route("/login", methods=["GET", "POST"])
+    return render_template("register.html", error=error)
+
+@app.route("/login", methods=["GET", "POST"]) 
 def login():
     error = None
 
@@ -377,6 +383,9 @@ def ajouter_facture():
 
 
 # =========================
+# -------------------------
+
+init_db()
 # RUN
 if __name__ == "__main__":
     init_db()
