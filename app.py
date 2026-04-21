@@ -189,11 +189,11 @@ def dashboard():
 labels = []
 ventes_data = []
 
-for f in factures[-10:]:
+    for f in factures[-10:]:
     labels.append(str(f["id"]))
     ventes_data.append(f["total"])
 
-return render_template(
+    return render_template(
     "dashboard.html",
     produits=produits,
     factures=factures,
