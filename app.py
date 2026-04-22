@@ -181,6 +181,16 @@ def dashboard():
 
     # STOCK FAIBLE
     stock_faible = len([p for p in produits if p["quantite"] < 5])
+    #top produit
+    top_produits = cursor.execute("""
+        SELECT p.nom, SUM(f.quantite) as total_vendu
+        FROM factures f
+        JOIN produits p ON f.produit_id = p.id
+        WHERE f.user_id=?
+        GROUP BY p.nom
+        ORDER BY total_vendu DESC
+        LIMIT 5
+    """, (user_id,)).fetchall()
 
     # 📊 DONNÉES GRAPHIQUE
     labels = []
@@ -204,7 +214,9 @@ def dashboard():
         stock_faible=stock_faible,
         labels=json.dumps(labels),
         ventes_data=json.dumps(ventes_data),
-        benefice_data=json.dumps(benefice_data)
+        benefice_data=json.dumps(benefice_data),
+        top_produits=top_produits
+        
     )
 # -------------------------
 # PRODUITS (ABONNEMENT REQUIS)
