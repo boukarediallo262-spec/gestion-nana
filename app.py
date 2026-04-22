@@ -199,7 +199,7 @@ def dashboard():
     if "user_id" not in session:
         return redirect("/login")
     if not verifier_abonnement(session["user_id"]):
-    return redirect("/abonnement")
+        return redirect("/abonnement")
 
     import json
 
