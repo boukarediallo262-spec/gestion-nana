@@ -7,6 +7,9 @@
 <div class="card">
     <h3>📦 Produits</h3>
     <p>{{ total_produits }}</p>
+    <td style="color: {% if p.quantite < 5 %}red{% else %}black{% endif %}">
+    {{ p.quantite }}
+</td>
 </div>
 
 <div class="card">
@@ -97,6 +100,25 @@ new Chart(ctx, {
     },
     options: {
         responsive: true
+    }
+});
+</script>
+<h3>📊 Bénéfice vs Dépenses</h3>
+
+<canvas id="beneficeChart"></canvas>
+
+<script>
+const ctx2 = document.getElementById('beneficeChart');
+
+new Chart(ctx2, {
+    type: 'bar',
+    data: {
+        labels: ['Ventes', 'Dépenses'],
+        datasets: [{
+            label: 'FCFA',
+            data: {{ benefice_data | safe }},
+            backgroundColor: ['green', 'red']
+        }]
     }
 });
 </script>
