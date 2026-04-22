@@ -148,27 +148,40 @@ def login():
     error = None
 
     if request.method == "POST":
-        username = request.form.get("username")
-        password = request.form.get("password")
+        try:
+            username = request.form.get("username")
+            password = request.form.get("password")
 
-        conn = get_db()
-        cursor = conn.cursor()
+            if not username or not password:
+                error = "Champs obligatoires"
+                return render_template("login.html", error=error)
 
-        user = cursor.execute(
-            "SELECT * FROM users WHERE username=?",
-            (username,)
-        ).fetchone()
+            conn = get_db()
+            cursor = conn.cursor()
 
-        conn.close()
+            user = cursor.execute(
+                "SELECT * FROM users WHERE username=?",
+                (username,)
+            ).fetchone()
 
-        # 🔐 CHECK PASSWORD
-        if user and check_password_hash(user["password"], password):
+            conn.close()
+
+            if user is None:
+                error = "Utilisateur introuvable"
+                return render_template("login.html", error=error)
+
+            if user["password"] != password:
+                error = "Mot de passe incorrect"
+                return render_template("login.html", error=error)
+
             session["user_id"] = user["id"]
             return redirect("/dashboard")
-        else:
-            error = "Identifiants incorrects"
 
-    return render_template("login.html", error=error)
+        except Exception as e:
+            print("LOGIN ERROR:", e)
+            return render_template("login.html", error="Erreur serveur")
+
+    return render_template("login.html")
 
 @app.route("/logout")
 def logout():
