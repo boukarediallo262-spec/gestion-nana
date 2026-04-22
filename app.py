@@ -145,7 +145,7 @@ def dashboard():
     cursor = conn.cursor()
     user_id = session["user_id"]
 
-    # PRODUITS
+    # 📦 PRODUITS
     produits = cursor.execute(
         "SELECT * FROM produits WHERE user_id=?",
         (user_id,)
@@ -153,7 +153,7 @@ def dashboard():
 
     total_produits = len(produits)
 
-    # FACTURES
+    # 📄 FACTURES
     factures = cursor.execute(
         "SELECT * FROM factures WHERE user_id=?",
         (user_id,)
@@ -161,44 +161,54 @@ def dashboard():
 
     total_factures = len(factures)
 
-    # VENTES
-    ventes = cursor.execute("""
+    # 💰 VENTES
+    result = cursor.execute("""
         SELECT SUM(total) as total FROM factures
         WHERE user_id=? AND statut='payé'
-    """, (user_id,)).fetchone()["total"] or 0
+    """, (user_id,)).fetchone()
 
-    # DEPENSES
-    depenses = cursor.execute("""
+    ventes = result["total"] if result and result["total"] else 0
+
+    # 💸 DÉPENSES
+    result = cursor.execute("""
         SELECT SUM(p.prix_achat * f.quantite) as total
         FROM factures f
         JOIN produits p ON f.produit_id = p.id
         WHERE f.user_id=? AND f.statut='payé'
-    """, (user_id,)).fetchone()["total"] or 0
+    """, (user_id,)).fetchone()
 
-    # BENEFICE
+    depenses = result["total"] if result and result["total"] else 0
+
+    # 📈 BÉNÉFICE
     benefice = ventes - depenses
-    benefice_data = [ventes, depenses]
 
-    # STOCK FAIBLE
+    # 📦 STOCK FAIBLE
     stock_faible = len([p for p in produits if p["quantite"] < 5])
-    #top produit
-    top_produits = cursor.execute("""
-        SELECT p.nom, SUM(f.quantite) as total_vendu
-        FROM factures f
-        JOIN produits p ON f.produit_id = p.id
-        WHERE f.user_id=?
-        GROUP BY p.nom
-        ORDER BY total_vendu DESC
-        LIMIT 5
-    """, (user_id,)).fetchall()
 
-    # 📊 DONNÉES GRAPHIQUE
+    # 📊 GRAPHIQUE VENTES
     labels = []
     ventes_data = []
 
     for f in factures[-10:]:
         labels.append(str(f["id"]))
-        ventes_data.append(f["total"])
+        ventes_data.append(f["total"] if f["total"] else 0)
+
+    # 🏆 TOP PRODUITS
+    try:
+        top_produits = cursor.execute("""
+            SELECT p.nom, SUM(f.quantite) as total_vendu
+            FROM factures f
+            JOIN produits p ON f.produit_id = p.id
+            WHERE f.user_id=?
+            GROUP BY p.nom
+            ORDER BY total_vendu DESC
+            LIMIT 5
+        """, (user_id,)).fetchall()
+    except:
+        top_produits = []
+
+    # 📊 BENEFICE VS DEPENSES
+    benefice_data = [ventes, depenses]
 
     conn.close()
 
@@ -216,7 +226,6 @@ def dashboard():
         ventes_data=json.dumps(ventes_data),
         benefice_data=json.dumps(benefice_data),
         top_produits=top_produits
-        
     )
 # -------------------------
 # PRODUITS (ABONNEMENT REQUIS)
