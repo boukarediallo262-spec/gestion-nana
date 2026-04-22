@@ -309,6 +309,8 @@ def dashboard():
 def produits():
     if "user_id" not in session:
         return redirect("/login")
+    if not verifier_abonnement(session["user_id"]):
+        return redirect("/abonnement")
 
     conn = get_db()
     cursor = conn.cursor()
@@ -328,6 +330,8 @@ def produits():
 def ajouter_produit():
     if "user_id" not in session:
         return redirect("/login")
+    if not verifier_abonnement(session["user_id"]):
+        return redirect("/abonnement")
 
     conn = get_db()
     cursor = conn.cursor()
@@ -402,6 +406,8 @@ def abonnement():
 def factures():
     if "user_id" not in session:
         return redirect("/login")
+    if not verifier_abonnement(session["user_id"]):
+        return redirect("/abonnement")
 
     conn = get_db()
     factures = conn.execute("""
