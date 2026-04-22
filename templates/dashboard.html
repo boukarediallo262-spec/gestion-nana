@@ -91,5 +91,10 @@ new Chart(document.getElementById('beneficeChart'), {
 </tr>
 {% endfor %}
 </table>
+{% if notification %}
+<div style="background:red;color:white;padding:10px;">
+    {{ notification }}
+</div>
+{% endif %}
 
 {% endblock %}
