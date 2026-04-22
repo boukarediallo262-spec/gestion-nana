@@ -1,12 +1,12 @@
 {% extends "base.html" %}
 {% block content %}
 
-<h2>📊 Dashboard</h2>
+<h2>📊 Page d'accueille</h2>
 
 <!-- 🔢 STATS -->
-<div class="card"><h3>📦 Produits</h3><p>{{ total_produits }}</p></div>
-<div class="card"><h3>📄 Factures</h3><p>{{ total_factures }}</p></div>
-<div class="card"><h3>📦 Stock faible</h3><p>{{ stock_faible }}</p></div>
+<div class="card"><h3>📦Stocks des produits</h3><p>{{ total_produits }}</p></div>
+<div class="card"><h3>📄Nombres de Facture</h3><p>{{ total_factures }}</p></div>
+<div class="card"><h3>📦Produits à faible stock</h3><p>{{ stock_faible }}</p></div>
 <div class="card"><h3>💰 Ventes</h3><p>{{ ventes }} FCFA</p></div>
 <div class="card"><h3>💸 Dépenses</h3><p>{{ depenses }} FCFA</p></div>
 <div class="card"><h3>📈 Bénéfice</h3><p>{{ benefice }} FCFA</p></div>
