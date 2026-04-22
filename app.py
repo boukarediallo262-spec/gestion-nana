@@ -1,12 +1,13 @@
 # =========================
 # APP.PY COMPLET (SAAS SIMPLE)
 # =========================
+from werkzeug.security import generate_password_hash, check_password_hash
 
 from flask import Flask, render_template, request, redirect, session
 import sqlite3
 
 app = Flask(__name__)
-app.secret_key = "n'importe_quoi_de_secret"
+app.secret_key = "cle-secrete-super-forte-123"
 
 # -------------------------
 # DATABASE
@@ -69,60 +70,55 @@ def register():
     error = None
 
     if request.method == "POST":
-        try:
-            username = request.form.get("username")
-            password = request.form.get("password")
+        username = request.form.get("username")
+        password = request.form.get("password")
 
+        if not username or not password:
+            error = "Remplis tous les champs"
+        else:
             conn = get_db()
             cursor = conn.cursor()
 
-            cursor.execute(
-                "INSERT INTO users (username, password) VALUES (?, ?)",
-                (username, password)
-            )
+            # 🔐 HASH PASSWORD
+            hashed_password = generate_password_hash(password)
 
-            conn.commit()
-            conn.close()
-
-            return redirect("/login")
-
-        except Exception as e:
-            return f"ERREUR: {str(e)}"  # 🔥 pour voir vrai problème
+            try:
+                cursor.execute(
+                    "INSERT INTO users (username, password) VALUES (?, ?)",
+                    (username, hashed_password)
+                )
+                conn.commit()
+                conn.close()
+                return redirect("/login")
+            except:
+                error = "Utilisateur déjà existant"
 
     return render_template("register.html", error=error)
 
-@app.route("/login", methods=["GET", "POST"]) 
+@app.route("/login", methods=["GET", "POST"])
 def login():
     error = None
-
-    # Vérifier si déjà connecté
-    if "user_id" in session:
-        return redirect("/dashboard")
 
     if request.method == "POST":
         username = request.form.get("username")
         password = request.form.get("password")
 
-        # Vérification simple
-        if not username or not password:
-            error = "❌ Tous les champs sont obligatoires"
-            return render_template("login.html", error=error)
-
         conn = get_db()
         cursor = conn.cursor()
 
         user = cursor.execute(
-            "SELECT * FROM users WHERE username=? AND password=?",
-            (username, password)
+            "SELECT * FROM users WHERE username=?",
+            (username,)
         ).fetchone()
 
         conn.close()
 
-        if user:
+        # 🔐 CHECK PASSWORD
+        if user and check_password_hash(user["password"], password):
             session["user_id"] = user["id"]
             return redirect("/dashboard")
         else:
-            error = "❌ Identifiant ou mot de passe incorrect"
+            error = "Identifiants incorrects"
 
     return render_template("login.html", error=error)
 
