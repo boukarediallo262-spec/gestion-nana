@@ -3,54 +3,76 @@
 
 <h2>📊 Dashboard</h2>
 
-<!-- 🔢 STATISTIQUES -->
-<div class="card">
-    <h3>📦 Produits</h3>
-    <p>{{ total_produits }}</p>
-    <td style="color: {% if p.quantite < 5 %}red{% else %}black{% endif %}">
-    {{ p.quantite }}
-</td>
-</div>
-
-<div class="card">
-    <h3>📄 Factures</h3>
-    <p>{{ total_factures }}</p>
-</div>
-
-<div class="card">
-    <h3>📦 Stock faible</h3>
-    <p>{{ stock_faible }}</p>
-</div>
-
-<div class="card">
-    <h3>💰 Ventes</h3>
-    <p>{{ ventes }} FCFA</p>
-</div>
-
-<div class="card">
-    <h3>💸 Dépenses</h3>
-    <p>{{ depenses }} FCFA</p>
-</div>
-
-<div class="card">
-    <h3>📈 Bénéfice</h3>
-    <p>{{ benefice }} FCFA</p>
-</div>
+<!-- 🔢 STATS -->
+<div class="card"><h3>📦 Produits</h3><p>{{ total_produits }}</p></div>
+<div class="card"><h3>📄 Factures</h3><p>{{ total_factures }}</p></div>
+<div class="card"><h3>📦 Stock faible</h3><p>{{ stock_faible }}</p></div>
+<div class="card"><h3>💰 Ventes</h3><p>{{ ventes }} FCFA</p></div>
+<div class="card"><h3>💸 Dépenses</h3><p>{{ depenses }} FCFA</p></div>
+<div class="card"><h3>📈 Bénéfice</h3><p>{{ benefice }} FCFA</p></div>
 
 <hr>
 
-<!-- 📦 LISTE PRODUITS (comme avant) -->
-<h3>Produits récents</h3>
-<table border="1">
-<tr>
-    <th>Nom</th>
-    <th>Quantité</th>
-</tr>
+<!-- 📊 GRAPH VENTES -->
+<h3>📈 Évolution des ventes</h3>
+<canvas id="ventesChart"></canvas>
 
+<!-- 📊 GRAPH BENEFICE -->
+<h3>📊 Ventes vs Dépenses</h3>
+<canvas id="beneficeChart"></canvas>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+new Chart(document.getElementById('ventesChart'), {
+    type: 'line',
+    data: {
+        labels: {{ labels | safe }},
+        datasets: [{
+            label: 'Ventes',
+            data: {{ ventes_data | safe }},
+            borderWidth: 2
+        }]
+    }
+});
+
+new Chart(document.getElementById('beneficeChart'), {
+    type: 'bar',
+    data: {
+        labels: ['Ventes', 'Dépenses'],
+        datasets: [{
+            data: {{ benefice_data | safe }}
+        }]
+    }
+});
+</script>
+
+<hr>
+
+<!-- 🏆 TOP PRODUITS -->
+<h3>🏆 Top produits</h3>
+<table border="1">
+<tr><th>Nom</th><th>Vendus</th></tr>
+{% for p in top_produits %}
+<tr>
+    <td>{{ p.nom }}</td>
+    <td>{{ p.total_vendu }}</td>
+</tr>
+{% endfor %}
+</table>
+
+<hr>
+
+<!-- 📦 PRODUITS -->
+<h3>Produits</h3>
+<table border="1">
+<tr><th>Nom</th><th>Quantité</th></tr>
 {% for p in produits %}
 <tr>
     <td>{{ p.nom }}</td>
-    <td>{{ p.quantite }}</td>
+    <td style="color:{% if p.quantite < 5 %}red{% endif %}">
+        {{ p.quantite }}
+    </td>
 </tr>
 {% endfor %}
 </table>
@@ -58,82 +80,14 @@
 <hr>
 
 <!-- 📄 FACTURES -->
-<h3>Factures récentes</h3>
+<h3>Factures</h3>
 <table border="1">
-<tr>
-    <th>ID</th>
-    <th>Total</th>
-    <th>Statut</th>
-</tr>
-
+<tr><th>ID</th><th>Total</th><th>Statut</th></tr>
 {% for f in factures %}
 <tr>
     <td>{{ f.id }}</td>
     <td>{{ f.total }}</td>
     <td>{{ f.statut }}</td>
-</tr>
-{% endfor %}
-</table>
-
-<hr>
-
-<h3>📊 Évolution des ventes</h3>
-
-<canvas id="ventesChart"></canvas>
-
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-<script>
-const ctx = document.getElementById('ventesChart');
-
-new Chart(ctx, {
-    type: 'line',
-    data: {
-        labels: {{ labels | safe }},
-        datasets: [{
-            label: 'Ventes (FCFA)',
-            data: {{ ventes_data | safe }},
-            borderColor: 'green',
-            borderWidth: 2,
-            fill: false
-        }]
-    },
-    options: {
-        responsive: true
-    }
-});
-</script>
-<h3>📊 Bénéfice vs Dépenses</h3>
-
-<canvas id="beneficeChart"></canvas>
-
-<script>
-const ctx2 = document.getElementById('beneficeChart');
-
-new Chart(ctx2, {
-    type: 'bar',
-    data: {
-        labels: ['Ventes', 'Dépenses'],
-        datasets: [{
-            label: 'FCFA',
-            data: {{ benefice_data | safe }},
-            backgroundColor: ['green', 'red']
-        }]
-    }
-});
-</script>
-<h3>🏆 Top produits</h3>
-
-<table border="1">
-<tr>
-    <th>Produit</th>
-    <th>Vendus</th>
-</tr>
-
-{% for p in top_produits %}
-<tr>
-    <td>{{ p.nom }}</td>
-    <td>{{ p.total_vendu }}</td>
 </tr>
 {% endfor %}
 </table>
