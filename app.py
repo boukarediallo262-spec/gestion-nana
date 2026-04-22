@@ -139,12 +139,13 @@ def dashboard():
     if "user_id" not in session:
         return redirect("/login")
 
+    import json
+
     conn = get_db()
     cursor = conn.cursor()
-
     user_id = session["user_id"]
 
-    # 📦 PRODUITS
+    # PRODUITS
     produits = cursor.execute(
         "SELECT * FROM produits WHERE user_id=?",
         (user_id,)
@@ -152,7 +153,7 @@ def dashboard():
 
     total_produits = len(produits)
 
-    # 📄 FACTURES
+    # FACTURES
     factures = cursor.execute(
         "SELECT * FROM factures WHERE user_id=?",
         (user_id,)
@@ -160,13 +161,13 @@ def dashboard():
 
     total_factures = len(factures)
 
-    # 💰 VENTES
+    # VENTES
     ventes = cursor.execute("""
         SELECT SUM(total) as total FROM factures
         WHERE user_id=? AND statut='payé'
     """, (user_id,)).fetchone()["total"] or 0
 
-    # 💸 DÉPENSES
+    # DEPENSES
     depenses = cursor.execute("""
         SELECT SUM(p.prix_achat * f.quantite) as total
         FROM factures f
@@ -174,38 +175,35 @@ def dashboard():
         WHERE f.user_id=? AND f.statut='payé'
     """, (user_id,)).fetchone()["total"] or 0
 
-    # 📈 BÉNÉFICE
+    # BENEFICE
     benefice = ventes - depenses
 
-    # 📦 STOCK FAIBLE
+    # STOCK FAIBLE
     stock_faible = len([p for p in produits if p["quantite"] < 5])
+
+    # 📊 DONNÉES GRAPHIQUE
+    labels = []
+    ventes_data = []
+
+    for f in factures[-10:]:
+        labels.append(str(f["id"]))
+        ventes_data.append(f["total"])
 
     conn.close()
 
-    import json
-
-# ...
-
-labels = []
-ventes_data = []
-
-    for f in factures[-10:]:
-    labels.append(str(f["id"]))
-    ventes_data.append(f["total"])
-
     return render_template(
-    "dashboard.html",
-    produits=produits,
-    factures=factures,
-    total_produits=total_produits,
-    total_factures=total_factures,
-    ventes=ventes,
-    depenses=depenses,
-    benefice=benefice,
-    stock_faible=stock_faible,
-    labels=json.dumps(labels),
-    ventes_data=json.dumps(ventes_data)
-)
+        "dashboard.html",
+        produits=produits,
+        factures=factures,
+        total_produits=total_produits,
+        total_factures=total_factures,
+        ventes=ventes,
+        depenses=depenses,
+        benefice=benefice,
+        stock_faible=stock_faible,
+        labels=json.dumps(labels),
+        ventes_data=json.dumps(ventes_data)
+    )
 # -------------------------
 # PRODUITS (ABONNEMENT REQUIS)
 # -------------------------
