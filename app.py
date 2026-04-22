@@ -257,7 +257,12 @@ def dashboard():
     benefice = ventes - depenses
 
     # 📦 STOCK FAIBLE
-    stock_faible = len([p for p in produits if p["quantite"] < 5])
+    # STOCK FAIBLE (liste)
+    stock_faible = cursor.execute("""
+    SELECT nom, quantite 
+    FROM produits 
+    WHERE quantite <= 5 AND user_id=?
+    """, (user_id,)).fetchall()
 
     # 📊 GRAPHIQUE VENTES
     labels = []
