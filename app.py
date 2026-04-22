@@ -27,7 +27,8 @@ def init_db():
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         username TEXT UNIQUE,
         password TEXT,
-        ALTER TABLE users ADD COLUMN date_fin_abonnement TEXT
+        abonnement INTEGER DEFAULT 0,
+        date_fin_abonnement TEXT
     )
     ''')
 
