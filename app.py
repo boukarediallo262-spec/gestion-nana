@@ -242,6 +242,17 @@ def dashboard():
     """, (user_id,)).fetchone()
 
     ventes = result["total"] if result and result["total"] else 0
+    # DONNÉES GRAPHIQUE (ventes)
+    ventes = cursor.execute("""
+    SELECT date(created_at) as jour, SUM(total) as total
+    FROM factures
+    WHERE user_id=?
+    GROUP BY jour
+    ORDER BY jour ASC
+    """, (user_id,)).fetchall()
+
+    labels = [v["jour"] for v in ventes]
+    data = [v["total"] for v in ventes]
 
     # 💸 DÉPENSES
     result = cursor.execute("""
@@ -263,6 +274,20 @@ def dashboard():
     FROM produits 
     WHERE quantite <= 5 AND user_id=?
     """, (user_id,)).fetchall()
+
+    
+    # STATISTIQUES
+    nb_produits = cursor.execute(
+    "SELECT COUNT(*) as total FROM produits WHERE user_id=?",
+    (user_id,)
+    ).fetchone()["total"]
+
+    nb_factures = cursor.execute(
+    "SELECT COUNT(*) as total FROM factures WHERE user_id=?",
+    (user_id,)
+    ).fetchone()["total"]
+
+    abonnement_actif = verifier_abonnement(user_id)
 
     # 📊 GRAPHIQUE VENTES
     labels = []
@@ -305,7 +330,12 @@ def dashboard():
         ventes_data=json.dumps(ventes_data),
         benefice_data=json.dumps(benefice_data),
         top_produits=top_produits,
-        notification=notification
+        notification=notification,
+        nb_produits=nb_produits,
+        nb_factures_nb_factures,
+        abonnement_actif=abonnement_actif,
+        data=vente_data
+        
     )
 # -------------------------
 # PRODUITS (ABONNEMENT REQUIS)
