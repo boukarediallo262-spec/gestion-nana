@@ -177,6 +177,7 @@ def dashboard():
 
     # BENEFICE
     benefice = ventes - depenses
+    benefice_data = [ventes, depenses]
 
     # STOCK FAIBLE
     stock_faible = len([p for p in produits if p["quantite"] < 5])
@@ -202,7 +203,8 @@ def dashboard():
         benefice=benefice,
         stock_faible=stock_faible,
         labels=json.dumps(labels),
-        ventes_data=json.dumps(ventes_data)
+        ventes_data=json.dumps(ventes_data),
+        benefice_data=json.dumps(benefice_data)
     )
 # -------------------------
 # PRODUITS (ABONNEMENT REQUIS)
