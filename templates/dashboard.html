@@ -122,5 +122,20 @@ new Chart(ctx2, {
     }
 });
 </script>
+<h3>🏆 Top produits</h3>
+
+<table border="1">
+<tr>
+    <th>Produit</th>
+    <th>Vendus</th>
+</tr>
+
+{% for p in top_produits %}
+<tr>
+    <td>{{ p.nom }}</td>
+    <td>{{ p.total_vendu }}</td>
+</tr>
+{% endfor %}
+</table>
 
 {% endblock %}
