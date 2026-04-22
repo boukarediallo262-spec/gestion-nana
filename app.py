@@ -214,9 +214,9 @@ def dashboard():
 
     if jours is not None:
         if jours <= 7 and jours > 0:
-        notification = f"⚠️ Ton abonnement expire dans {jours} jours"
+            notification = f"⚠️ Ton abonnement expire dans {jours} jours"
         elif jours <= 0:
-        notification = "❌ Ton abonnement est expiré"
+            notification = "❌ Ton abonnement est expiré"
 
     # 📦 PRODUITS
     produits = cursor.execute(
