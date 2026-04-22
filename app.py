@@ -315,7 +315,6 @@ def dashboard():
     benefice_data = [ventes, depenses]
 
     conn.close()
-
     return render_template(
         "dashboard.html",
         produits=produits,
@@ -332,11 +331,12 @@ def dashboard():
         top_produits=top_produits,
         notification=notification,
         nb_produits=nb_produits,
-        nb_factures_nb_factures,
+        nb_factures=nb_factures,
         abonnement_actif=abonnement_actif,
-        data=vente_data
-        
+        data=json.dumps(ventes_data)
     )
+
+    
 # -------------------------
 # PRODUITS (ABONNEMENT REQUIS)
 # -------------------------
