@@ -1,6 +1,27 @@
 {% extends "base.html" %}
 {% block content %}
 
+<div style="display:flex; gap:20px;">
+
+    <div style="background:#1abc9c;padding:15px;color:white;">
+        Produits: {{ nb_produits }}
+    </div>
+
+    <div style="background:#3498db;padding:15px;color:white;">
+        Factures: {{ nb_factures }}
+    </div>
+
+    <div style="background:#e67e22;padding:15px;color:white;">
+        Abonnement: 
+        {% if abonnement_actif %}
+            Actif
+        {% else %}
+            Expiré
+        {% endif %}
+    </div>
+
+</div>
+
 <h2>📊 Page d'accueille</h2>
 
 <!-- 🔢 STATS -->
@@ -42,6 +63,26 @@ new Chart(document.getElementById('beneficeChart'), {
         labels: ['Ventes', 'Dépenses'],
         datasets: [{
             data: {{ benefice_data | safe }}
+        }]
+    }
+});
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<canvas id="graphique"></canvas>
+
+<script>
+const ctx = document.getElementById('graphique');
+
+new Chart(ctx, {
+    type: 'line',
+    data: {
+        labels: {{ labels | safe }},
+        datasets: [{
+            label: 'Ventes',
+            data: {{ data | safe }},
+            borderWidth: 2
         }]
     }
 });
@@ -95,6 +136,18 @@ new Chart(document.getElementById('beneficeChart'), {
 <div style="background:red;color:white;padding:10px;">
     {{ notification }}
 </div>
+{% endif %}
+
+<h3>⚠️ Stock faible</h3>
+
+{% if stock_faible %}
+    <ul>
+    {% for p in stock_faible %}
+        <li>{{ p["nom"] }} → reste {{ p["quantite"] }}</li>
+    {% endfor %}
+    </ul>
+{% else %}
+    <p>Aucun stock faible</p>
 {% endif %}
 
 {% endblock %}
