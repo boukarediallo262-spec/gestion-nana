@@ -127,7 +127,7 @@ def register():
             conn = get_db()
             cursor = conn.cursor()
 
-            # 🔐 HASH PASSWORD
+            from werkzeug.security import generate_password_hash
             hashed_password = generate_password_hash(password)
 
             try:
@@ -137,11 +137,14 @@ def register():
                 )
                 conn.commit()
                 conn.close()
-                return redirect("/login")
-            except:
-                error = "Utilisateur déjà existant"
 
-    return render_template("register.html", error=error)
+                return redirect("/login")
+
+            except Exception as e:
+                print("ERREUR REGISTER:", e)  # 🔥 IMPORTANT
+                error = "Utilisateur déjà existant ou erreur serveur"
+
+    return render_template("login.html", error=error)
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
