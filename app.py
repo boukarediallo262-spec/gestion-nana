@@ -424,7 +424,7 @@ def ajouter_produit():
 # ABONNEMENT (SIMULATION)
 # -------------------------
 
-@app.route("/abonnement")
+@app.route("/abonnement", methods=["GET", "POST"])
 def abonnement():
     try:
         if "user_id" not in session:
