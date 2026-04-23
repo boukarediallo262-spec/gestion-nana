@@ -426,6 +426,10 @@ def ajouter_produit():
 
 @app.route("/abonnement", methods=["GET", "POST"])
 def abonnement():
+    if request.method == "POST":
+        return redirect("/abonnement")
+
+    
     try:
         if "user_id" not in session:
             return redirect("/login")
