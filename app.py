@@ -424,13 +424,10 @@ def ajouter_produit():
 # ABONNEMENT (SIMULATION)
 # -------------------------
 
-@app.route("/abonnement", methods=["GET", "POST"])
-def abonnement():
-    if request.method == "POST":
-        return redirect("/abonnement")
-
-    
+@app.route("/payer_abonnement", methods=["POST"])
+def payer_abonnement():
     try:
+        # 🔐 Vérifier connexion
         if "user_id" not in session:
             return redirect("/login")
 
@@ -439,35 +436,31 @@ def abonnement():
         conn = get_db()
         cursor = conn.cursor()
 
+        # 🔍 Vérifier utilisateur
         user = cursor.execute(
             "SELECT * FROM users WHERE id=?",
             (user_id,)
         ).fetchone()
 
-        conn.close()
-
         if user is None:
+            conn.close()
             return redirect("/login")
 
-        abonnement_actif = user["abonnement"]
-
-        # SIMULATION LOGIQUE
-        jours_restants = 7  # simulation fixe
-
-        notification = None
-        if jours_restants <= 7:
-            notification = f"⚠️ Ton abonnement expire dans {jours_restants} jours"
-
-        return render_template(
-            "abonnement.html",
-            abonnement_actif=abonnement_actif,
-            notification=notification
+        # 💰 Activer abonnement (simulation paiement réussi)
+        cursor.execute(
+            "UPDATE users SET abonnement = 1 WHERE id=?",
+            (user_id,)
         )
 
-    except Exception as e:
-        print("ERREUR ABONNEMENT:", e)
-        return "Erreur abonnement"
+        conn.commit()
+        conn.close()
 
+        # ✅ redirection vers abonnement
+        return redirect("/abonnement")
+
+    except Exception as e:
+        print("ERREUR PAIEMENT ABONNEMENT:", e)
+        return "Erreur paiement abonnement"
 # -------------------------
 # RUN
 # -------------------------
