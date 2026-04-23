@@ -146,7 +146,7 @@ def register():
 
     return render_template("register.html", error=error)
 
-@app.route("/login", methods=["POST"])
+@app.route("/login", methods=["GET", "POST"])
 def login():
     error = None
 
@@ -165,14 +165,12 @@ def login():
         conn.close()
 
         if user is None:
-            error = "Utilisateur introuvable"
-            return render_template("login.html", error=error)
+            return render_template("login.html", error="Utilisateur introuvable")
 
         from werkzeug.security import check_password_hash
 
         if not check_password_hash(user["password"], password):
-            error = "Mot de passe incorrect"
-            return render_template("login.html", error=error)
+            return render_template("login.html", error="Mot de passe incorrect")
 
         session["user_id"] = user["id"]
         return redirect("/dashboard")
