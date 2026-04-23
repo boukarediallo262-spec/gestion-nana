@@ -144,7 +144,7 @@ def register():
                 print("ERREUR REGISTER:", e)  # 🔥 IMPORTANT
                 error = "Utilisateur déjà existant ou erreur serveur"
 
-    return render_template("login.html", error=error)
+    return render_template("register.html", error=error)
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
