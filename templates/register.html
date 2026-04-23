@@ -45,9 +45,9 @@
     <p style="color:red">{{ error }}</p>
     {% endif %}
 
-    <form method="POST" action="/register">
-        <input type="text" name="username" placeholder="Nom utilisateur">
-        <input type="password" name="password" placeholder="Mot de passe">
+    <form method="POST" action="/register" autocomplete="off">
+        <input type="text" name="username" placeholder="Nom utilisateur" autocomplete="off">
+        <input type="password" name="password" placeholder="Mot de passe" autocomplete="new-password">
         <button type="submit">Créer compte</button>
     </form>
 
