@@ -424,20 +424,45 @@ def ajouter_produit():
 # ABONNEMENT (SIMULATION)
 # -------------------------
 
-@app.route("/abonnement", methods=["GET", "POST"])
+@app.route("/abonnement")
 def abonnement():
-    if "user_id" not in session:
-        return redirect("/login")
+    try:
+        if "user_id" not in session:
+            return redirect("/login")
 
-    if request.method == "POST":
+        user_id = session["user_id"]
+
         conn = get_db()
-        conn.execute("UPDATE users SET abonnement=1 WHERE id=?", (session["user_id"],))
-        conn.commit()
+        cursor = conn.cursor()
+
+        user = cursor.execute(
+            "SELECT * FROM users WHERE id=?",
+            (user_id,)
+        ).fetchone()
+
         conn.close()
 
-        return redirect("/dashboard")
+        if user is None:
+            return redirect("/login")
 
-    return render_template("abonnement.html")
+        abonnement_actif = user["abonnement"]
+
+        # SIMULATION LOGIQUE
+        jours_restants = 7  # simulation fixe
+
+        notification = None
+        if jours_restants <= 7:
+            notification = f"⚠️ Ton abonnement expire dans {jours_restants} jours"
+
+        return render_template(
+            "abonnement.html",
+            abonnement_actif=abonnement_actif,
+            notification=notification
+        )
+
+    except Exception as e:
+        print("ERREUR ABONNEMENT:", e)
+        return "Erreur abonnement"
 
 # -------------------------
 # RUN
