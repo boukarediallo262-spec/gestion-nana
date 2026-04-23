@@ -424,7 +424,7 @@ def ajouter_produit():
 # ABONNEMENT (SIMULATION)
 # -------------------------
 
-@app.route("/payer_abonnement", methods=["POST"])
+@app.route("/payer_abonnement", methods=["GET", "POST"])
 def payer_abonnement():
     try:
         # 🔐 Vérifier connexion
