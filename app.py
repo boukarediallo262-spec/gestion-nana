@@ -146,7 +146,7 @@ def register():
 
     return render_template("register.html", error=error)
 
-@app.route("/login", methods=["GET", "POST"])
+@app.route("/login", methods=["POST"])
 def login():
     error = None
 
