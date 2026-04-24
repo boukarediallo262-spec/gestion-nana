@@ -57,6 +57,11 @@ def init_db():
     )
     ''')
 
+    try:
+        cursor.execute("ALTER TABLE factures ADD COLUMN created_at TEXT")
+    except:
+        pass
+
     conn.commit()
     conn.close()
 
@@ -535,9 +540,12 @@ def ajouter_facture():
         )
 
         # 🧾 insertion facture
+        from datetime import datetime 
+        date_now = datetime.now().strftime("%Y-%m-%d")
+        
         cursor.execute(
-            "INSERT INTO factures (produit_id, quantite, total, statut, user_id) VALUES (?, ?, ?, ?, ?)",
-            (produit_id, quantite, total, statut, user_id)
+            "INSERT INTO factures (produit_id, quantite, total, statut, user_id, created_at) VALUES (?, ?, ?, ?, ?)",
+            (produit_id, quantite, total, statut, user_id, date_now)
         )
 
         conn.commit()
