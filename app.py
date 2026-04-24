@@ -1,4 +1,5 @@
 # =========================
+print("APP DEMARRE")
 # APP.PY COMPLET (SAAS SIMPLE)
 # =========================
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -145,7 +146,7 @@ def register():
                 error = "Utilisateur déjà existant ou erreur serveur"
 
     return render_template("register.html", error=error)
-
+print("ROUTE LOGIN CHARGEE")
 @app.route("/login", methods=["GET", "POST"])
 def login():
     error = None
