@@ -53,7 +53,8 @@ def init_db():
         quantite INTEGER,
         total REAL,
         statut TEXT,
-        user_id INTEGER
+        user_id INTEGER,
+        created_at TEXT
     )
     ''')
 
@@ -66,58 +67,12 @@ def init_db():
     conn.close()
 
 # -------------------------
-from datetime import datetime, timedelta
 
-@app.route("/activer_abonnement")
-def activer_abonnement():
-    if "user_id" not in session:
-        return redirect("/login")
-
-    user_id = session["user_id"]
-
-    conn = get_db()
-    cursor = conn.cursor()
-
-    date_fin = datetime.now() + timedelta(days=30)
-
-    cursor.execute("""
-        UPDATE users 
-        SET abonnement=1, date_fin_abonnement=?
-        WHERE id=?
-    """, (date_fin.strftime("%Y-%m-%d"), user_id))
-
-    conn.commit()
-    conn.close()
-
-    return "Abonnement activé pour 30 jours"
 # AUTH
 @app.route("/")
 def home():
     return redirect("/login")
 # -------------------------
-from datetime import datetime
-
-def verifier_abonnement(user_id):
-    conn = get_db()
-    cursor = conn.cursor()
-
-    user = cursor.execute(
-        "SELECT abonnement, date_fin_abonnement FROM users WHERE id=?",
-        (user_id,)
-    ).fetchone()
-
-    conn.close()
-
-    if not user or user["abonnement"] == 0:
-        return False
-
-    if user["date_fin_abonnement"]:
-        date_fin = datetime.strptime(user["date_fin_abonnement"], "%Y-%m-%d")
-        if datetime.now() > date_fin:
-            return False
-
-    return True
-
 
 @app.route("/register", methods=["GET", "POST"])
 def register():
