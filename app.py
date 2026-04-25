@@ -234,6 +234,8 @@ def dashboard():
     depenses = result["total"] if result and result["total"] else 0
 
     # 📈 BÉNÉFICE
+    ventes = ventes or 0
+    depenses = depenses or 0
     benefice = ventes - depenses
 
     # 📦 STOCK FAIBLE
