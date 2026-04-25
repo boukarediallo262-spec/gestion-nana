@@ -386,8 +386,8 @@ def ajouter_produit():
 # ABONNEMENT (SIMULATION)
 # -------------------------
 
-@app.route("/payer_abonnement", methods=["GET", "POST"])
-def payer_abonnement():
+@app.route("/abonnement", methods=["GET", "POST"])
+def abonnement():
     try:
         # 🔐 Vérifier connexion
         if "user_id" not in session:
