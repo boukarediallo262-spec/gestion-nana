@@ -1,66 +1,137 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Gestion App</title>
+    <title>Gestion Pro</title>
+
     <style>
         body {
-            font-family: Arial;
-            background: #ecf0f1;
             margin: 0;
+            font-family: 'Segoe UI', sans-serif;
+            background: #f4f6f9;
         }
 
-        .navbar {
-            background: #2c3e50;
-            padding: 15px;
+        /* SIDEBAR */
+        .sidebar {
+            width: 220px;
+            height: 100vh;
+            background: #1e272e;
+            position: fixed;
+            padding-top: 20px;
         }
 
-        .navbar a {
-            color: white;
-            margin-right: 15px;
+        .sidebar a {
+            display: block;
+            color: #d2dae2;
+            padding: 12px 20px;
             text-decoration: none;
         }
 
-        .container {
+        .sidebar a:hover {
+            background: #485460;
+            color: white;
+        }
+
+        /* CONTENT */
+        .main {
+            margin-left: 220px;
             padding: 20px;
         }
 
+        /* TOPBAR */
+        .topbar {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        /* CARDS */
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px,1fr));
+            gap: 15px;
+        }
+
+        .card {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0px 2px 8px rgba(0,0,0,0.05);
+        }
+
+        /* TABLE */
         table {
             width: 100%;
             border-collapse: collapse;
             background: white;
+            border-radius: 10px;
+            overflow: hidden;
         }
 
-        table, th, td {
-            border: 1px solid #ccc;
+        th {
+            background: #2c3e50;
+            color: white;
         }
 
         th, td {
             padding: 10px;
+            text-align: left;
         }
 
-        button {
-            padding: 10px;
-            border: none;
+        tr:nth-child(even) {
+            background: #f2f2f2;
+        }
+
+        /* BUTTON */
+        .btn {
             background: #27ae60;
             color: white;
-            cursor: pointer;
+            padding: 8px 12px;
+            border-radius: 6px;
+            text-decoration: none;
+            border: none;
         }
+
+        .btn:hover {
+            background: #219150;
+        }
+
+        /* ALERT */
+        .alert {
+            background: #e74c3c;
+            color: white;
+            padding: 10px;
+            border-radius: 8px;
+            margin-top: 15px;
+        }
+
     </style>
 </head>
 
 <body>
 
-<div class="navbar">
-    <a href="/dashboard">Dashboard</a>
-    <a href="/produits">Produits</a>
-    <a href="/factures">Factures</a>
-    <a href="/abonnement">Abonnement</a>
-    <a href="/analyse_ia">IA</a>
-    <a href="/logout">Déconnexion</a>
+<!-- SIDEBAR -->
+<div class="sidebar">
+    <a href="/dashboard">📊 Dashboard</a>
+    <a href="/produits">📦 Produits</a>
+    <a href="/factures">📄 Factures</a>
+    <a href="/abonnement">💳 Abonnement</a>
+    <a href="/analyse_ia">🤖 IA</a>
+    <a href="/logout">🚪 Déconnexion</a>
 </div>
 
-<div class="container">
+<!-- CONTENT -->
+<div class="main">
+
+    <div class="topbar">
+        <h3>Gestion Business</h3>
+        <span>Bienvenue 👋</span>
+    </div>
+
     {% block content %}{% endblock %}
+
 </div>
 
 </body>
