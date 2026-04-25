@@ -134,7 +134,8 @@ def login():
             return render_template("login.html", error="Mot de passe incorrect")
 
         session["user_id"] = user["id"]
-        return redirect("/dashboard")
+        from flask import url_for
+        return redirect(url_for("dashboard"))
 
     return render_template("login.html")
 
