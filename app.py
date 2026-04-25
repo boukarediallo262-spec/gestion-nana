@@ -73,6 +73,67 @@ def init_db():
 def home():
     return redirect("/login")
 # -------------------------
+import os
+from openai import OpenAI
+
+client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+
+@app.route("/analyse_ia")
+def analyse_ia():
+    if "user_id" not in session:
+        return redirect("/login")
+
+    user_id = session["user_id"]
+
+    conn = get_db()
+    cursor = conn.cursor()
+
+    # récupérer données
+    ventes = cursor.execute("""
+        SELECT SUM(total) as total FROM factures
+        WHERE user_id=? AND statut='payé'
+    """, (user_id,)).fetchone()["total"] or 0
+
+    depenses = cursor.execute("""
+        SELECT SUM(p.prix_achat * f.quantite) as total
+        FROM factures f
+        JOIN produits p ON f.produit_id = p.id
+        WHERE f.user_id=? AND f.statut='payé'
+    """, (user_id,)).fetchone()["total"] or 0
+
+    nb_produits = cursor.execute(
+        "SELECT COUNT(*) as total FROM produits WHERE user_id=?",
+        (user_id,)
+    ).fetchone()["total"]
+
+    conn.close()
+
+    prompt = f"""
+    Analyse ce business:
+
+    Ventes: {ventes} FCFA
+    Dépenses: {depenses} FCFA
+    Produits: {nb_produits}
+
+    Donne:
+    - état du business
+    - conseils
+    - stratégies pour augmenter les profits
+    """
+
+    try:
+        response = client.chat.completions.create(
+            model="gpt-4.1-mini",
+            messages=[{"role": "user", "content": prompt}]
+        )
+
+        analyse = response.choices[0].message.content
+
+    except Exception as e:
+        analyse = f"Erreur IA: {e}"
+
+    return render_template("ia.html", analyse=analyse)
+
 
 @app.route("/register", methods=["GET", "POST"])
 def register():
