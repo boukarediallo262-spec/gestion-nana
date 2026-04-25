@@ -8,7 +8,8 @@ from flask import Flask, render_template, request, redirect, session
 import sqlite3
 
 app = Flask(__name__)
-app.secret_key = "cle-secrete-super-forte-123"
+import os
+app.secret_key = os.getenv("SECRET_KEY", "fallback-secret")
 
 # -------------------------
 # DATABASE
@@ -230,8 +231,7 @@ def dashboard():
     if "user_id" not in session:
         return redirect("/login")
 
-    if not verifier_abonnement(session["user_id"]):
-        return redirect("/abonnement")
+   
 
     import json
 
