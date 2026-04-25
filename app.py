@@ -168,6 +168,7 @@ def jours_restants(user_id):
 def dashboard():
     if "user_id" not in session:
         return redirect("/login")
+
     if not verifier_abonnement(session["user_id"]):
         return redirect("/abonnement")
 
@@ -177,24 +178,13 @@ def dashboard():
     cursor = conn.cursor()
     user_id = session["user_id"]
 
-    # nbres de jours pour l'abonnement
-    jours = jours_restants(user_id)
-
-    notification = None
-
-    if jours is not None:
-        if jours <= 7 and jours > 0:
-            notification = f"⚠️ Ton abonnement expire dans {jours} jours"
-        elif jours <= 0:
-            notification = "❌ Ton abonnement est expiré"
-
     # 📦 PRODUITS
     produits = cursor.execute(
         "SELECT * FROM produits WHERE user_id=?",
         (user_id,)
     ).fetchall()
 
-    total_produits = len(produits)
+    nb_produits = len(produits)
 
     # 📄 FACTURES
     factures = cursor.execute(
@@ -202,28 +192,17 @@ def dashboard():
         (user_id,)
     ).fetchall()
 
-    total_factures = len(factures)
+    nb_factures = len(factures)
 
-    # 💰 VENTES
+    # 💰 VENTES (sécurisé)
     result = cursor.execute("""
         SELECT SUM(total) as total FROM factures
         WHERE user_id=? AND statut='payé'
     """, (user_id,)).fetchone()
 
     ventes = result["total"] if result and result["total"] else 0
-    # DONNÉES GRAPHIQUE (ventes)
-    ventes = cursor.execute("""
-    SELECT date(created_at) as jour, SUM(total) as total
-    FROM factures
-    WHERE user_id=?
-    GROUP BY jour
-    ORDER BY jour ASC
-    """, (user_id,)).fetchall()
 
-    labels = [v["jour"] for v in ventes]
-    data = [v["total"] for v in ventes]
-
-    # 💸 DÉPENSES
+    # 💸 DEPENSES
     result = cursor.execute("""
         SELECT SUM(p.prix_achat * f.quantite) as total
         FROM factures f
@@ -233,39 +212,32 @@ def dashboard():
 
     depenses = result["total"] if result and result["total"] else 0
 
-    # 📈 BÉNÉFICE
-    ventes = ventes or 0
-    depenses = depenses or 0
+    # 📈 BENEFICE
     benefice = ventes - depenses
 
-    # 📦 STOCK FAIBLE
-    # STOCK FAIBLE (liste)
+    # ⚠️ STOCK FAIBLE (LISTE)
     stock_faible = cursor.execute("""
-    SELECT nom, quantite 
-    FROM produits 
-    WHERE quantite <= 5 AND user_id=?
+        SELECT nom, quantite
+        FROM produits
+        WHERE quantite <= 5 AND user_id=?
     """, (user_id,)).fetchall()
 
-    
-    # STATISTIQUES
-    nb_produits = cursor.execute(
-    "SELECT COUNT(*) as total FROM produits WHERE user_id=?",
-    (user_id,)
-    ).fetchone()["total"]
+    # 🔔 ABONNEMENT
+    jours = jours_restants(user_id)
+    notification = None
 
-    nb_factures = cursor.execute(
-    "SELECT COUNT(*) as total FROM factures WHERE user_id=?",
-    (user_id,)
-    ).fetchone()["total"]
+    if jours is not None:
+        if jours <= 7 and jours > 0:
+            notification = f"⚠️ Ton abonnement expire dans {jours} jours"
+        elif jours <= 0:
+            notification = "❌ Ton abonnement est expiré"
 
-    abonnement_actif = verifier_abonnement(user_id)
-
-    # 📊 GRAPHIQUE VENTES
+    # 📊 GRAPHIQUE SIMPLE (TOP 5 FACTURES)
     labels = []
     ventes_data = []
 
-    for f in factures[-10:]:
-        labels.append(str(f["id"]))
+    for f in factures[-5:]:
+        labels.append(f"Facture {f['id']}")
         ventes_data.append(f["total"] if f["total"] else 0)
 
     # 🏆 TOP PRODUITS
@@ -282,30 +254,24 @@ def dashboard():
     except:
         top_produits = []
 
-    # 📊 BENEFICE VS DEPENSES
-    benefice_data = [ventes, depenses]
-
     conn.close()
+
     return render_template(
         "dashboard.html",
         produits=produits,
         factures=factures,
-        total_produits=total_produits,
-        total_factures=total_factures,
         ventes=ventes,
         depenses=depenses,
         benefice=benefice,
         stock_faible=stock_faible,
         labels=json.dumps(labels),
         ventes_data=json.dumps(ventes_data),
-        benefice_data=json.dumps(benefice_data),
         top_produits=top_produits,
         notification=notification,
         nb_produits=nb_produits,
-        nb_factures=nb_factures,
-        abonnement_actif=abonnement_actif,
-        data=json.dumps(ventes_data)
+        nb_factures=nb_factures
     )
+
 
     
 # -------------------------
