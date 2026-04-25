@@ -1,3 +1,4 @@
 Flask
 gunicorn
 openai==1.3.7
+httpx==0.25.2
