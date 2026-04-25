@@ -1,13 +1,12 @@
 {% extends "base.html" %}
 {% block content %}
+
 <h2>Abonnement</h2>
 
-<p>Pour accéder aux fonctionnalités, vous devez vous abonner.</p>
+<p>Active ton abonnement pour accéder à toutes les fonctionnalités</p>
 
-<form method="POST" action="/abonnement">
-    <button type="submit">Payer abonnement</button>
-</form>
+<a href="/payer_abonnement">
+    <button>Payer abonnement</button>
+</a>
 
-<br>
-<a href="/dashboard">⬅ Retour</a>
 {% endblock %}
