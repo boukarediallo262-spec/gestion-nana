@@ -185,12 +185,6 @@ def login():
     if request.method == "POST":
         username = request.form.get("username")
         password = request.form.get("password")
-    session["user_id"] = user["id"]
-
-    if verifier_abonnement(user["id"]):
-        return redirect("/dashboard")
-    else:
-        return redirect("/abonnement")
 
         conn = get_db()
         cursor = conn.cursor()
@@ -210,14 +204,16 @@ def login():
         if not check_password_hash(user["password"], password):
             return render_template("login.html", error="Mot de passe incorrect")
 
+        # ✅ LOGIN OK
         session["user_id"] = user["id"]
+
+        # ❗ IMPORTANT : vérifier abonnement APRÈS session
         if verifier_abonnement(user["id"]):
             return redirect("/dashboard")
         else:
             return redirect("/abonnement")
 
     return render_template("login.html")
-
 @app.route("/logout")
 def logout():
     session.clear()
