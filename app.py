@@ -413,44 +413,6 @@ def ajouter_produit():
 # ABONNEMENT (SIMULATION)
 # -------------------------
 
-@app.route("/abonnement", methods=["GET", "POST"])
-def abonnement():
-    try:
-        # 🔐 Vérifier connexion
-        if "user_id" not in session:
-            return redirect("/login")
-
-        user_id = session["user_id"]
-
-        conn = get_db()
-        cursor = conn.cursor()
-
-        # 🔍 Vérifier utilisateur
-        user = cursor.execute(
-            "SELECT * FROM users WHERE id=?",
-            (user_id,)
-        ).fetchone()
-
-        if user is None:
-            conn.close()
-            return redirect("/login")
-
-        # 💰 Activer abonnement (simulation paiement réussi)
-        cursor.execute(
-            "UPDATE users SET abonnement = 1 WHERE id=?",
-            (user_id,)
-        )
-
-        conn.commit()
-        conn.close()
-
-        # ✅ redirection vers abonnement
-        return redirect("/abonnement")
-
-    except Exception as e:
-        print("ERREUR PAIEMENT ABONNEMENT:", e)
-        return "Erreur paiement abonnement"
-
 @app.route("/abonnement")
 def abonnement():
     if "user_id" not in session:
