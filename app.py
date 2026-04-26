@@ -131,7 +131,7 @@ def ia():
     """
 
     if client is None:
-    analyse = "⚠️ IA non configurée"
+        analyse = "⚠️ IA non configurée"
     else:
         try:
             response = client.chat.completions.create(
