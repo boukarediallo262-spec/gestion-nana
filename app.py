@@ -185,7 +185,11 @@ def login():
     if request.method == "POST":
         username = request.form.get("username")
         password = request.form.get("password")
-    if not verifier_abonnement(session["user_id"]):
+    session["user_id"] = user["id"]
+
+    if verifier_abonnement(user["id"]):
+        return redirect("/dashboard")
+    else:
         return redirect("/abonnement")
 
         conn = get_db()
@@ -554,6 +558,8 @@ def payer_abonnement():
 
     return redirect("/dashboard")
 # -------------------------
+from datetime import datetime
+
 def verifier_abonnement(user_id):
     conn = get_db()
     cursor = conn.cursor()
@@ -568,16 +574,17 @@ def verifier_abonnement(user_id):
     if not user:
         return False
 
-    if user["abonnement"] == 0:
+    if user["abonnement"] != 1:
         return False
 
-    if user["date_fin_abonnement"]:
-        from datetime import datetime
-        date_fin = datetime.strptime(user["date_fin_abonnement"], "%Y-%m-%d")
-        if date_fin < datetime.now():
-            return False
+    if not user["date_fin_abonnement"]:
+        return False
 
-    return True
+    try:
+        date_fin = datetime.strptime(user["date_fin_abonnement"], "%Y-%m-%d")
+        return date_fin >= datetime.now()
+    except:
+        return False
 #---------------------------
 
 #===========================
