@@ -201,8 +201,10 @@ def login():
             return render_template("login.html", error="Mot de passe incorrect")
 
         session["user_id"] = user["id"]
-        from flask import url_for
-        return redirect(url_for("dashboard"))
+        if verifier_abonnement(user["id"]):
+            return redirect("/dashboard")
+        else:
+            return redirect("/abonnement")
 
     return render_template("login.html")
 
