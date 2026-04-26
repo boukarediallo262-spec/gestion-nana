@@ -1,3 +1,4 @@
+from datetime import datetime, timedelta
 # =========================
 print("APP DEMARRE")
 # APP.PY COMPLET (SAAS SIMPLE)
@@ -88,6 +89,8 @@ else:
 def ia():
     if "user_id" not in session:
         return redirect("/login")
+    if not verifier_abonnement(session["user_id"]):
+        return redirect("/abonnement")
 
     user_id = session["user_id"]
 
@@ -127,16 +130,17 @@ def ia():
     - stratégies pour augmenter les profits
     """
 
-    try:
-        response = client.chat.completions.create(
-            model="gpt-4.1-mini",
-            messages=[{"role": "user", "content": prompt}]
-        )
-
-        analyse = response.choices[0].message.content
-
-    except Exception as e:
-        analyse = f"Erreur IA: {e}"
+    if client is None:
+    analyse = "⚠️ IA non configurée"
+    else:
+        try:
+            response = client.chat.completions.create(
+                model="gpt-4.1-mini",
+                messages=[{"role": "user", "content": prompt}]
+            )
+            analyse = response.choices[0].message.content
+        except Exception as e:
+            analyse = f"Erreur IA: {e}"
 
     return render_template("ia.html", analyse=analyse)
 
@@ -173,7 +177,7 @@ def register():
                 error = "Utilisateur déjà existant ou erreur serveur"
 
     return render_template("register.html", error=error)
-print("ROUTE LOGIN CHARGEE")
+
 @app.route("/login", methods=["GET", "POST"])
 def login():
     error = None
@@ -181,6 +185,8 @@ def login():
     if request.method == "POST":
         username = request.form.get("username")
         password = request.form.get("password")
+    if not verifier_abonnement(session["user_id"]):
+        return redirect("/abonnement")
 
         conn = get_db()
         cursor = conn.cursor()
@@ -238,7 +244,7 @@ def dashboard():
     if "user_id" not in session:
         return redirect("/login")
     if not verifier_abonnement(session["user_id"]):
-        return render_template("abonnement.html", bloque=True)
+        return redirect("/abonnement")
 
    
 
@@ -353,7 +359,7 @@ def produits():
     if "user_id" not in session:
         return redirect("/login")
     if not verifier_abonnement(session["user_id"]):
-        return render_template("abonnement.html", bloque=True)
+        return redirect("/abonnement")
 
     conn = get_db()
     cursor = conn.cursor()
@@ -374,7 +380,7 @@ def ajouter_produit():
     if "user_id" not in session:
         return redirect("/login")
     if not verifier_abonnement(session["user_id"]):
-        return render_template("abonnement.html", bloque=True)
+        return redirect("/abonnement")
 
     conn = get_db()
     cursor = conn.cursor()
@@ -443,13 +449,13 @@ def factures():
     if "user_id" not in session:
         return redirect("/login")
     if not verifier_abonnement(session["user_id"]):
-        return render_template("abonnement.html", bloque=True)
+        return redirect("/abonnement")
 
     conn = get_db()
     factures = conn.execute("""
 SELECT factures.*, produits.nom AS nom_produit
 FROM factures
-JOIN produits ON factures.produit_id = produits.id
+LEFT JOIN produits ON factures.produit_id = produits.id
 WHERE factures.user_id=?
 """, (session["user_id"],)).fetchall()
     conn.close()
@@ -461,7 +467,7 @@ def ajouter_facture():
     if "user_id" not in session:
         return redirect("/login")
     if not verifier_abonnement(session["user_id"]):
-        return render_template("abonnement.html", bloque=True)
+        return redirect("/abonnement")
 
     conn = get_db()
     cursor = conn.cursor()
@@ -511,7 +517,7 @@ def ajouter_facture():
         date_now = datetime.now().strftime("%Y-%m-%d")
         
         cursor.execute(
-            "INSERT INTO factures (produit_id, quantite, total, statut, user_id, created_at) VALUES (?, ?, ?, ?, ?)",
+            "INSERT INTO factures (produit_id, quantite, total, statut, user_id, created_at) VALUES (?, ?, ?, ?, ?, ?)",
             (produit_id, quantite, total, statut, user_id, date_now)
         )
 
@@ -548,6 +554,33 @@ def payer_abonnement():
 
     return redirect("/dashboard")
 # -------------------------
+def verifier_abonnement(user_id):
+    conn = get_db()
+    cursor = conn.cursor()
+
+    user = cursor.execute(
+        "SELECT abonnement, date_fin_abonnement FROM users WHERE id=?",
+        (user_id,)
+    ).fetchone()
+
+    conn.close()
+
+    if not user:
+        return False
+
+    if user["abonnement"] == 0:
+        return False
+
+    if user["date_fin_abonnement"]:
+        from datetime import datetime
+        date_fin = datetime.strptime(user["date_fin_abonnement"], "%Y-%m-%d")
+        if date_fin < datetime.now():
+            return False
+
+    return True
+#---------------------------
+
+#===========================
 
 init_db()
 # RUN
