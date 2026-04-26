@@ -79,8 +79,8 @@ from openai import OpenAI
 
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
-@app.route("/analyse_ia")
-def analyse_ia():
+@app.route("ia")
+def ia():
     if "user_id" not in session:
         return redirect("/login")
 
