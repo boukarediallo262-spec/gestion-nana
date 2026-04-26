@@ -450,6 +450,15 @@ def abonnement():
     except Exception as e:
         print("ERREUR PAIEMENT ABONNEMENT:", e)
         return "Erreur paiement abonnement"
+
+@app.route("/abonnement")
+def abonnement():
+    if "user_id" not in session:
+        return redirect("/login")
+
+    actif = verifier_abonnement(session["user_id"])
+
+    return render_template("abonnement.html", actif=actif)
 # -------------------------
 # RUN
 # -------------------------
