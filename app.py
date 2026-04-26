@@ -235,6 +235,8 @@ def jours_restants(user_id):
 def dashboard():
     if "user_id" not in session:
         return redirect("/login")
+    if not verifier_abonnement(session["user_id"]):
+        return render_template("abonnement.html", bloque=True)
 
    
 
@@ -349,7 +351,7 @@ def produits():
     if "user_id" not in session:
         return redirect("/login")
     if not verifier_abonnement(session["user_id"]):
-        return redirect("/abonnement")
+        return render_template("abonnement.html", bloque=True)
 
     conn = get_db()
     cursor = conn.cursor()
@@ -370,7 +372,7 @@ def ajouter_produit():
     if "user_id" not in session:
         return redirect("/login")
     if not verifier_abonnement(session["user_id"]):
-        return redirect("/abonnement")
+        return render_template("abonnement.html", bloque=True)
 
     conn = get_db()
     cursor = conn.cursor()
@@ -425,7 +427,7 @@ def abonnement():
 
     actif = verifier_abonnement(session["user_id"])
 
-    return render_template("abonnement.html", actif=actif)
+    return render_template("abonnement.html", bloque=not actif)
 # -------------------------
 # RUN
 # -------------------------
@@ -439,7 +441,7 @@ def factures():
     if "user_id" not in session:
         return redirect("/login")
     if not verifier_abonnement(session["user_id"]):
-        return redirect("/abonnement")
+        return render_template("abonnement.html", bloque=True)
 
     conn = get_db()
     factures = conn.execute("""
@@ -456,6 +458,8 @@ WHERE factures.user_id=?
 def ajouter_facture():
     if "user_id" not in session:
         return redirect("/login")
+    if not verifier_abonnement(session["user_id"]):
+        return render_template("abonnement.html", bloque=True)
 
     conn = get_db()
     cursor = conn.cursor()
@@ -519,6 +523,28 @@ def ajouter_facture():
 
 
 # =========================
+from datetime import datetime, timedelta
+
+@app.route("/payer_abonnement", methods=["POST"])
+def payer_abonnement():
+    if "user_id" not in session:
+        return redirect("/login")
+
+    conn = get_db()
+    cursor = conn.cursor()
+
+    date_fin = datetime.now() + timedelta(days=30)
+
+    cursor.execute("""
+        UPDATE users
+        SET abonnement=1, date_fin_abonnement=?
+        WHERE id=?
+    """, (date_fin.strftime("%Y-%m-%d"), session["user_id"]))
+
+    conn.commit()
+    conn.close()
+
+    return redirect("/dashboard")
 # -------------------------
 
 init_db()
