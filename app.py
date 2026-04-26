@@ -75,11 +75,16 @@ def home():
     return redirect("/login")
 # -------------------------
 import os
-from openai import OpenAI
 
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
-@app.route("ia")
+if OPENAI_API_KEY:
+    from openai import OpenAI
+    client = OpenAI(api_key=OPENAI_API_KEY)
+else:
+    client = None
+
+@app.route("/ia")
 def ia():
     if "user_id" not in session:
         return redirect("/login")
