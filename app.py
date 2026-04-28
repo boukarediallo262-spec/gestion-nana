@@ -34,6 +34,10 @@ def init_db():
         date_fin_abonnement TEXT
     )
     ''')
+    try:
+        cursor.execute("ALTER TABLE users ADD COLUMN date_fin_abonnement TEXT")
+    except:
+        pass
 
     # PRODUITS PRO
     cursor.execute('''
@@ -544,7 +548,7 @@ def ajouter_facture():
 # =========================
 from datetime import datetime, timedelta
 
-@app.route("/payer_abonnement", methods=["GET", "POST"])
+@app.route("/payer_abonnement", methods=["POST"])
 def payer_abonnement():
     if "user_id" not in session:
         return redirect("/login")
@@ -571,34 +575,7 @@ def payer_abonnement():
         return redirect("/dashboard")
 
     except Exception as e:
-        return f"Erreur abonnement : {e}"
-# -------------------------
-from datetime import datetime
-
-def verifier_abonnement(user_id):
-    conn = get_db()
-    cursor = conn.cursor()
-
-    user = cursor.execute(
-        "SELECT abonnement, date_fin_abonnement FROM users WHERE id=?",
-        (user_id,)
-    ).fetchone()
-
-    conn.close()
-
-    if not user:
-        return False
-
-    if user["abonnement"] != 1:
-        return False
-
-    if not user["date_fin_abonnement"]:
-        return False
-
-    date_fin = datetime.strptime(user["date_fin_abonnement"], "%Y-%m-%d")
-
-    return date_fin >= datetime.now()
-#---------------------------
+        return f"Erreur 500 abonnement : {e}"
 
 #===========================
 
