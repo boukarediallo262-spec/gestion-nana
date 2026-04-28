@@ -2,185 +2,324 @@
 {% block content %}
 
 <style>
-.cards-top {
-    display: flex;
-    gap: 15px;
-    margin-bottom: 20px;
+:root{
+    --primary:#2563eb;
+    --success:#16a34a;
+    --danger:#dc2626;
+    --warning:#f59e0b;
+    --dark:#0f172a;
+    --gray:#64748b;
+    --bg:#f8fafc;
+    --card:#ffffff;
 }
-.card-top {
-    flex: 1;
-    padding: 15px;
-    color: white;
-    border-radius: 8px;
-    text-align: center;
+
+body{
+    background:var(--bg);
 }
-.grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 15px;
+
+.dashboard-container{
+    padding:20px;
 }
-.card {
-    background: #fff;
-    padding: 15px;
-    border-radius: 8px;
-    box-shadow: 0px 2px 5px rgba(0,0,0,0.1);
+
+.topbar{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:15px;
+    flex-wrap:wrap;
+    margin-bottom:25px;
 }
-.section {
-    margin-top: 30px;
+
+.title{
+    font-size:28px;
+    font-weight:700;
+    color:var(--dark);
+}
+
+.subtitle{
+    color:var(--gray);
+    font-size:14px;
+}
+
+.abonnement-box{
+    padding:14px 18px;
+    border-radius:14px;
+    color:white;
+    min-width:260px;
+    box-shadow:0 8px 20px rgba(0,0,0,0.08);
+}
+
+.active{
+    background:linear-gradient(135deg,#16a34a,#22c55e);
+}
+
+.expired{
+    background:linear-gradient(135deg,#dc2626,#ef4444);
+}
+
+.grid-stats{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+    gap:16px;
+    margin-bottom:25px;
+}
+
+.stat-card{
+    background:var(--card);
+    border-radius:16px;
+    padding:20px;
+    box-shadow:0 8px 18px rgba(0,0,0,0.06);
+}
+
+.stat-card h4{
+    margin:0;
+    color:var(--gray);
+    font-size:14px;
+}
+
+.stat-card .number{
+    margin-top:10px;
+    font-size:28px;
+    font-weight:700;
+    color:var(--dark);
+}
+
+.grid-2{
+    display:grid;
+    grid-template-columns:2fr 1fr;
+    gap:18px;
+    margin-bottom:25px;
+}
+
+.card{
+    background:var(--card);
+    border-radius:16px;
+    padding:20px;
+    box-shadow:0 8px 18px rgba(0,0,0,0.06);
+}
+
+.card h3{
+    margin-top:0;
+    font-size:18px;
+    color:var(--dark);
+}
+
+table{
+    width:100%;
+    border-collapse:collapse;
+}
+
+table th, table td{
+    padding:10px;
+    text-align:left;
+    border-bottom:1px solid #e5e7eb;
+}
+
+.badge-paid{
+    background:#dcfce7;
+    color:#166534;
+    padding:5px 10px;
+    border-radius:20px;
+    font-size:12px;
+}
+
+.badge-unpaid{
+    background:#fee2e2;
+    color:#991b1b;
+    padding:5px 10px;
+    border-radius:20px;
+    font-size:12px;
+}
+
+.stock-danger{
+    color:var(--danger);
+    font-weight:700;
+}
+
+.alert-box{
+    background:#fff7ed;
+    border-left:5px solid var(--warning);
+    padding:15px;
+    border-radius:10px;
+    margin-top:20px;
+}
+
+@media(max-width:900px){
+    .grid-2{
+        grid-template-columns:1fr;
+    }
 }
 </style>
 
-<!-- 🔝 STATS PRINCIPALES -->
-<div class="cards-top">
+<div class="dashboard-container">
 
+    <!-- TOP -->
+    <div class="topbar">
+        <div>
+            <div class="title">📊 Dashboard</div>
+            <div class="subtitle">Vue globale de votre business</div>
+        </div>
 
-    
+        <div class="abonnement-box {% if abonnement_actif %}active{% else %}expired{% endif %}">
+            <strong>Abonnement :</strong><br>
 
-    <div class="card-top" style="background:#e67e22;">
-        Abonnement<br>
-        {% if abonnement_actif %}
-            Actif
-        {% else %}
-            Expiré
-        {% endif %}
+            {% if abonnement_actif %}
+                ✅ Actif <br>
+
+                {% if jours_restants is not none %}
+                    ⏳ {{ jours_restants }} jour(s) restant(s)
+                {% endif %}
+            {% else %}
+                ❌ Expiré
+            {% endif %}
+        </div>
     </div>
 
-</div>
+    <!-- STATS -->
+    <div class="grid-stats">
+        <div class="stat-card">
+            <h4>📦 Stocks Produits</h4>
+            <div class="number">{{ total_produits }}</div>
+        </div>
 
-<h2>📊 Dashboard</h2>
+        <div class="stat-card">
+            <h4>📄 Nombre Factures</h4>
+            <div class="number">{{ total_factures }}</div>
+        </div>
 
-<!-- 🔢 STATS -->
-<div class="grid">
-    <div class="card"><h3>📦 Stocks produits</h3><p>{{ total_produits|length }}</p></div>
-    <div class="card"><h3>📄 Nombre de factures</h3><p>{{ total_factures|length }}</p></div>
+        <div class="stat-card">
+            <h4>💰 Ventes</h4>
+            <div class="number">{{ ventes }}</div>
+        </div>
+
+        <div class="stat-card">
+            <h4>📈 Bénéfice</h4>
+            <div class="number">{{ benefice }}</div>
+        </div>
+    </div>
+
+    <!-- GRAPHIQUES -->
+    <div class="grid-2">
+
+        <div class="card">
+            <h3>📈 Évolution des ventes</h3>
+            <canvas id="ventesChart"></canvas>
+        </div>
+
+        <div class="card">
+            <h3>📊 Ventes vs Dépenses</h3>
+            <canvas id="beneficeChart"></canvas>
+        </div>
+
+    </div>
+
+    <!-- TABLES -->
+    <div class="grid-2">
+
+        <div class="card">
+            <h3>🏆 Top Produits</h3>
+
+            <table>
+                <tr>
+                    <th>Produit</th>
+                    <th>Vendus</th>
+                </tr>
+
+                {% for p in top_produits %}
+                <tr>
+                    <td>{{ p.nom }}</td>
+                    <td>{{ p.total_vendu }}</td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+
+        <div class="card">
+            <h3>⚠️ Stock faible</h3>
+
+            {% if stock_faible %}
+                <table>
+                    <tr>
+                        <th>Produit</th>
+                        <th>Qté</th>
+                    </tr>
+
+                    {% for p in stock_faible %}
+                    <tr>
+                        <td>{{ p.nom }}</td>
+                        <td class="stock-danger">{{ p.quantite }}</td>
+                    </tr>
+                    {% endfor %}
+                </table>
+            {% else %}
+                <p>Aucun stock faible.</p>
+            {% endif %}
+        </div>
+
+    </div>
+
+    <!-- FACTURES -->
     <div class="card">
-        <h3>⚠️ Produits faible stock</h3>
-        <p>{{ stock_faible|length }}</p>
+        <h3>📄 Dernières Factures</h3>
+
+        <table>
+            <tr>
+                <th>ID</th>
+                <th>Total</th>
+                <th>Statut</th>
+            </tr>
+
+            {% for f in factures %}
+            <tr>
+                <td>#{{ f.id }}</td>
+                <td>{{ f.total }} FCFA</td>
+                <td>
+                    {% if f.statut == "payé" %}
+                        <span class="badge-paid">Payé</span>
+                    {% else %}
+                        <span class="badge-unpaid">Non payé</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
     </div>
-    <div class="card"><h3>💰 Ventes</h3><p>{{ ventes }} FCFA</p></div>
-    <div class="card"><h3>💸 Dépenses</h3><p>{{ depenses }} FCFA</p></div>
-    <div class="card"><h3>📈 Bénéfice</h3><p>{{ benefice }} FCFA</p></div>
+
+    {% if notification %}
+    <div class="alert-box">
+        {{ notification }}
+    </div>
+    {% endif %}
+
 </div>
 
-<hr>
-
-<!-- 📊 GRAPHIQUES -->
-<div class="section">
-    <h3>📈 Évolution des ventes</h3>
-    <canvas id="ventesChart"></canvas>
-</div>
-
-<div class="section">
-    <h3>📊 Ventes vs Dépenses</h3>
-    <canvas id="beneficeChart"></canvas>
-
-
-<hr>
-
-<!-- 🏆 TOP PRODUITS -->
-<div class="section">
-<h3>🏆 Top produits</h3>
-<table border="1" width="100%">
-<tr><th>Nom</th><th>Vendus</th></tr>
-{% for p in top_produits %}
-<tr>
-    <td>{{ p.nom }}</td>
-    <td>{{ p.total_vendu }}</td>
-</tr>
-{% endfor %}
-</table>
-</div>
-
-<hr>
-
-<!-- ⚠️ STOCK FAIBLE (LISTE AMÉLIORÉE) -->
-<div class="section">
-<h3>⚠️ Stock faible</h3>
-
-{% if stock_faible %}
-<ul>
-{% for p in stock_faible %}
-    <li><b>{{ p.nom }}</b> → reste {{ p.quantite }}</li>
-{% endfor %}
-</ul>
-{% else %}
-<p>Aucun stock faible</p>
-{% endif %}
-</div>
-
-<hr>
-
-<!-- 📦 PRODUITS -->
-<div class="section">
-<h3>📦 Produits</h3>
-<table border="1" width="100%">
-<tr><th>Nom</th><th>Quantité</th></tr>
-{% for p in produits %}
-<tr>
-    <td>{{ p.nom }}</td>
-    <td style="color:{% if p.quantite < 5 %}red{% endif %}">
-        {{ p.quantite }}
-    </td>
-</tr>
-{% endfor %}
-</table>
-</div>
-
-<hr>
-
-<!-- 📄 FACTURES -->
-<div class="section">
-<h3>📄 Factures</h3>
-<table border="1" width="100%">
-<tr><th>ID</th><th>Total</th><th>Statut</th></tr>
-{% for f in factures %}
-<tr>
-    <td>{{ f.id }}</td>
-    <td>{{ f.total }}</td>
-    <td>{{ f.statut }}</td>
-</tr>
-{% endfor %}
-</table>
-</div>
-
-<!-- 🔔 NOTIFICATION -->
-{% if notification %}
-<div style="background:red;color:white;padding:10px;margin-top:20px;">
-    {{ notification }}
-</div>
-{% endif %}
-
-<!-- 📊 SCRIPTS -->
+<!-- CHART JS -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script>
 new Chart(document.getElementById('ventesChart'), {
     type: 'line',
     data: {
-        labels: {{ labels | safe }},
+        labels: {{ labels|safe }},
         datasets: [{
             label: 'Ventes',
-            data: {{ ventes_data | safe }},
-            borderWidth: 2
+            data: {{ ventes_data|safe }},
+            tension:0.4,
+            borderWidth:3,
+            fill:true
         }]
     }
 });
 
 new Chart(document.getElementById('beneficeChart'), {
-    type: 'bar',
+    type: 'doughnut',
     data: {
-        labels: ['Ventes', 'Dépenses'],
-        datasets: [{
-            data: {{ benefice_data | safe }}
+        labels:['Ventes','Dépenses'],
+        datasets:[{
+            data: {{ benefice_data|safe }}
         }]
     }
 });
 </script>
-
-<a href="/analyse_ia">
-    <button style="padding:10px;background:black;color:white;">
-        🤖 Analyser avec IA
-    </button>
-</a>
 
 {% endblock %}
