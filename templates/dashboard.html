@@ -33,6 +33,7 @@
 <!-- 🔝 STATS PRINCIPALES -->
 <div class="cards-top">
 
+
     
 
     <div class="card-top" style="background:#e67e22;">
@@ -50,8 +51,8 @@
 
 <!-- 🔢 STATS -->
 <div class="grid">
-    <div class="card"><h3>📦 Stocks produits</h3><p>{{ total_produits }}</p></div>
-    <div class="card"><h3>📄 Nombre de factures</h3><p>{{ total_factures }}</p></div>
+    <div class="card"><h3>📦 Stocks produits</h3><p>{{ total_produits|length }}</p></div>
+    <div class="card"><h3>📄 Nombre de factures</h3><p>{{ total_factures|length }}</p></div>
     <div class="card">
         <h3>⚠️ Produits faible stock</h3>
         <p>{{ stock_faible|length }}</p>
@@ -72,10 +73,7 @@
 <div class="section">
     <h3>📊 Ventes vs Dépenses</h3>
     <canvas id="beneficeChart"></canvas>
-</div>
-<p style="color: {{ couleur_abonnement }}">
-  {{ statut_abonnement }}
-</p>
+
 
 <hr>
 
