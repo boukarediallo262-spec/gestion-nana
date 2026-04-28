@@ -258,7 +258,7 @@ def dashboard():
     produits = cursor.execute(
         "SELECT * FROM produits WHERE user_id=?",
         (user_id,)
-    ).fetchall()
+    ).fetchall() or []
 
     nb_produits = len(produits)
 
@@ -266,7 +266,7 @@ def dashboard():
     factures = cursor.execute(
         "SELECT * FROM factures WHERE user_id=?",
         (user_id,)
-    ).fetchall()
+    ).fetchall() or []
 
     nb_factures = len(factures)
 
@@ -329,6 +329,21 @@ def dashboard():
         """, (user_id,)).fetchall()
     except:
         top_produits = []
+    jours = jours_restants(user_id)
+
+    statut_abonnement = "❌ Expiré"
+    couleur_abonnement = "red"
+
+    if jours is not None:
+        if jours > 7:
+            statut_abonnement = "✅ Abonnement actif"
+            couleur_abonnement = "green"
+        elif jours > 0:
+            statut_abonnement = f"⚠️ Actif ({jours} jours restants)"
+            couleur_abonnement = "orange"
+        else:
+            statut_abonnement = "❌ Expiré"
+            couleur_abonnement = "red"
 
     conn.close()
 
@@ -576,11 +591,9 @@ def verifier_abonnement(user_id):
     if not user["date_fin_abonnement"]:
         return False
 
-    try:
-        date_fin = datetime.strptime(user["date_fin_abonnement"], "%Y-%m-%d")
-        return date_fin >= datetime.now()
-    except:
-        return False
+    date_fin = datetime.strptime(user["date_fin_abonnement"], "%Y-%m-%d")
+
+    return date_fin >= datetime.now()
 #---------------------------
 
 #===========================
