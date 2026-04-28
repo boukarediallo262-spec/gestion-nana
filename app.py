@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta
 # =========================
-print("APP DEMARRE")
+
 # APP.PY COMPLET (SAAS SIMPLE)
 # =========================
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -260,7 +260,7 @@ def dashboard():
         (user_id,)
     ).fetchall() or []
 
-    nb_produits = len(produits)
+    nb_produits = sum([p["quantite"] for p in produits])
 
     # 📄 FACTURES
     factures = cursor.execute(
@@ -268,7 +268,7 @@ def dashboard():
         (user_id,)
     ).fetchall() or []
 
-    nb_factures = len(factures)
+    nb_factures = len(factures) if factures else 0
 
     # 💰 VENTES (sécurisé)
     result = cursor.execute("""
@@ -293,20 +293,13 @@ def dashboard():
 
     # ⚠️ STOCK FAIBLE (LISTE)
     stock_faible = cursor.execute("""
-        SELECT nom, quantite
+        SELECT *
         FROM produits
         WHERE quantite <= 5 AND user_id=?
+        ORDER BY quantite ASC
     """, (user_id,)).fetchall()
 
-    # 🔔 ABONNEMENT
-    jours = jours_restants(user_id)
-    notification = None
-
-    if jours is not None:
-        if jours <= 7 and jours > 0:
-            notification = f"⚠️ Ton abonnement expire dans {jours} jours"
-        elif jours <= 0:
-            notification = "❌ Ton abonnement est expiré"
+    
 
     # 📊 GRAPHIQUE SIMPLE (TOP 5 FACTURES)
     labels = []
@@ -348,20 +341,23 @@ def dashboard():
     conn.close()
 
     return render_template(
-        "dashboard.html",
-        produits=produits,
-        factures=factures,
-        ventes=ventes,
-        depenses=depenses,
-        benefice=benefice,
-        stock_faible=stock_faible,
-        labels=json.dumps(labels),
-        ventes_data=json.dumps(ventes_data),
-        top_produits=top_produits,
-        notification=notification,
-        nb_produits=nb_produits,
-        nb_factures=nb_factures
-    )
+    "dashboard.html",
+    produits=produits,
+    factures=factures,
+    ventes=ventes,
+    depenses=depenses,
+    benefice=benefice,
+    stock_faible=stock_faible,
+    labels=json.dumps(labels),
+    ventes_data=json.dumps(ventes_data),
+    benefice_data=json.dumps([ventes, depenses]),
+    top_produits=top_produits,
+    notification=notification,
+    total_produits=nb_produits,
+    total_factures=nb_factures,
+    abonnement_actif=abonnement_actif,
+    jours_restants=jours
+)
 
 
     
