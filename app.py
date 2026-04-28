@@ -1,85 +1,15 @@
-from datetime import datetime, timedelta
-# =========================
-
-# APP.PY COMPLET (SAAS SIMPLE)
-# =========================
-from werkzeug.security import generate_password_hash, check_password_hash
-
 from flask import Flask, render_template, request, redirect, session
+from werkzeug.security import generate_password_hash, check_password_hash
+from datetime import datetime, timedelta
 import sqlite3
+import os
+import json
 
+# =========================
+# CONFIG
+# =========================
 app = Flask(__name__)
-import os
 app.secret_key = os.getenv("SECRET_KEY", "fallback-secret")
-
-# -------------------------
-# DATABASE
-# -------------------------
-
-def get_db():
-    conn = sqlite3.connect("database.db")
-    conn.row_factory = sqlite3.Row
-    return conn
-def init_db():
-    conn = get_db()
-    cursor = conn.cursor()
-
-    # USERS
-    cursor.execute('''
-    CREATE TABLE IF NOT EXISTS users (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        username TEXT UNIQUE,
-        password TEXT,
-        abonnement INTEGER DEFAULT 0,
-        date_fin_abonnement TEXT
-    )
-    ''')
-    try:
-        cursor.execute("ALTER TABLE users ADD COLUMN date_fin_abonnement TEXT")
-    except:
-        pass
-
-    # PRODUITS PRO
-    cursor.execute('''
-    CREATE TABLE IF NOT EXISTS produits (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        nom TEXT,
-        quantite INTEGER,
-        prix_achat REAL,
-        prix_vente REAL,
-        user_id INTEGER
-    )
-    ''')
-
-    # FACTURES
-    cursor.execute('''
-    CREATE TABLE IF NOT EXISTS factures (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        produit_id INTEGER,
-        quantite INTEGER,
-        total REAL,
-        statut TEXT,
-        user_id INTEGER,
-        created_at TEXT
-    )
-    ''')
-
-    try:
-        cursor.execute("ALTER TABLE factures ADD COLUMN created_at TEXT")
-    except:
-        pass
-
-    conn.commit()
-    conn.close()
-
-# -------------------------
-
-# AUTH
-@app.route("/")
-def home():
-    return redirect("/login")
-# -------------------------
-import os
 
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
@@ -89,66 +19,121 @@ if OPENAI_API_KEY:
 else:
     client = None
 
-@app.route("/ia")
-def ia():
-    if "user_id" not in session:
-        return redirect("/login")
-    if not verifier_abonnement(session["user_id"]):
-        return redirect("/abonnement")
 
-    user_id = session["user_id"]
+# =========================
+# DATABASE
+# =========================
+def get_db():
+    conn = sqlite3.connect("database.db")
+    conn.row_factory = sqlite3.Row
+    return conn
 
+
+def init_db():
     conn = get_db()
     cursor = conn.cursor()
 
-    # récupérer données
-    ventes = cursor.execute("""
-        SELECT SUM(total) as total FROM factures
-        WHERE user_id=? AND statut='payé'
-    """, (user_id,)).fetchone()["total"] or 0
+    # USERS
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS users (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        username TEXT UNIQUE,
+        password TEXT,
+        abonnement INTEGER DEFAULT 0,
+        date_fin_abonnement TEXT
+    )
+    """)
 
-    depenses = cursor.execute("""
-        SELECT SUM(p.prix_achat * f.quantite) as total
-        FROM factures f
-        JOIN produits p ON f.produit_id = p.id
-        WHERE f.user_id=? AND f.statut='payé'
-    """, (user_id,)).fetchone()["total"] or 0
+    # PRODUITS
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS produits (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        nom TEXT,
+        quantite INTEGER,
+        prix_achat REAL,
+        prix_vente REAL,
+        user_id INTEGER
+    )
+    """)
 
-    nb_produits = cursor.execute(
-        "SELECT COUNT(*) as total FROM produits WHERE user_id=?",
-        (user_id,)
-    ).fetchone()["total"]
+    # FACTURES
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS factures (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        produit_id INTEGER,
+        quantite INTEGER,
+        total REAL,
+        statut TEXT,
+        user_id INTEGER,
+        created_at TEXT
+    )
+    """)
+
+    conn.commit()
+    conn.close()
+
+
+# =========================
+# FONCTIONS UTILES
+# =========================
+def verifier_abonnement(user_id):
+    conn = get_db()
+    cursor = conn.cursor()
+
+    user = cursor.execute("""
+        SELECT abonnement, date_fin_abonnement
+        FROM users
+        WHERE id=?
+    """, (user_id,)).fetchone()
 
     conn.close()
 
-    prompt = f"""
-    Analyse ce business:
+    if not user:
+        return False
 
-    Ventes: {ventes} FCFA
-    Dépenses: {depenses} FCFA
-    Produits: {nb_produits}
+    if user["abonnement"] != 1:
+        return False
 
-    Donne:
-    - état du business
-    - conseils
-    - stratégies pour augmenter les profits
-    """
+    if not user["date_fin_abonnement"]:
+        return False
 
-    if client is None:
-        analyse = "⚠️ IA non configurée"
-    else:
-        try:
-            response = client.chat.completions.create(
-                model="gpt-4.1-mini",
-                messages=[{"role": "user", "content": prompt}]
-            )
-            analyse = response.choices[0].message.content
-        except Exception as e:
-            analyse = f"Erreur IA: {e}"
+    date_fin = datetime.strptime(user["date_fin_abonnement"], "%Y-%m-%d")
 
-    return render_template("ia.html", analyse=analyse)
+    return date_fin >= datetime.now()
 
 
+def jours_restants(user_id):
+    conn = get_db()
+    cursor = conn.cursor()
+
+    user = cursor.execute("""
+        SELECT date_fin_abonnement
+        FROM users
+        WHERE id=?
+    """, (user_id,)).fetchone()
+
+    conn.close()
+
+    if not user or not user["date_fin_abonnement"]:
+        return 0
+
+    date_fin = datetime.strptime(user["date_fin_abonnement"], "%Y-%m-%d")
+    jours = (date_fin - datetime.now()).days
+
+    return max(jours, 0)
+
+
+# =========================
+# HOME
+# =========================
+@app.route("/")
+def home():
+    return redirect("/login")
+
+
+# =========================
+# AUTH
+# =========================
 @app.route("/register", methods=["GET", "POST"])
 def register():
     error = None
@@ -159,28 +144,31 @@ def register():
 
         if not username or not password:
             error = "Remplis tous les champs"
+
         else:
             conn = get_db()
             cursor = conn.cursor()
 
-            from werkzeug.security import generate_password_hash
-            hashed_password = generate_password_hash(password)
-
             try:
-                cursor.execute(
-                    "INSERT INTO users (username, password) VALUES (?, ?)",
-                    (username, hashed_password)
-                )
+                cursor.execute("""
+                    INSERT INTO users (username, password)
+                    VALUES (?, ?)
+                """, (
+                    username,
+                    generate_password_hash(password)
+                ))
+
                 conn.commit()
                 conn.close()
 
                 return redirect("/login")
 
-            except Exception as e:
-                print("ERREUR REGISTER:", e)  # 🔥 IMPORTANT
-                error = "Utilisateur déjà existant ou erreur serveur"
+            except:
+                conn.close()
+                error = "Utilisateur déjà existant"
 
     return render_template("register.html", error=error)
+
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
@@ -193,207 +181,206 @@ def login():
         conn = get_db()
         cursor = conn.cursor()
 
-        user = cursor.execute(
-            "SELECT * FROM users WHERE username=?",
-            (username,)
-        ).fetchone()
+        user = cursor.execute("""
+            SELECT * FROM users
+            WHERE username=?
+        """, (username,)).fetchone()
 
         conn.close()
 
-        if user is None:
-            return render_template("login.html", error="Utilisateur introuvable")
+        if not user:
+            error = "Utilisateur introuvable"
 
-        from werkzeug.security import check_password_hash
+        elif not check_password_hash(user["password"], password):
+            error = "Mot de passe incorrect"
 
-        if not check_password_hash(user["password"], password):
-            return render_template("login.html", error="Mot de passe incorrect")
-
-        # ✅ LOGIN OK
-        session["user_id"] = user["id"]
-
-        # ❗ IMPORTANT : vérifier abonnement APRÈS session
-        if verifier_abonnement(user["id"]):
-            return redirect("/dashboard")
         else:
-            return redirect("/abonnement")
+            session["user_id"] = user["id"]
 
-    return render_template("login.html")
+            if verifier_abonnement(user["id"]):
+                return redirect("/dashboard")
+            else:
+                return redirect("/abonnement")
+
+    return render_template("login.html", error=error)
+
+
 @app.route("/logout")
 def logout():
     session.clear()
     return redirect("/login")
 
-# -------------------------
-def jours_restants(user_id):
+
+# =========================
+# ABONNEMENT
+# =========================
+@app.route("/abonnement")
+def abonnement():
+    if "user_id" not in session:
+        return redirect("/login")
+
+    actif = verifier_abonnement(session["user_id"])
+    jours = jours_restants(session["user_id"])
+
+    return render_template(
+        "abonnement.html",
+        actif=actif,
+        jours=jours
+    )
+
+
+@app.route("/payer_abonnement", methods=["POST"])
+def payer_abonnement():
+    if "user_id" not in session:
+        return redirect("/login")
+
     conn = get_db()
     cursor = conn.cursor()
 
-    user = cursor.execute(
-        "SELECT date_fin_abonnement FROM users WHERE id=?",
-        (user_id,)
-    ).fetchone()
+    date_fin = datetime.now() + timedelta(days=30)
 
+    cursor.execute("""
+        UPDATE users
+        SET abonnement=1,
+            date_fin_abonnement=?
+        WHERE id=?
+    """, (
+        date_fin.strftime("%Y-%m-%d"),
+        session["user_id"]
+    ))
+
+    conn.commit()
     conn.close()
 
-    if user and user["date_fin_abonnement"]:
-        date_fin = datetime.strptime(user["date_fin_abonnement"], "%Y-%m-%d")
-        jours = (date_fin - datetime.now()).days
-        return jours
+    return redirect("/dashboard")
 
-    return None
+
+# =========================
 # DASHBOARD
-# -------------------------
+# =========================
 @app.route("/dashboard")
 def dashboard():
     if "user_id" not in session:
         return redirect("/login")
+
     if not verifier_abonnement(session["user_id"]):
         return redirect("/abonnement")
 
-   
-
-    import json
+    user_id = session["user_id"]
 
     conn = get_db()
     cursor = conn.cursor()
-    user_id = session["user_id"]
 
-    # 📦 PRODUITS
-    produits = cursor.execute(
-        "SELECT * FROM produits WHERE user_id=?",
-        (user_id,)
-    ).fetchall() or []
+    produits = cursor.execute("""
+        SELECT * FROM produits
+        WHERE user_id=?
+    """, (user_id,)).fetchall()
 
-    nb_produits = sum([p["quantite"] for p in produits])
+    factures = cursor.execute("""
+        SELECT * FROM factures
+        WHERE user_id=?
+        ORDER BY id DESC
+    """, (user_id,)).fetchall()
 
-    # 📄 FACTURES
-    factures = cursor.execute(
-        "SELECT * FROM factures WHERE user_id=?",
-        (user_id,)
-    ).fetchall() or []
-
-    nb_factures = len(factures) if factures else 0
-
-    # 💰 VENTES (sécurisé)
-    result = cursor.execute("""
-        SELECT SUM(total) as total FROM factures
+    ventes = cursor.execute("""
+        SELECT SUM(total) total
+        FROM factures
         WHERE user_id=? AND statut='payé'
-    """, (user_id,)).fetchone()
+    """, (user_id,)).fetchone()["total"] or 0
 
-    ventes = result["total"] if result and result["total"] else 0
-
-    # 💸 DEPENSES
-    result = cursor.execute("""
-        SELECT SUM(p.prix_achat * f.quantite) as total
+    depenses = cursor.execute("""
+        SELECT SUM(p.prix_achat * f.quantite) total
         FROM factures f
-        JOIN produits p ON f.produit_id = p.id
+        JOIN produits p ON p.id=f.produit_id
         WHERE f.user_id=? AND f.statut='payé'
-    """, (user_id,)).fetchone()
+    """, (user_id,)).fetchone()["total"] or 0
 
-    depenses = result["total"] if result and result["total"] else 0
-
-    # 📈 BENEFICE
     benefice = ventes - depenses
 
-    # ⚠️ STOCK FAIBLE (LISTE)
     stock_faible = cursor.execute("""
         SELECT *
         FROM produits
-        WHERE quantite <= 5 AND user_id=?
+        WHERE user_id=? AND quantite <=5
         ORDER BY quantite ASC
     """, (user_id,)).fetchall()
 
-    
-
-    # 📊 GRAPHIQUE SIMPLE (TOP 5 FACTURES)
-    labels = []
-    ventes_data = []
-
-    for f in factures[-5:]:
-        labels.append(f"Facture {f['id']}")
-        ventes_data.append(f["total"] if f["total"] else 0)
-
-    # 🏆 TOP PRODUITS
-    try:
-        top_produits = cursor.execute("""
-            SELECT p.nom, SUM(f.quantite) as total_vendu
-            FROM factures f
-            JOIN produits p ON f.produit_id = p.id
-            WHERE f.user_id=?
-            GROUP BY p.nom
-            ORDER BY total_vendu DESC
-            LIMIT 5
-        """, (user_id,)).fetchall()
-    except:
-        top_produits = []
-    jours = jours_restants(user_id)
-
-    statut_abonnement = "❌ Expiré"
-    couleur_abonnement = "red"
-
-    if jours is not None:
-        if jours > 7:
-            statut_abonnement = "✅ Abonnement actif"
-            couleur_abonnement = "green"
-        elif jours > 0:
-            statut_abonnement = f"⚠️ Actif ({jours} jours restants)"
-            couleur_abonnement = "orange"
-        else:
-            statut_abonnement = "❌ Expiré"
-            couleur_abonnement = "red"
+    top_produits = cursor.execute("""
+        SELECT p.nom, SUM(f.quantite) total_vendu
+        FROM factures f
+        JOIN produits p ON p.id=f.produit_id
+        WHERE f.user_id=?
+        GROUP BY p.nom
+        ORDER BY total_vendu DESC
+        LIMIT 5
+    """, (user_id,)).fetchall()
 
     conn.close()
 
+    total_produits = sum([p["quantite"] for p in produits])
+    total_factures = len(factures)
+
+    labels = []
+    ventes_data = []
+
+    for f in factures[:5]:
+        labels.append(f"Facture {f['id']}")
+        ventes_data.append(f["total"])
+
+    abonnement_actif = verifier_abonnement(user_id)
+    jours = jours_restants(user_id)
+
+    notification = None
+    if jours <= 7:
+        notification = f"⚠️ Abonnement expire dans {jours} jours"
+
     return render_template(
-    "dashboard.html",
-    produits=produits,
-    factures=factures,
-    ventes=ventes,
-    depenses=depenses,
-    benefice=benefice,
-    stock_faible=stock_faible,
-    labels=json.dumps(labels),
-    ventes_data=json.dumps(ventes_data),
-    benefice_data=json.dumps([ventes, depenses]),
-    top_produits=top_produits,
-    notification=notification,
-    total_produits=nb_produits,
-    total_factures=nb_factures,
-    abonnement_actif=abonnement_actif,
-    jours_restants=jours
-)
+        "dashboard.html",
+        produits=produits,
+        factures=factures,
+        ventes=ventes,
+        depenses=depenses,
+        benefice=benefice,
+        stock_faible=stock_faible,
+        labels=json.dumps(labels),
+        ventes_data=json.dumps(ventes_data),
+        benefice_data=json.dumps([ventes, depenses]),
+        top_produits=top_produits,
+        total_produits=total_produits,
+        total_factures=total_factures,
+        abonnement_actif=abonnement_actif,
+        jours_restants=jours,
+        notification=notification
+    )
 
 
-    
-# -------------------------
-# PRODUITS (ABONNEMENT REQUIS)
-# -------------------------
-
+# =========================
+# PRODUITS
+# =========================
 @app.route("/produits")
 def produits():
     if "user_id" not in session:
         return redirect("/login")
+
     if not verifier_abonnement(session["user_id"]):
         return redirect("/abonnement")
 
     conn = get_db()
-    cursor = conn.cursor()
 
-    user_id = session["user_id"]
-
-    produits = cursor.execute(
-        "SELECT * FROM produits WHERE user_id=?",
-        (user_id,)
-    ).fetchall()
+    produits = conn.execute("""
+        SELECT * FROM produits
+        WHERE user_id=?
+    """, (session["user_id"],)).fetchall()
 
     conn.close()
 
     return render_template("produits.html", produits=produits)
 
+
 @app.route("/ajouter_produit", methods=["GET", "POST"])
 def ajouter_produit():
     if "user_id" not in session:
         return redirect("/login")
+
     if not verifier_abonnement(session["user_id"]):
         return redirect("/abonnement")
 
@@ -401,36 +388,36 @@ def ajouter_produit():
     cursor = conn.cursor()
 
     if request.method == "POST":
-        # 🔐 récupération sécurisée
-        nom = request.form.get("nom")
-        quantite = request.form.get("quantite")
-        prix_achat = request.form.get("prix_achat")
-        prix_vente = request.form.get("prix_vente")
-
-        # ❌ vérification champs
-        if not nom or not quantite or not prix_achat or not prix_vente:
-            return "❌ Tous les champs sont obligatoires"
-
-        quantite = int(quantite)
-        prix_achat = float(prix_achat)
-        prix_vente = float(prix_vente)
+        nom = request.form["nom"]
+        quantite = int(request.form["quantite"])
+        prix_achat = float(request.form["prix_achat"])
+        prix_vente = float(request.form["prix_vente"])
         user_id = session["user_id"]
 
-        produit = cursor.execute(
-            "SELECT * FROM produits WHERE nom=? AND user_id=?",
-            (nom, user_id)
-        ).fetchone()
+        produit = cursor.execute("""
+            SELECT * FROM produits
+            WHERE nom=? AND user_id=?
+        """, (nom, user_id)).fetchone()
 
         if produit:
-            cursor.execute(
-                "UPDATE produits SET quantite=quantite+? WHERE id=?",
-                (quantite, produit["id"])
-            )
+            cursor.execute("""
+                UPDATE produits
+                SET quantite = quantite + ?
+                WHERE id=?
+            """, (quantite, produit["id"]))
+
         else:
-            cursor.execute(
-                "INSERT INTO produits (nom, quantite, prix_achat, prix_vente, user_id) VALUES (?, ?, ?, ?, ?)",
+            cursor.execute("""
+                INSERT INTO produits
                 (nom, quantite, prix_achat, prix_vente, user_id)
-            )
+                VALUES (?, ?, ?, ?, ?)
+            """, (
+                nom,
+                quantite,
+                prix_achat,
+                prix_vente,
+                user_id
+            ))
 
         conn.commit()
         conn.close()
@@ -439,48 +426,39 @@ def ajouter_produit():
 
     conn.close()
     return render_template("ajouter_produit.html")
-# -------------------------
-# ABONNEMENT (SIMULATION)
-# -------------------------
 
-@app.route("/abonnement")
-def abonnement():
-    if "user_id" not in session:
-        return redirect("/login")
 
-    actif = verifier_abonnement(session["user_id"])
-
-    return render_template("abonnement.html", bloque=not actif)
-# -------------------------
-# RUN
-# -------------------------
-
-# -------------------------
+# =========================
 # FACTURES
-# -------------------------
-
+# =========================
 @app.route("/factures")
 def factures():
     if "user_id" not in session:
         return redirect("/login")
+
     if not verifier_abonnement(session["user_id"]):
         return redirect("/abonnement")
 
     conn = get_db()
+
     factures = conn.execute("""
-SELECT factures.*, produits.nom AS nom_produit
-FROM factures
-LEFT JOIN produits ON factures.produit_id = produits.id
-WHERE factures.user_id=?
-""", (session["user_id"],)).fetchall()
+        SELECT f.*, p.nom nom_produit
+        FROM factures f
+        LEFT JOIN produits p ON p.id=f.produit_id
+        WHERE f.user_id=?
+        ORDER BY f.id DESC
+    """, (session["user_id"],)).fetchall()
+
     conn.close()
 
     return render_template("factures.html", factures=factures)
+
 
 @app.route("/ajouter_facture", methods=["GET", "POST"])
 def ajouter_facture():
     if "user_id" not in session:
         return redirect("/login")
+
     if not verifier_abonnement(session["user_id"]):
         return redirect("/abonnement")
 
@@ -489,52 +467,50 @@ def ajouter_facture():
 
     user_id = session["user_id"]
 
-    # 📦 récupérer produits de l'utilisateur
-    produits = cursor.execute(
-        "SELECT * FROM produits WHERE user_id=?",
-        (user_id,)
-    ).fetchall()
+    produits = cursor.execute("""
+        SELECT * FROM produits
+        WHERE user_id=?
+    """, (user_id,)).fetchall()
 
     if request.method == "POST":
         produit_id = int(request.form["produit_id"])
         quantite = int(request.form["quantite"])
         statut = request.form["statut"]
 
-        # 🔍 récupérer produit sécurisé
-        produit = cursor.execute(
-            "SELECT * FROM produits WHERE id=? AND user_id=?",
-            (produit_id, user_id)
-        ).fetchone()
+        produit = cursor.execute("""
+            SELECT * FROM produits
+            WHERE id=? AND user_id=?
+        """, (produit_id, user_id)).fetchone()
 
-        # ❌ produit introuvable
-        if produit is None:
+        if not produit:
             conn.close()
-            return "❌ Produit introuvable"
+            return "Produit introuvable"
 
-        # ❌ stock insuffisant
         if quantite > produit["quantite"]:
             conn.close()
-            return "❌ Stock insuffisant"
+            return "Stock insuffisant"
 
-        # 💰 calcul total
         total = produit["prix_vente"] * quantite
-
-        # 📉 mise à jour stock
         nouvelle_qte = produit["quantite"] - quantite
 
-        cursor.execute(
-            "UPDATE produits SET quantite=? WHERE id=?",
-            (nouvelle_qte, produit_id)
-        )
+        cursor.execute("""
+            UPDATE produits
+            SET quantite=?
+            WHERE id=?
+        """, (nouvelle_qte, produit_id))
 
-        # 🧾 insertion facture
-        from datetime import datetime 
-        date_now = datetime.now().strftime("%Y-%m-%d")
-        
-        cursor.execute(
-            "INSERT INTO factures (produit_id, quantite, total, statut, user_id, created_at) VALUES (?, ?, ?, ?, ?, ?)",
-            (produit_id, quantite, total, statut, user_id, date_now)
-        )
+        cursor.execute("""
+            INSERT INTO factures
+            (produit_id, quantite, total, statut, user_id, created_at)
+            VALUES (?, ?, ?, ?, ?, ?)
+        """, (
+            produit_id,
+            quantite,
+            total,
+            statut,
+            user_id,
+            datetime.now().strftime("%Y-%m-%d")
+        ))
 
         conn.commit()
         conn.close()
@@ -546,41 +522,77 @@ def ajouter_facture():
 
 
 # =========================
-from datetime import datetime, timedelta
-
-@app.route("/payer_abonnement", methods=["POST"])
-def payer_abonnement():
+# IA
+# =========================
+@app.route("/ia")
+def ia():
     if "user_id" not in session:
         return redirect("/login")
 
-    try:
-        conn = get_db()
-        cursor = conn.cursor()
+    if not verifier_abonnement(session["user_id"]):
+        return redirect("/abonnement")
 
-        date_fin = datetime.now() + timedelta(days=30)
+    user_id = session["user_id"]
 
-        cursor.execute("""
-            UPDATE users
-            SET abonnement = 1,
-                date_fin_abonnement = ?
-            WHERE id = ?
-        """, (
-            date_fin.strftime("%Y-%m-%d"),
-            session["user_id"]
-        ))
+    conn = get_db()
+    cursor = conn.cursor()
 
-        conn.commit()
-        conn.close()
+    ventes = cursor.execute("""
+        SELECT SUM(total) total
+        FROM factures
+        WHERE user_id=? AND statut='payé'
+    """, (user_id,)).fetchone()["total"] or 0
 
-        return redirect("/dashboard")
+    depenses = cursor.execute("""
+        SELECT SUM(p.prix_achat * f.quantite) total
+        FROM factures f
+        JOIN produits p ON p.id=f.produit_id
+        WHERE f.user_id=? AND f.statut='payé'
+    """, (user_id,)).fetchone()["total"] or 0
 
-    except Exception as e:
-        return f"Erreur 500 abonnement : {e}"
+    nb_produits = cursor.execute("""
+        SELECT COUNT(*) total
+        FROM produits
+        WHERE user_id=?
+    """, (user_id,)).fetchone()["total"]
 
-#===========================
+    conn.close()
 
-init_db()
+    prompt = f"""
+Analyse ce business :
+
+Ventes: {ventes} FCFA
+Dépenses: {depenses} FCFA
+Produits: {nb_produits}
+
+Donne:
+- état du business
+- conseils
+- stratégies pour augmenter les profits
+"""
+
+    if client is None:
+        analyse = "IA non configurée"
+
+    else:
+        try:
+            response = client.chat.completions.create(
+                model="gpt-4.1-mini",
+                messages=[{"role": "user", "content": prompt}]
+            )
+
+            analyse = response.choices[0].message.content
+
+        except Exception as e:
+            analyse = f"Erreur IA : {e}"
+
+    return render_template("ia.html", analyse=analyse)
+
+
+# =========================
 # RUN
+# =========================
+init_db()
+
 if __name__ == "__main__":
-    init_db()
     app.run(host="0.0.0.0", port=5000)
