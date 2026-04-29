@@ -266,17 +266,22 @@ def abonnement():
 @app.route("/payer_abonnement", methods=["POST"])
 def payer_abonnement():
     try:
-        print("DEBUG: route abonnement appelée")
-
         if "user_id" not in session:
-            print("DEBUG: pas de session")
             return redirect("/login")
 
         user_id = session["user_id"]
-        print("DEBUG user_id:", user_id)
 
         conn = get_db()
         cursor = conn.cursor()
+
+        # vérifier que user existe
+        user = cursor.execute(
+            "SELECT id FROM users WHERE id=?",
+            (user_id,)
+        ).fetchone()
+
+        if not user:
+            return "Utilisateur introuvable", 500
 
         date_fin = datetime.now() + timedelta(days=30)
 
@@ -290,13 +295,11 @@ def payer_abonnement():
         conn.commit()
         conn.close()
 
-        print("DEBUG: abonnement activé")
         return redirect("/dashboard")
 
     except Exception as e:
-        print("🔥 ERREUR COMPLETE:", str(e))
+        print("🔥 ERREUR ABONNEMENT:", str(e))
         return f"Erreur serveur: {e}", 500
-
 
 # =========================
 # DASHBOARD (CORRIGÉ + COMPLET)
