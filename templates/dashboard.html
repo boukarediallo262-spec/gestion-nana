@@ -2,321 +2,235 @@
 {% block content %}
 
 <style>
-:root{
-    --primary:#2563eb;
-    --success:#16a34a;
-    --danger:#dc2626;
-    --warning:#f59e0b;
-    --dark:#0f172a;
-    --gray:#64748b;
-    --bg:#f8fafc;
-    --card:#ffffff;
+body {
+    background: #f5f7fb;
+    font-family: Arial, sans-serif;
 }
 
-body{
-    background:var(--bg);
+/* HEADER */
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
 }
 
-.dashboard-container{
-    padding:20px;
+.header h2 {
+    margin: 0;
 }
 
-.topbar{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    gap:15px;
-    flex-wrap:wrap;
-    margin-bottom:25px;
+/* GRID STATS */
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
 }
 
-.title{
-    font-size:28px;
-    font-weight:700;
-    color:var(--dark);
+/* CARDS */
+.card {
+    background: white;
+    padding: 18px;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
 }
 
-.subtitle{
-    color:var(--gray);
-    font-size:14px;
+.card h3 {
+    margin: 0;
+    font-size: 14px;
+    color: #666;
 }
 
-.abonnement-box{
-    padding:14px 18px;
-    border-radius:14px;
-    color:white;
-    min-width:260px;
-    box-shadow:0 8px 20px rgba(0,0,0,0.08);
+.card p {
+    font-size: 22px;
+    margin: 8px 0 0;
+    font-weight: bold;
 }
 
-.active{
-    background:linear-gradient(135deg,#16a34a,#22c55e);
+/* COULEURS */
+.green { color: green; }
+.red { color: red; }
+.orange { color: orange; }
+
+/* SECTION */
+.section {
+    margin-top: 30px;
 }
 
-.expired{
-    background:linear-gradient(135deg,#dc2626,#ef4444);
+table {
+    width: 100%;
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    border-collapse: collapse;
 }
 
-.grid-stats{
-    display:grid;
-    grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
-    gap:16px;
-    margin-bottom:25px;
+th, td {
+    padding: 10px;
+    border-bottom: 1px solid #eee;
+    text-align: left;
 }
 
-.stat-card{
-    background:var(--card);
-    border-radius:16px;
-    padding:20px;
-    box-shadow:0 8px 18px rgba(0,0,0,0.06);
+th {
+    background: #f0f0f0;
 }
 
-.stat-card h4{
-    margin:0;
-    color:var(--gray);
-    font-size:14px;
+/* BUTTON */
+.btn {
+    padding: 10px 15px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
 }
 
-.stat-card .number{
-    margin-top:10px;
-    font-size:28px;
-    font-weight:700;
-    color:var(--dark);
+.btn-black {
+    background: black;
+    color: white;
 }
 
-.grid-2{
-    display:grid;
-    grid-template-columns:2fr 1fr;
-    gap:18px;
-    margin-bottom:25px;
-}
-
-.card{
-    background:var(--card);
-    border-radius:16px;
-    padding:20px;
-    box-shadow:0 8px 18px rgba(0,0,0,0.06);
-}
-
-.card h3{
-    margin-top:0;
-    font-size:18px;
-    color:var(--dark);
-}
-
-table{
-    width:100%;
-    border-collapse:collapse;
-}
-
-table th, table td{
-    padding:10px;
-    text-align:left;
-    border-bottom:1px solid #e5e7eb;
-}
-
-.badge-paid{
-    background:#dcfce7;
-    color:#166534;
-    padding:5px 10px;
-    border-radius:20px;
-    font-size:12px;
-}
-
-.badge-unpaid{
-    background:#fee2e2;
-    color:#991b1b;
-    padding:5px 10px;
-    border-radius:20px;
-    font-size:12px;
-}
-
-.stock-danger{
-    color:var(--danger);
-    font-weight:700;
-}
-
-.alert-box{
-    background:#fff7ed;
-    border-left:5px solid var(--warning);
-    padding:15px;
-    border-radius:10px;
-    margin-top:20px;
-}
-
-@media(max-width:900px){
-    .grid-2{
-        grid-template-columns:1fr;
-    }
+.btn-green {
+    background: green;
+    color: white;
 }
 </style>
 
-<div class="dashboard-container">
+<!-- HEADER -->
+<div class="header">
+    <h2>📊 Dashboard</h2>
 
-    <!-- TOP -->
-    <div class="topbar">
-        <div>
-            <div class="title">📊 Dashboard</div>
-            <div class="subtitle">Vue globale de votre business</div>
-        </div>
-
-        <div class="abonnement-box {% if abonnement_actif %}active{% else %}expired{% endif %}">
-            <strong>Abonnement :</strong><br>
-
-            {% if abonnement_actif %}
-                ✅ Actif <br>
-
-                {% if jours_restants is not none %}
-                    ⏳ {{ jours_restants }} jour(s) restant(s)
-                {% endif %}
-            {% else %}
-                ❌ Expiré
-            {% endif %}
-        </div>
+    <div>
+        <span class="{{ 'green' if abonnement_actif else 'red' }}">
+            {{ statut_abonnement }}
+        </span>
+        | ⏳ {{ jours_restants }} jours restants
     </div>
+</div>
 
-    <!-- STATS -->
-    <div class="grid-stats">
-        <div class="stat-card">
-            <h4>📦 Stocks Produits</h4>
-            <div class="number">{{ total_produits }}</div>
-        </div>
+<!-- STATS -->
+<div class="grid">
 
-        <div class="stat-card">
-            <h4>📄 Nombre Factures</h4>
-            <div class="number">{{ total_factures }}</div>
-        </div>
-
-        <div class="stat-card">
-            <h4>💰 Ventes</h4>
-            <div class="number">{{ ventes }}</div>
-        </div>
-
-        <div class="stat-card">
-            <h4>📈 Bénéfice</h4>
-            <div class="number">{{ benefice }}</div>
-        </div>
-    </div>
-
-    <!-- GRAPHIQUES -->
-    <div class="grid-2">
-
-        <div class="card">
-            <h3>📈 Évolution des ventes</h3>
-            <canvas id="ventesChart"></canvas>
-        </div>
-
-        <div class="card">
-            <h3>📊 Ventes vs Dépenses</h3>
-            <canvas id="beneficeChart"></canvas>
-        </div>
-
-    </div>
-
-    <!-- TABLES -->
-    <div class="grid-2">
-
-        <div class="card">
-            <h3>🏆 Top Produits</h3>
-
-            <table>
-                <tr>
-                    <th>Produit</th>
-                    <th>Vendus</th>
-                </tr>
-
-                {% for p in top_produits %}
-                <tr>
-                    <td>{{ p.nom }}</td>
-                    <td>{{ p.total_vendu }}</td>
-                </tr>
-                {% endfor %}
-            </table>
-        </div>
-
-        <div class="card">
-            <h3>⚠️ Stock faible</h3>
-
-            {% if stock_faible %}
-                <table>
-                    <tr>
-                        <th>Produit</th>
-                        <th>Qté</th>
-                    </tr>
-
-                    {% for p in stock_faible %}
-                    <tr>
-                        <td>{{ p.nom }}</td>
-                        <td class="stock-danger">{{ p.quantite }}</td>
-                    </tr>
-                    {% endfor %}
-                </table>
-            {% else %}
-                <p>Aucun stock faible.</p>
-            {% endif %}
-        </div>
-
-    </div>
-
-    <!-- FACTURES -->
     <div class="card">
-        <h3>📄 Dernières Factures</h3>
-
-        <table>
-            <tr>
-                <th>ID</th>
-                <th>Total</th>
-                <th>Statut</th>
-            </tr>
-
-            {% for f in factures %}
-            <tr>
-                <td>#{{ f.id }}</td>
-                <td>{{ f.total }} FCFA</td>
-                <td>
-                    {% if f.statut == "payé" %}
-                        <span class="badge-paid">Payé</span>
-                    {% else %}
-                        <span class="badge-unpaid">Non payé</span>
-                    {% endif %}
-                </td>
-            </tr>
-            {% endfor %}
-        </table>
+        <h3>📦 Produits</h3>
+        <p>{{ total_produits }}</p>
     </div>
 
-    {% if notification %}
-    <div class="alert-box">
-        {{ notification }}
+    <div class="card">
+        <h3>📄 Factures</h3>
+        <p>{{ total_factures }}</p>
     </div>
+
+    <div class="card">
+        <h3>⚠️ Stock faible</h3>
+        <p class="orange">{{ stock_faible|length }}</p>
+    </div>
+
+    <div class="card">
+        <h3>💰 Ventes</h3>
+        <p class="green">{{ ventes }} FCFA</p>
+    </div>
+
+    <div class="card">
+        <h3>💸 Dépenses</h3>
+        <p class="red">{{ depenses }} FCFA</p>
+    </div>
+
+    <div class="card">
+        <h3>📈 Bénéfice</h3>
+        <p>{{ benefice }} FCFA</p>
+    </div>
+
+</div>
+
+<!-- NOTIFICATION -->
+{% if notification %}
+<div style="margin-top:15px;padding:10px;background:#fff3cd;border-left:5px solid orange;">
+    ⚠️ {{ notification }}
+</div>
+{% endif %}
+
+<!-- CHART -->
+<div class="section">
+    <h3>📊 Ventes récentes</h3>
+    <canvas id="chart"></canvas>
+</div>
+
+<!-- TOP PRODUITS -->
+<div class="section">
+    <h3>🏆 Top produits</h3>
+
+    <table>
+        <tr>
+            <th>Nom</th>
+            <th>Vendus</th>
+        </tr>
+
+        {% for p in top_produits %}
+        <tr>
+            <td>{{ p.nom }}</td>
+            <td>{{ p.total_vendu }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+
+<!-- STOCK FAIBLE -->
+<div class="section">
+    <h3>⚠️ Stock faible</h3>
+
+    {% if stock_faible %}
+    <table>
+        <tr>
+            <th>Produit</th>
+            <th>Quantité</th>
+        </tr>
+
+        {% for p in stock_faible %}
+        <tr>
+            <td>{{ p.nom }}</td>
+            <td class="red">{{ p.quantite }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+    {% else %}
+        <p>Aucun stock faible</p>
     {% endif %}
+</div>
 
+<!-- FACTURES -->
+<div class="section">
+    <h3>📄 Factures récentes</h3>
+
+    <table>
+        <tr>
+            <th>ID</th>
+            <th>Total</th>
+            <th>Statut</th>
+        </tr>
+
+        {% for f in factures[:5] %}
+        <tr>
+            <td>{{ f.id }}</td>
+            <td>{{ f.total }}</td>
+            <td>{{ f.statut }}</td>
+        </tr>
+        {% endfor %}
+    </table>
 </div>
 
 <!-- CHART JS -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script>
-new Chart(document.getElementById('ventesChart'), {
+const ctx = document.getElementById('chart');
+
+new Chart(ctx, {
     type: 'line',
     data: {
-        labels: {{ labels|safe }},
+        labels: {{ labels | safe }},
         datasets: [{
             label: 'Ventes',
-            data: {{ ventes_data|safe }},
-            tension:0.4,
-            borderWidth:3,
-            fill:true
-        }]
-    }
-});
-
-new Chart(document.getElementById('beneficeChart'), {
-    type: 'doughnut',
-    data: {
-        labels:['Ventes','Dépenses'],
-        datasets:[{
-            data: {{ benefice_data|safe }}
+            data: {{ ventes_data | safe }},
+            borderColor: 'green',
+            borderWidth: 2
         }]
     }
 });
