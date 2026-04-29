@@ -1,239 +1,226 @@
 {% extends "base.html" %}
 {% block content %}
+<!DOCTYPE html>
 
-<style>
-body {
-    background: #f5f7fb;
-    font-family: Arial, sans-serif;
-}
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Pro</title>
 
-/* HEADER */
-.header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-}
-
-.header h2 {
-    margin: 0;
-}
-
-/* GRID STATS */
-.grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 15px;
-}
-
-/* CARDS */
-.card {
-    background: white;
-    padding: 18px;
-    border-radius: 12px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-}
-
-.card h3 {
-    margin: 0;
-    font-size: 14px;
-    color: #666;
-}
-
-.card p {
-    font-size: 22px;
-    margin: 8px 0 0;
-    font-weight: bold;
-}
-
-/* COULEURS */
-.green { color: green; }
-.red { color: red; }
-.orange { color: orange; }
-
-/* SECTION */
-.section {
-    margin-top: 30px;
-}
-
-table {
-    width: 100%;
-    background: white;
-    border-radius: 12px;
-    overflow: hidden;
-    border-collapse: collapse;
-}
-
-th, td {
-    padding: 10px;
-    border-bottom: 1px solid #eee;
-    text-align: left;
-}
-
-th {
-    background: #f0f0f0;
-}
-
-/* BUTTON */
-.btn {
-    padding: 10px 15px;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-}
-
-.btn-black {
-    background: black;
-    color: white;
-}
-
-.btn-green {
-    background: green;
-    color: white;
-}
-</style>
-
-<!-- HEADER -->
-<div class="header">
-    <h2>📊 Dashboard</h2>
-
-    <div>
-        <span class="{{ 'green' if abonnement_actif else 'red' }}">
-            {{ statut_abonnement }}
-        </span>
-        | ⏳ {{ jours_restants }} jours restants
-    </div>
-</div>
-
-<!-- STATS -->
-<div class="grid">
-
-    <div class="card">
-        <h3>📦 Produits</h3>
-        <p>{{ total_produits }}</p>
-    </div>
-
-    <div class="card">
-        <h3>📄 Factures</h3>
-        <p>{{ total_factures }}</p>
-    </div>
-
-    <div class="card">
-        <h3>⚠️ Stock faible</h3>
-        <p class="orange">{{ stock_faible|length }}</p>
-    </div>
-
-    <div class="card">
-        <h3>💰 Ventes</h3>
-        <p class="green">{{ ventes }} FCFA</p>
-    </div>
-
-    <div class="card">
-        <h3>💸 Dépenses</h3>
-        <p class="red">{{ depenses }} FCFA</p>
-    </div>
-
-    <div class="card">
-        <h3>📈 Bénéfice</h3>
-        <p>{{ benefice }} FCFA</p>
-    </div>
-
-</div>
-
-<!-- NOTIFICATION -->
-{% if notification %}
-<div style="margin-top:15px;padding:10px;background:#fff3cd;border-left:5px solid orange;">
-    ⚠️ {{ notification }}
-</div>
-{% endif %}
-
-<!-- CHART -->
-<div class="section">
-    <h3>📊 Ventes récentes</h3>
-    <canvas id="chart"></canvas>
-</div>
-
-<!-- TOP PRODUITS -->
-<div class="section">
-    <h3>🏆 Top produits</h3>
-
-    <table>
-        <tr>
-            <th>Nom</th>
-            <th>Vendus</th>
-        </tr>
-
-        {% for p in top_produits %}
-        <tr>
-            <td>{{ p.nom }}</td>
-            <td>{{ p.total_vendu }}</td>
-        </tr>
-        {% endfor %}
-    </table>
-</div>
-
-<!-- STOCK FAIBLE -->
-<div class="section">
-    <h3>⚠️ Stock faible</h3>
-
-    {% if stock_faible %}
-    <table>
-        <tr>
-            <th>Produit</th>
-            <th>Quantité</th>
-        </tr>
-
-        {% for p in stock_faible %}
-        <tr>
-            <td>{{ p.nom }}</td>
-            <td class="red">{{ p.quantite }}</td>
-        </tr>
-        {% endfor %}
-    </table>
-    {% else %}
-        <p>Aucun stock faible</p>
-    {% endif %}
-</div>
-
-<!-- FACTURES -->
-<div class="section">
-    <h3>📄 Factures récentes</h3>
-
-    <table>
-        <tr>
-            <th>ID</th>
-            <th>Total</th>
-            <th>Statut</th>
-        </tr>
-
-        {% for f in factures[:5] %}
-        <tr>
-            <td>{{ f.id }}</td>
-            <td>{{ f.total }}</td>
-            <td>{{ f.statut }}</td>
-        </tr>
-        {% endfor %}
-    </table>
-</div>
-
-<!-- CHART JS -->
+```
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-<script>
-const ctx = document.getElementById('chart');
+<style>
+    body{
+        background:#0f172a;
+        color:white;
+    }
 
-new Chart(ctx, {
+    .sidebar{
+        height:100vh;
+        background:#111827;
+        padding:20px;
+    }
+
+    .sidebar a{
+        display:block;
+        color:white;
+        padding:12px;
+        margin-bottom:8px;
+        text-decoration:none;
+        border-radius:10px;
+    }
+
+    .sidebar a:hover{
+        background:#1e293b;
+    }
+
+    .card{
+        background:#1e293b;
+        border:none;
+        border-radius:15px;
+    }
+
+    .stat{
+        font-size:22px;
+        font-weight:bold;
+    }
+
+    .small-text{
+        color:#94a3b8;
+    }
+
+    .badge-custom{
+        padding:6px 12px;
+        border-radius:20px;
+    }
+
+    table{
+        color:white;
+    }
+
+</style>
+```
+
+</head>
+<body>
+
+<div class="container-fluid">
+    <div class="row">
+
+```
+    <!-- SIDEBAR -->
+    <div class="col-md-2 sidebar">
+        <h4>📊 Gestion</h4>
+        <a href="/dashboard">🏠 Dashboard</a>
+        <a href="/produits">📦 Produits</a>
+        <a href="/factures">🧾 Factures</a>
+        <a href="/abonnement">💳 Abonnement</a>
+        <a href="/logout">🚪 Déconnexion</a>
+    </div>
+
+    <!-- CONTENT -->
+    <div class="col-md-10 p-4">
+
+        <!-- TOP STATS -->
+        <div class="row g-3">
+            <div class="col-md-3">
+                <div class="card p-3">
+                    <div class="small-text">Produits</div>
+                    <div class="stat">{{ total_produits }}</div>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="card p-3">
+                    <div class="small-text">Factures</div>
+                    <div class="stat">{{ total_factures }}</div>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="card p-3">
+                    <div class="small-text">Ventes</div>
+                    <div class="stat">{{ ventes }} FCFA</div>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="card p-3">
+                    <div class="small-text">Bénéfice</div>
+                    <div class="stat">{{ benefice }} FCFA</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ABONNEMENT -->
+        <div class="mt-4">
+            {% if abonnement_actif %}
+                <span class="badge bg-success badge-custom">Abonnement actif</span>
+            {% else %}
+                <span class="badge bg-danger badge-custom">Abonnement expiré</span>
+            {% endif %}
+            <span class="ms-3">⏳ {{ jours_restants }} jours restants</span>
+        </div>
+
+        <!-- CHARTS -->
+        <div class="row mt-4">
+            <div class="col-md-6">
+                <div class="card p-3">
+                    <h6>📊 Ventes</h6>
+                    <canvas id="chartVentes"></canvas>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="card p-3">
+                    <h6>💰 Analyse</h6>
+                    <canvas id="chartBenefice"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- TABLES -->
+        <div class="row mt-4">
+
+            <div class="col-md-6">
+                <div class="card p-3">
+                    <h6>📦 Produits</h6>
+                    <table class="table table-dark">
+                        <tr><th>Nom</th><th>Qté</th></tr>
+                        {% for p in produits %}
+                        <tr>
+                            <td>{{ p.nom }}</td>
+                            <td>{{ p.quantite }}</td>
+                        </tr>
+                        {% endfor %}
+                    </table>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="card p-3">
+                    <h6>🧾 Factures</h6>
+                    <table class="table table-dark">
+                        <tr><th>ID</th><th>Total</th><th>Statut</th></tr>
+                        {% for f in factures %}
+                        <tr>
+                            <td>{{ f.id }}</td>
+                            <td>{{ f.total }}</td>
+                            <td>{{ f.statut }}</td>
+                        </tr>
+                        {% endfor %}
+                    </table>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+</div>
+```
+
+</div>
+
+<!-- CHART SCRIPT -->
+
+<script>
+
+const labels = {{ labels|safe }};
+const ventesData = {{ ventes_data|safe }};
+const beneficeData = {{ benefice_data|safe }};
+
+new Chart(document.getElementById('chartVentes'), {
     type: 'line',
     data: {
-        labels: {{ labels | safe }},
+        labels: labels,
         datasets: [{
             label: 'Ventes',
-            data: {{ ventes_data | safe }},
+            data: ventesData,
             borderColor: 'green',
-            borderWidth: 2
+            fill: false
         }]
     }
 });
+
+new Chart(document.getElementById('chartBenefice'), {
+    type: 'bar',
+    data: {
+        labels: ['Ventes', 'Dépenses'],
+        datasets: [{
+            label: 'Analyse',
+            data: beneficeData,
+            backgroundColor: ['green','red']
+        }]
+    }
+});
+
 </script>
+
+</body>
+</html>
+
 
 {% endblock %}
