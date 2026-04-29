@@ -265,26 +265,32 @@ def abonnement():
 
 @app.route("/payer_abonnement", methods=["POST"])
 def payer_abonnement():
-    if "user_id" not in session:
-        return redirect("/login")
+    try:
+        if "user_id" not in session:
+            return redirect("/login")
 
-    user_id = session["user_id"]
-    conn = get_db()
-    cursor = conn.cursor()
+        user_id = session["user_id"]
 
-    date_fin = datetime.now() + timedelta(days=30)
+        conn = get_db()
+        cursor = conn.cursor()
 
-    cursor.execute("""
-        UPDATE users
-        SET abonnement=1,
-            date_fin_abonnement=?
-        WHERE id=?
-    """, (date_fin.strftime("%Y-%m-%d"), user_id))
+        date_fin = datetime.now() + timedelta(days=30)
 
-    conn.commit()
-    conn.close()
+        cursor.execute("""
+            UPDATE users
+            SET abonnement=1,
+                date_fin_abonnement=?
+            WHERE id=?
+        """, (date_fin.strftime("%Y-%m-%d"), user_id))
 
-    return redirect("/dashboard")
+        conn.commit()
+        conn.close()
+
+        return redirect("/dashboard")
+
+    except Exception as e:
+        print("ERREUR ABONNEMENT:", e)
+        return f"Erreur serveur: {e}", 500
 
 
 # =========================
