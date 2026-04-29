@@ -265,11 +265,15 @@ def abonnement():
 
 @app.route("/payer_abonnement", methods=["POST"])
 def payer_abonnement():
-    if "user_id" not in session:
-        return redirect("/login")
-
     try:
+        print("DEBUG: route abonnement appelée")
+
+        if "user_id" not in session:
+            print("DEBUG: pas de session")
+            return redirect("/login")
+
         user_id = session["user_id"]
+        print("DEBUG user_id:", user_id)
 
         conn = get_db()
         cursor = conn.cursor()
@@ -286,10 +290,11 @@ def payer_abonnement():
         conn.commit()
         conn.close()
 
+        print("DEBUG: abonnement activé")
         return redirect("/dashboard")
 
     except Exception as e:
-        print("ERROR ABONNEMENT:", e)
+        print("🔥 ERREUR COMPLETE:", str(e))
         return f"Erreur serveur: {e}", 500
 
 
