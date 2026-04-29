@@ -226,28 +226,6 @@ def logout():
 
 # =========================
 # ACTIVER ABONNEMENT
-# =========================
-@app.route("/payer_abonnement", methods=["POST"])
-def payer_abonnement():
-    if "user_id" not in session:
-        return redirect("/login")
-
-    conn = get_db()
-    cursor = conn.cursor()
-
-    date_fin = datetime.now() + timedelta(days=30)
-
-    cursor.execute("""
-        UPDATE users
-        SET abonnement=1,
-            date_fin_abonnement=?
-        WHERE id=?
-    """, (date_fin.strftime("%Y-%m-%d"), session["user_id"]))
-
-    conn.commit()
-    conn.close()
-
-    return redirect("/dashboard")
 
 
 # =========================
@@ -425,6 +403,8 @@ def dashboard():
         jours_restants=jours,
         notification=notification
     )
+
+#====================================================
 @app.route("/edit_facture/<int:facture_id>", methods=["GET", "POST"])
 def edit_facture(facture_id):
     if "user_id" not in session:
