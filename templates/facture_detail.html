@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h2>📄 Détail Facture #{{ facture.id }}</h2>
+
+<p><b>Total:</b> {{ facture.total }} FCFA</p>
+<p><b>Statut:</b> {{ facture.statut }}</p>
+
+<hr>
+
+<h3>➕ Ajouter un produit</h3>
+
+<form method="POST" action="/add_item_facture/{{ facture.id }}">
+
+    <select name="produit_id">
+        {% for p in products %}
+            <option value="{{ p.id }}">{{ p.nom }}</option>
+        {% endfor %}
+    </select>
+
+    <input type="number" name="quantite" placeholder="Quantité" required>
+
+    <button type="submit">Ajouter</button>
+
+</form>
+
+<hr>
+
+<h3>📦 Produits dans la facture</h3>
+
+<table border="1" width="100%">
+    <tr>
+        <th>Produit</th>
+        <th>Quantité</th>
+        <th>Prix</th>
+        <th>Total</th>
+    </tr>
+
+    {% for i in items %}
+    <tr>
+        <td>{{ i.nom }}</td>
+        <td>{{ i.quantite }}</td>
+        <td>{{ i.prix_unitaire }}</td>
+        <td>{{ i.total }}</td>
+    </tr>
+    {% endfor %}
+</table>
+
+<br>
+
+<a href="/facture_pdf/{{ facture.id }}">
+    <button>📥 Télécharger PDF</button>
+</a>
+
+{% endblock %}
