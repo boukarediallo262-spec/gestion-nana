@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h2>✏️ Modifier Facture</h2>
+
+<form method="POST">
+
+    <label>Produit</label>
+    <select name="produit_id">
+        {% for p in produits %}
+            <option value="{{ p.id }}"
+                {% if p.id == facture.produit_id %}selected{% endif %}>
+                {{ p.nom }}
+            </option>
+        {% endfor %}
+    </select>
+
+    <br><br>
+
+    <label>Quantité</label>
+    <input type="number" name="quantite" value="{{ facture.quantite }}" required>
+
+    <br><br>
+
+    <label>Statut</label>
+    <select name="statut">
+        <option value="payé" {% if facture.statut == "payé" %}selected{% endif %}>Payé</option>
+        <option value="non payé" {% if facture.statut == "non payé" %}selected{% endif %}>Non payé</option>
+    </select>
+
+    <br><br>
+
+    <button type="submit">💾 Enregistrer</button>
+
+</form>
+
+{% endblock %}
