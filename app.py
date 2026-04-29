@@ -223,18 +223,6 @@ def logout():
 
 # =========================
 # ABONNEMENT PAGE
-# =========================
-@app.route("/abonnement")
-def abonnement():
-    if "user_id" not in session:
-        return redirect("/login")
-
-    return render_template(
-        "abonnement.html",
-        actif=verifier_abonnement(session["user_id"]),
-        jours=jours_restants(session["user_id"])
-    )
-
 
 # =========================
 # ACTIVER ABONNEMENT
