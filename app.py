@@ -285,19 +285,20 @@ def dashboard():
     benefice = ventes - depenses
 
     return render_template(
-        "dashboard.html",
-        produits=produits,
-        factures=factures,
-        total_produits=total_produits,
-        total_factures=total_factures,
-        ventes=ventes,
-        depenses=depenses,
-        benefice=benefice,
-        stock_faible=stock_faible,
-        top_produits=top_produits,
-        jours_restants=jours_restants(user_id),
-        abonnement_actif=verifier_abonnement(user_id)
-    )
+    "dashboard.html",
+    produits=produits,
+    factures=factures,
+    ventes=ventes,
+    depenses=depenses,
+    benefice=benefice,
+    total_produits=total_produits,
+    total_factures=total_factures,
+    labels=json.dumps(labels),
+    ventes_data=json.dumps(ventes_data),
+    benefice_data=json.dumps([ventes, depenses]),
+    abonnement_actif=abonnement_actif,
+    jours_restants=jours
+)
 
 
 # =========================
