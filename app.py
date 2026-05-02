@@ -295,7 +295,49 @@ Donne:
     )
 
     return jsonify({"response":res.choices[0].message.content})
+@app.route("/chat_ia", methods=["POST"])
+def chat_ia():
+    if not client:
+        return jsonify({"response": "IA non configurée"})
 
+    uid = session.get("user_id")
+    if not uid:
+        return jsonify({"response": "Non autorisé"})
+
+    data = request.get_json()
+    question = data.get("message", "")
+
+    conn = db()
+    cur = conn.cursor()
+
+    cur.execute("SELECT COALESCE(SUM(total),0) FROM factures WHERE user_id=%s", (uid,))
+    ventes = cur.fetchone()["coalesce"]
+
+    cur.execute("SELECT COALESCE(SUM(montant),0) FROM depenses WHERE user_id=%s", (uid,))
+    depenses = cur.fetchone()["coalesce"]
+
+    conn.close()
+
+    prompt = f"""
+Tu es un assistant financier professionnel pour une entreprise.
+
+Données utilisateur :
+- Ventes: {ventes}
+- Dépenses: {depenses}
+- Bénéfice: {ventes - depenses}
+
+Question utilisateur:
+{question}
+
+Réponds comme un comptable + conseiller financier + détecteur de fraude.
+"""
+
+    res = client.chat.completions.create(
+        model="gpt-4o-mini",
+        messages=[{"role": "user", "content": prompt}]
+    )
+
+    return jsonify({"response": res.choices[0].message.content})
 
 # =========================
 # RUN
