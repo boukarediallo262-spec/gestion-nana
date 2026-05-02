@@ -90,5 +90,89 @@ document.getElementById('ia').innerText = data.response;
 }
 </script>
 
+<!-- CHAT IA FLOATING PANEL -->
+<div class="fixed bottom-4 right-4 w-80 glass p-3 shadow-xl">
+
+    <h3 class="text-sm font-bold mb-2">🤖 IA Comptable</h3>
+
+    <div id="chatBox" class="h-40 overflow-y-auto text-xs mb-2"></div>
+
+    <input id="msg" class="w-full p-2 rounded text-black" placeholder="Pose une question...">
+
+    <button onclick="sendMsg()" class="mt-2 bg-green-500 w-full py-1 rounded">
+        Envoyer
+    </button>
+</div>
+
+<script>
+function addMsg(text, from){
+    const box = document.getElementById("chatBox");
+    box.innerHTML += `<p class="${from=='user'?'text-blue-300':'text-green-300'}">${text}</p>`;
+    box.scrollTop = box.scrollHeight;
+}
+
+function sendMsg(){
+    let input = document.getElementById("msg");
+    let message = input.value;
+
+    if(!message) return;
+
+    addMsg(message,'user');
+
+    fetch("/chat_ia", {
+        method:"POST",
+        headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({message})
+    })
+    .then(res => res.json())
+    .then(data => {
+        addMsg(data.response,'ia');
+    });
+
+    input.value = "";
+}
+</script><!-- CHAT IA FLOATING PANEL -->
+<div class="fixed bottom-4 right-4 w-80 glass p-3 shadow-xl">
+
+    <h3 class="text-sm font-bold mb-2">🤖 IA Comptable</h3>
+
+    <div id="chatBox" class="h-40 overflow-y-auto text-xs mb-2"></div>
+
+    <input id="msg" class="w-full p-2 rounded text-black" placeholder="Pose une question...">
+
+    <button onclick="sendMsg()" class="mt-2 bg-green-500 w-full py-1 rounded">
+        Envoyer
+    </button>
+</div>
+
+<script>
+function addMsg(text, from){
+    const box = document.getElementById("chatBox");
+    box.innerHTML += `<p class="${from=='user'?'text-blue-300':'text-green-300'}">${text}</p>`;
+    box.scrollTop = box.scrollHeight;
+}
+
+function sendMsg(){
+    let input = document.getElementById("msg");
+    let message = input.value;
+
+    if(!message) return;
+
+    addMsg(message,'user');
+
+    fetch("/chat_ia", {
+        method:"POST",
+        headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({message})
+    })
+    .then(res => res.json())
+    .then(data => {
+        addMsg(data.response,'ia');
+    });
+
+    input.value = "";
+}
+</script>
+
 </body>
 </html>
