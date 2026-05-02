@@ -75,6 +75,24 @@ def init():
         user_id INT
     )""")
 
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS entreprises(
+        id SERIAL PRIMARY KEY,
+        nom TEXT,
+        owner_id INT,
+        abonnement TEXT DEFAULT 'free',
+        date_expiration DATE
+    )
+    """)
+
+    cur.execute("""
+    ALTER TABLE users ADD COLUMN IF NOT EXISTS entreprise_id INT
+    """)
+
+    cur.execute("""
+    ALTER TABLE users ADD COLUMN IF NOT EXISTS role TEXT DEFAULT 'admin'
+    """)
+
     conn.commit()
     conn.close()
 
@@ -109,7 +127,7 @@ def login():
     if request.method == "POST":
         conn = db()
         cur = conn.cursor()
-        cur.execute("SELECT * FROM users WHERE username=%s",(request.form["username"],))
+        cur.execute("SELECT * FROM users WHERE username=%s AND entreprise_id=%s",(request.form["username, entreprise_id"],))
         user = cur.fetchone()
         conn.close()
 
@@ -127,6 +145,30 @@ def logout():
 
 
 # =========================
+def check_abonnement(entreprise_id):
+    conn = db()
+    cur = conn.cursor()
+
+    cur.execute("""
+        SELECT abonnement, date_expiration
+        FROM entreprises
+        WHERE id=%s
+    """, (entreprise_id,))
+
+    data = cur.fetchone()
+    conn.close()
+
+    if not data:
+        return False
+
+    if data["abonnement"] == "free":
+        return True
+
+    if data["date_expiration"] and data["date_expiration"] >= datetime.now().date():
+        return True
+
+    return False
+
 # DASHBOARD + FILTRE
 # =========================
 @app.route("/dashboard")
@@ -139,6 +181,12 @@ def dashboard():
 
     conn = db()
     cur = conn.cursor()
+
+    cur.execute("SELECT entreprise_id FROM users WHERE id=%s", (uid,))
+    ent = cur.fetchone()["entreprise_id"]
+
+    if not check_abonnement(ent):
+        return redirect("/abonnement")
 
     # PRODUITS
     cur.execute("SELECT * FROM produits WHERE user_id=%s",(uid,))
@@ -170,7 +218,60 @@ def dashboard():
     )
 
 
-# =========================
+# =========================#
+
+# route abonnement
+
+@app.route("/abonnement")
+def abonnement():
+    return render_template("abonnement.html")
+#==========================================
+@app.route("/activer_abonnement", methods=["POST"])
+def activer_abonnement():
+    uid = session.get("user_id")
+
+    conn = db()
+    cur = conn.cursor()
+
+    cur.execute("SELECT entreprise_id FROM users WHERE id=%s", (uid,))
+    ent = cur.fetchone()["entreprise_id"]
+
+    expiration = datetime.now() + timedelta(days=30)
+
+    cur.execute("""
+        UPDATE entreprises
+        SET abonnement='pro', date_expiration=%s
+        WHERE id=%s
+    """, (expiration.date(), ent))
+
+    conn.commit()
+    conn.close()
+
+    return redirect("/dashboard")
+#====================================
+@app.route("/create_entreprise", methods=["POST"])
+def create_entreprise():
+    uid = session.get("user_id")
+
+    conn = db()
+    cur = conn.cursor()
+
+    cur.execute("""
+        INSERT INTO entreprises(nom, owner_id)
+        VALUES(%s,%s) RETURNING id
+    """, (request.form["nom"], uid))
+
+    entreprise_id = cur.fetchone()["id"]
+
+    cur.execute("""
+        UPDATE users SET entreprise_id=%s, role='admin'
+        WHERE id=%s
+    """, (entreprise_id, uid))
+
+    conn.commit()
+    conn.close()
+
+    return redirect("/dashboard")
 # PRODUITS CRUD
 # =========================
 @app.route("/ajouter_produit", methods=["POST"])
@@ -198,6 +299,30 @@ def supprimer_produit(id):
 
 
 # =========================
+@app.route("/invite_user", methods=["POST"])
+def invite_user():
+    uid = session.get("user_id")
+
+    conn = db()
+    cur = conn.cursor()
+
+    cur.execute("SELECT entreprise_id FROM users WHERE id=%s", (uid,))
+    ent = cur.fetchone()["entreprise_id"]
+
+    cur.execute("""
+        INSERT INTO users(username,password,entreprise_id,role)
+        VALUES(%s,%s,%s,%s)
+    """, (
+        request.form["username"],
+        generate_password_hash("123456"),
+        ent,
+        "vendeur"
+    ))
+
+    conn.commit()
+    conn.close()
+
+    return redirect("/dashboard")
 # DEPENSES CRUD
 # =========================
 @app.route("/ajouter_depense", methods=["POST"])
@@ -225,6 +350,48 @@ def supprimer_depense(id):
 
 
 # =========================
+@app.route("/saas_ia", methods=["POST"])
+def saas_ia():
+    uid = session.get("user_id")
+
+    conn = db()
+    cur = conn.cursor()
+
+    cur.execute("SELECT entreprise_id FROM users WHERE id=%s", (uid,))
+    ent = cur.fetchone()["entreprise_id"]
+
+    cur.execute("""
+        SELECT COALESCE(SUM(total),0) FROM factures
+        WHERE user_id IN (
+            SELECT id FROM users WHERE entreprise_id=%s
+        )
+    """, (ent,))
+    ventes = cur.fetchone()["coalesce"]
+
+    cur.execute("""
+        SELECT COALESCE(SUM(montant),0) FROM depenses
+        WHERE user_id IN (
+            SELECT id FROM users WHERE entreprise_id=%s
+        )
+    """, (ent,))
+    dep = cur.fetchone()["coalesce"]
+
+    prompt = f"""
+Entreprise SaaS:
+Ventes: {ventes}
+Dépenses: {dep}
+Bénéfice: {ventes - dep}
+
+Analyse comme un CEO SaaS.
+"""
+
+    res = client.chat.completions.create(
+        model="gpt-4o-mini",
+        messages=[{"role":"user","content":prompt}]
+    )
+
+    return jsonify({"response": res.choices[0].message.content})
+
 # FACTURE PDF
 # =========================
 @app.route("/facture_pdf/<int:id>")
