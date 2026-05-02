@@ -258,35 +258,37 @@ def pdf(id):
 # =========================
 # IA COMPTABLE + FRAUDE
 # =========================
-@app.route("/ia", methods=["POST"])
-def ia():
-    if not client:
-        return jsonify({"response":"IA non configurée"})
+#========================
 
-    uid = session["user_id"]
+@app.route("/ia_pro", methods=["POST"])
+def ia_pro():
+    uid = session.get("user_id")
 
     conn = db()
     cur = conn.cursor()
 
-    cur.execute("SELECT COALESCE(SUM(total),0) FROM factures WHERE user_id=%s",(uid,))
+    cur.execute("SELECT COALESCE(SUM(total),0) FROM factures WHERE user_id=%s", (uid,))
     ventes = cur.fetchone()["coalesce"]
 
-    cur.execute("SELECT COALESCE(SUM(montant),0) FROM depenses WHERE user_id=%s",(uid,))
-    depenses = cur.fetchone()["coalesce"]
+    cur.execute("SELECT COALESCE(SUM(montant),0) FROM depenses WHERE user_id=%s", (uid,))
+    dep = cur.fetchone()["coalesce"]
 
     conn.close()
 
     prompt = f"""
-Tu es comptable et analyste financier.
+Tu es un expert comptable senior et analyste financier.
 
-Ventes: {ventes}
-Dépenses: {depenses}
-Bénéfice: {ventes - depenses}
+Entreprise:
+- Ventes: {ventes}
+- Dépenses: {dep}
+- Résultat: {ventes - dep}
 
 Donne:
-- analyse
-- conseils
-- risques de fraude
+1. analyse complète
+2. risques financiers
+3. fraude possible
+4. recommandations stratégiques
+5. prédiction du mois prochain
 """
 
     res = client.chat.completions.create(
@@ -294,7 +296,8 @@ Donne:
         messages=[{"role":"user","content":prompt}]
     )
 
-    return jsonify({"response":res.choices[0].message.content})
+    return jsonify({"response": res.choices[0].message.content})
+#=========================
 @app.route("/chat_ia", methods=["POST"])
 def chat_ia():
     if not client:
@@ -338,6 +341,56 @@ Réponds comme un comptable + conseiller financier + détecteur de fraude.
     )
 
     return jsonify({"response": res.choices[0].message.content})
+
+#==============================
+@app.route("/alertes")
+def alertes():
+    uid = session.get("user_id")
+
+    conn = db()
+    cur = conn.cursor()
+
+    # Stock faible
+    cur.execute("SELECT nom FROM produits WHERE user_id=%s AND quantite <= 5", (uid,))
+    stock = cur.fetchall()
+
+    # Dépenses élevées
+    cur.execute("SELECT COALESCE(SUM(montant),0) FROM depenses WHERE user_id=%s", (uid,))
+    dep = cur.fetchone()["coalesce"]
+
+    conn.close()
+
+    alerts = []
+
+    if stock:
+        alerts.append(f"⚠ Stock faible: {len(stock)} produit(s)")
+
+    if dep > 500000:
+        alerts.append("⚠ Dépenses très élevées détectées")
+
+    return {"alerts": alerts}
+
+#=====================
+import pandas as pd
+
+@app.route("/export_excel")
+def export_excel():
+    uid = session.get("user_id")
+
+    conn = db()
+    cur = conn.cursor()
+
+    cur.execute("SELECT * FROM factures WHERE user_id=%s", (uid,))
+    data = cur.fetchall()
+
+    df = pd.DataFrame(data)
+    file_path = "/tmp/factures.xlsx"
+    df.to_excel(file_path, index=False)
+
+    return send_file(file_path, as_attachment=True)
+#==================================
+
+
 
 # =========================
 # RUN
