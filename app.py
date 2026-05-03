@@ -25,10 +25,14 @@ client = OpenAI(api_key=os.getenv("OPENAI_API_KEY")) if os.getenv("OPENAI_API_KE
 # =========================
 # DB
 # =========================
-def db():
-    return psycopg2.connect(DATABASE_URL, sslmode="require", cursor_factory=RealDictCursor)
+def get_db():
+    conn = psycopg2.connect(DATABASE_URL)
+    return conn
 
-
+@app.route("/testdb")
+def testdb():
+    conn = get_db()
+    return "DB OK"
 # =========================
 # INIT DB
 # =========================
@@ -605,7 +609,7 @@ def payer_abonnement():
             UPDATE users
             SET abonnement=1, date_fin_abonnement=%s
             WHERE id=%s
-        """, (date_fin.strftime("%Y-%m-%d"), user_id))
+        """, (date_fin, user_id))
 
         conn.commit()
         conn.close()
@@ -614,7 +618,7 @@ def payer_abonnement():
 
     except Exception as e:
         print("ERREUR ABONNEMENT:", e)
-        return "Erreur serveur abonnement", 500
+        return f"Erreur serveur abonnement: {e}", 500
 # =========================
 # RUN
 # =========================
