@@ -1,7 +1,3 @@
-import traceback
-import os
-print("=== APP START ===")
-print("DATABASE_URL =", os.getenv("DATABASE_URL"))
 
 from flask import Flask, render_template, request, redirect, session, send_file, jsonify
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -16,7 +12,7 @@ from openai import OpenAI
 # APP CONFIG
 # =========================
 app = Flask(__name__)
-app.secret_key = os.getenv("SECRET_KEY", "secret")
+app.secret_key = os.getenv("SECRET_KEY", "fallback-secret")
 
 DATABASE_URL = os.environ.get("DATABASE_URL")
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY")) if os.getenv("OPENAI_API_KEY") else None
@@ -29,77 +25,63 @@ def get_db():
     conn = psycopg2.connect(DATABASE_URL)
     return conn
 
-@app.route("/testdb")
-def testdb():
-    conn = get_db()
-    return "DB OK"
 # =========================
 # INIT DB
 # =========================
 def init():
-    conn = db()
+    conn = get_db()
     cur = conn.cursor()
 
     cur.execute("""
-        CREATE TABLE IF NOT EXISTS users(
+    CREATE TABLE IF NOT EXISTS users (
         id SERIAL PRIMARY KEY,
         username TEXT UNIQUE,
-        password TEXT
-    )""")
-
-    cur.execute("""
-        CREATE TABLE IF NOT EXISTS produits(
-        id SERIAL PRIMARY KEY,
-        nom TEXT,
-        quantite INT,
-        prix_vente NUMERIC(12,2),
-        user_id INT
-    )""")
-
-    cur.execute("""
-        CREATE TABLE IF NOT EXISTS factures(
-        id SERIAL PRIMARY KEY,
-        total NUMERIC(12,2),
-        statut TEXT DEFAULT 'impayé',
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        user_id INT
-    )""")
-
-    cur.execute("""
-        CREATE TABLE IF NOT EXISTS facture_items(
-        id SERIAL PRIMARY KEY,
-        facture_id INT,
-        produit_id INT,
-        quantite INT,
-        total NUMERIC(12,2)
-    )""")
-
-    cur.execute("""
-        CREATE TABLE IF NOT EXISTS depenses(
-        id SERIAL PRIMARY KEY,
-        categorie TEXT,
-        montant NUMERIC(12,2),
-        description TEXT,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        user_id INT
-    )""")
-
-    cur.execute("""
-        CREATE TABLE IF NOT EXISTS entreprises(
-        id SERIAL PRIMARY KEY,
-        nom TEXT,
-        owner_id INT,
-        abonnement TEXT DEFAULT 'free',
-        date_expiration DATE
+        password TEXT,
+        abonnement INT DEFAULT 0,
+        date_fin_abonnement DATE
     )
     """)
 
     cur.execute("""
-        ALTER TABLE users ADD COLUMN IF NOT EXISTS entreprise_id INT
+    CREATE TABLE IF NOT EXISTS produits (
+        id SERIAL PRIMARY KEY,
+        nom TEXT,
+        quantite INT,
+        prix_vente FLOAT,
+        user_id INT
+    )
     """)
 
     cur.execute("""
-        ALTER TABLE users ADD COLUMN IF NOT EXISTS role TEXT DEFAULT 'admin'
+    CREATE TABLE IF NOT EXISTS factures (
+        id SERIAL PRIMARY KEY,
+        total FLOAT DEFAULT 0,
+        statut TEXT DEFAULT 'impayé',
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        user_id INT
+    )
+    """)
+
+    cur.execute("""
+    CREATE TABLE IF NOT EXISTS facture_items (
+        id SERIAL PRIMARY KEY,
+        facture_id INT,
+        produit_id INT,
+        quantite INT,
+        total FLOAT
+    )
+    """)
+
+    # 💰 nouvelles dépenses (alimentaires, transport, etc)
+    cur.execute("""
+    CREATE TABLE IF NOT EXISTS depenses (
+        id SERIAL PRIMARY KEY,
+        categorie TEXT,
+        montant FLOAT,
+        description TEXT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        user_id INT
+    )
     """)
 
     conn.commit()
@@ -151,10 +133,9 @@ def login():
         password = request.form.get("password", "").strip()
 
         if not username or not password:
-            error = "Veuillez remplir tous les champs"
-            return render_template("login.html", error=error)
+            return render_template("login.html", error="Champs obligatoires")
 
-        conn = db()
+        conn = get_db()
         cur = conn.cursor()
         cur.execute("SELECT * FROM users WHERE username=%s", (username,))
         user = cur.fetchone()
@@ -162,12 +143,10 @@ def login():
 
         if not user:
             error = "Utilisateur introuvable"
-
-        elif not check_password_hash(user["password"], password):
+        elif not check_password_hash(user[2], password):
             error = "Mot de passe incorrect"
-
         else:
-            session["user_id"] = user["id"]
+            session["user_id"] = user[0]
             return redirect("/dashboard")
 
     return render_template("login.html", error=error)
@@ -362,15 +341,24 @@ def invite_user():
 # =========================
 @app.route("/ajouter_depense", methods=["POST"])
 def ajouter_depense():
-    uid = session["user_id"]
-    conn = db()
+    if "user_id" not in session:
+        return redirect("/login")
+
+    categorie = request.form["categorie"]
+    montant = float(request.form["montant"])
+    description = request.form["description"]
+
+    conn = get_db()
     cur = conn.cursor()
+
     cur.execute("""
-        INSERT INTO depenses(categorie,montant,description,user_id)
-        VALUES(%s,%s,%s,%s)
-    """,(request.form["categorie"],request.form["montant"],request.form["description"],uid))
+        INSERT INTO depenses (categorie, montant, description, user_id)
+        VALUES (%s, %s, %s, %s)
+    """, (categorie, montant, description, session["user_id"]))
+
     conn.commit()
     conn.close()
+
     return redirect("/dashboard")
 
 
