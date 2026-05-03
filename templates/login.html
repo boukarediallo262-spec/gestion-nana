@@ -1,57 +1,116 @@
 <!DOCTYPE html>
-<html>
+<html lang="fr">
 <head>
-    <title>Connexion</title>
-    <style>
-        body {
-            background: #2c3e50;
-            font-family: Arial;
-            color: white;
-            text-align: center;
-            padding-top: 100px;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Connexion | Faso Gestion IA</title>
 
-        .box {
-            background: white;
-            color: black;
-            padding: 20px;
-            width: 300px;
-            margin: auto;
-            border-radius: 10px;
-        }
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
 
-        input {
-            width: 100%;
-            padding: 10px;
-            margin-bottom: 10px;
-        }
+body{
+    font-family:Arial, sans-serif;
+    background:linear-gradient(135deg,#0f172a,#1e293b,#334155);
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+}
 
-        button {
-            width: 100%;
-            padding: 10px;
-            background: #27ae60;
-            color: white;
-            border: none;
-        }
-    </style>
+.box{
+    background:white;
+    width:360px;
+    padding:35px;
+    border-radius:18px;
+    box-shadow:0 20px 40px rgba(0,0,0,0.25);
+}
+
+h2{
+    text-align:center;
+    margin-bottom:25px;
+    color:#111827;
+}
+
+input{
+    width:100%;
+    padding:12px;
+    margin-bottom:15px;
+    border:1px solid #d1d5db;
+    border-radius:10px;
+    font-size:15px;
+}
+
+input:focus{
+    outline:none;
+    border-color:#2563eb;
+}
+
+button{
+    width:100%;
+    padding:12px;
+    background:#16a34a;
+    color:white;
+    border:none;
+    border-radius:10px;
+    font-size:16px;
+    cursor:pointer;
+    transition:0.3s;
+}
+
+button:hover{
+    background:#15803d;
+}
+
+.error{
+    background:#fee2e2;
+    color:#b91c1c;
+    padding:10px;
+    border-radius:8px;
+    margin-bottom:15px;
+    text-align:center;
+}
+
+.link{
+    text-align:center;
+    margin-top:18px;
+}
+
+.link a{
+    color:#2563eb;
+    text-decoration:none;
+    font-weight:bold;
+}
+</style>
 </head>
 
 <body>
 
 <div class="box">
-    <h2>Connexion</h2>
 
-    {% if error %}
-    <p style="color:red">{{ error }}</p>
-    {% endif %}
+<h2>Connexion</h2>
+
+{% if error %}
+<div class="error">{{ error }}</div>
+{% endif %}
+
 <form method="POST" action="/login">
-    <input type="text" name="username">
-    <input type="password" name="password">
-    <button type="submit">Se connecter</button>
-</form>
-    
 
-    <p><a href="/register">Créer un compte</a></p>
+<input type="text" name="username" placeholder="Nom d'utilisateur" required>
+
+<input type="password" name="password" placeholder="Mot de passe" required>
+
+<button type="submit">Se connecter</button>
+
+</form>
+
+<div class="link">
+<a href="/register">Créer un compte</a>
+</div>
+
 </div>
 
 </body>
