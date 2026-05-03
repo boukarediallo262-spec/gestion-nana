@@ -3,6 +3,26 @@
 <head>
 <meta charset="UTF-8">
 <title>Dashboard | Faso Gestion IA</title>
+<div style="margin:20px; text-align:center;">
+
+<h3>📅 Filtrer les données</h3>
+
+<a href="/dashboard?filtre=jour">
+<button>Jour</button>
+</a>
+
+<a href="/dashboard?filtre=semaine">
+<button>Semaine</button>
+</a>
+
+<a href="/dashboard?filtre=mois">
+<button>Mois</button>
+</a>
+
+<p>Filtre actuel : <b>{{ filtre }}</b></p>
+
+</div>
+
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
@@ -198,16 +218,16 @@ button{
 </div>
 
 <script>
-const ctx = document.getElementById('chart');
-
-new Chart(ctx, {
-    type: 'bar',
+new Chart(document.getElementById('chart'), {
+    type: 'line',
     data: {
         labels: ['Ventes','Dépenses','Bénéfice'],
         datasets: [{
             label: 'FCFA',
             data: [{{ ventes }}, {{ depenses }}, {{ benefice }}],
-            backgroundColor: ['#22c55e','#ef4444','#3b82f6']
+            borderColor: '#22c55e',
+            backgroundColor: 'rgba(34,197,94,0.2)',
+            fill: true
         }]
     }
 });
