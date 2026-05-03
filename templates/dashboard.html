@@ -2,184 +2,215 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<title>FASO GESTION IA</title>
+<title>Dashboard | Faso Gestion IA</title>
 
-<script src="https://cdn.tailwindcss.com"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
-body {
-    background: #0f172a;
-    color: white;
+body{
+    font-family:Arial;
+    margin:0;
+    background:#0f172a;
+    color:white;
 }
-.glass {
-    background: rgba(255,255,255,0.08);
-    backdrop-filter: blur(10px);
-    border-radius: 16px;
+
+.header{
+    padding:20px;
+    background:#111827;
+    text-align:center;
+    font-size:22px;
+    font-weight:bold;
+}
+
+.container{
+    padding:20px;
+}
+
+.cards{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:15px;
+}
+
+.card{
+    background:#1e293b;
+    padding:15px;
+    border-radius:12px;
+    text-align:center;
+}
+
+.card h3{
+    margin:0;
+    font-size:14px;
+    color:#94a3b8;
+}
+
+.card p{
+    font-size:22px;
+    margin-top:10px;
+    font-weight:bold;
+}
+
+.green{color:#22c55e;}
+.red{color:#ef4444;}
+.blue{color:#3b82f6;}
+.yellow{color:#facc15;}
+
+.section{
+    margin-top:25px;
+    background:#1e293b;
+    padding:15px;
+    border-radius:12px;
+}
+
+table{
+    width:100%;
+    border-collapse:collapse;
+}
+
+th,td{
+    padding:10px;
+    border-bottom:1px solid #334155;
+    text-align:left;
+    font-size:14px;
+}
+
+.ai-box{
+    background:#0b1220;
+    padding:15px;
+    border-radius:10px;
+    margin-top:20px;
+}
+
+input,textarea{
+    width:100%;
+    padding:10px;
+    margin:5px 0;
+    border-radius:8px;
+    border:none;
+}
+
+button{
+    padding:10px;
+    width:100%;
+    background:#22c55e;
+    border:none;
+    border-radius:8px;
+    color:white;
+    font-weight:bold;
 }
 </style>
 </head>
 
-<body class="p-6">
+<body>
 
-<!-- HEADER -->
-<div class="flex justify-between items-center mb-6">
-    <h1 class="text-2xl font-bold">🇧🇫 FASO GESTION IA</h1>
-    <a href="/logout" class="text-red-400">Déconnexion</a>
+<div class="header">
+📊 FASO GESTION IA - DASHBOARD ENTREPRISE
 </div>
 
-<!-- STATS -->
-<div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+<div class="container">
 
-<div class="glass p-4">
-<h2>Ventes</h2>
-<p class="text-2xl text-green-400">{{ ventes }} FCFA</p>
+<!-- CARTES -->
+<div class="cards">
+
+<div class="card">
+<h3>VENTES</h3>
+<p class="green">{{ ventes }} FCFA</p>
 </div>
 
-<div class="glass p-4">
-<h2>Dépenses</h2>
-<p class="text-2xl text-red-400">{{ depenses }} FCFA</p>
+<div class="card">
+<h3>DÉPENSES</h3>
+<p class="red">{{ depenses }} FCFA</p>
 </div>
 
-<div class="glass p-4">
-<h2>Bénéfice</h2>
-<p class="text-2xl text-blue-400">{{ benefice }} FCFA</p>
+<div class="card">
+<h3>BÉNÉFICE</h3>
+<p class="blue">{{ benefice }} FCFA</p>
+</div>
+
+<div class="card">
+<h3>STOCK TOTAL</h3>
+<p class="yellow">{{ total_produits }}</p>
 </div>
 
 </div>
 
-<!-- CHART -->
-<div class="glass mt-6 p-4">
+<!-- GRAPHIQUE -->
+<div class="section">
+<h3>📈 Analyse financière</h3>
 <canvas id="chart"></canvas>
 </div>
 
-<!-- IA PANEL -->
-<div class="glass mt-6 p-4">
-<h2 class="mb-2">🤖 Assistant IA Comptable</h2>
+<!-- PRODUITS -->
+<div class="section">
+<h3>📦 Produits</h3>
+<table>
+<tr><th>Nom</th><th>Quantité</th></tr>
 
-<button onclick="askAI()" class="bg-blue-500 px-4 py-2 rounded">
-Analyser mes finances
-</button>
+{% for p in produits %}
+<tr>
+<td>{{ p.nom }}</td>
+<td>{{ p.quantite }}</td>
+</tr>
+{% endfor %}
 
-<p id="ia" class="mt-3 text-sm text-gray-300"></p>
+</table>
+</div>
+
+<!-- FACTURES -->
+<div class="section">
+<h3>🧾 Factures</h3>
+<table>
+<tr><th>ID</th><th>Total</th><th>Statut</th></tr>
+
+{% for f in factures %}
+<tr>
+<td>{{ f.id }}</td>
+<td>{{ f.total }}</td>
+<td>{{ f.statut }}</td>
+</tr>
+{% endfor %}
+
+</table>
+</div>
+
+<!-- STOCK FAIBLE -->
+<div class="section">
+<h3>⚠️ Stock faible</h3>
+
+{% for s in stock_faible %}
+<p>{{ s.nom }} - {{ s.quantite }}</p>
+{% endfor %}
+
+</div>
+
+<!-- IA -->
+<div class="ai-box">
+<h3>🤖 Faso Gestion IA</h3>
+
+<form method="POST" action="/ai">
+<textarea name="question" placeholder="Pose une question financière..."></textarea>
+<button type="submit">Analyser</button>
+</form>
+
+</div>
+
 </div>
 
 <script>
 const ctx = document.getElementById('chart');
 
 new Chart(ctx, {
-type: 'bar',
-data: {
-labels: {{ labels|safe }},
-datasets: [{
-label: 'Finance',
-data: {{ data|safe }},
-backgroundColor: ['#22c55e','#ef4444','#3b82f6']
-}]
-}
+    type: 'bar',
+    data: {
+        labels: ['Ventes','Dépenses','Bénéfice'],
+        datasets: [{
+            label: 'FCFA',
+            data: [{{ ventes }}, {{ depenses }}, {{ benefice }}],
+            backgroundColor: ['#22c55e','#ef4444','#3b82f6']
+        }]
+    }
 });
-
-function askAI(){
-fetch('/ia', {
-method: 'POST'
-})
-.then(res => res.json())
-.then(data => {
-document.getElementById('ia').innerText = data.response;
-});
-}
-</script>
-
-<!-- CHAT IA FLOATING PANEL -->
-<div class="fixed bottom-4 right-4 w-80 glass p-3 shadow-xl">
-
-    <h3 class="text-sm font-bold mb-2">🤖 IA Comptable</h3>
-
-    <div id="chatBox" class="h-40 overflow-y-auto text-xs mb-2"></div>
-
-    <input id="msg" class="w-full p-2 rounded text-black" placeholder="Pose une question...">
-
-    <button onclick="sendMsg()" class="mt-2 bg-green-500 w-full py-1 rounded">
-        Envoyer
-    </button>
-</div>
-
-<script>
-function addMsg(text, from){
-    const box = document.getElementById("chatBox");
-    box.innerHTML += `<p class="${from=='user'?'text-blue-300':'text-green-300'}">${text}</p>`;
-    box.scrollTop = box.scrollHeight;
-}
-
-function sendMsg(){
-    let input = document.getElementById("msg");
-    let message = input.value;
-
-    if(!message) return;
-
-    addMsg(message,'user');
-
-    fetch("/chat_ia", {
-        method:"POST",
-        headers:{'Content-Type':'application/json'},
-        body: JSON.stringify({message})
-    })
-    .then(res => res.json())
-    .then(data => {
-        addMsg(data.response,'ia');
-    });
-
-    input.value = "";
-}
-</script><!-- CHAT IA FLOATING PANEL -->
-<div class="fixed bottom-4 right-4 w-80 glass p-3 shadow-xl">
-
-    <h3 class="text-sm font-bold mb-2">🤖 IA Comptable</h3>
-
-    <div id="chatBox" class="h-40 overflow-y-auto text-xs mb-2"></div>
-
-    <input id="msg" class="w-full p-2 rounded text-black" placeholder="Pose une question...">
-
-    <button onclick="sendMsg()" class="mt-2 bg-green-500 w-full py-1 rounded">
-        Envoyer
-    </button>
-</div>
-
-<script>
-function addMsg(text, from){
-    const box = document.getElementById("chatBox");
-    box.innerHTML += `<p class="${from=='user'?'text-blue-300':'text-green-300'}">${text}</p>`;
-    box.scrollTop = box.scrollHeight;
-}
-
-function sendMsg(){
-    let input = document.getElementById("msg");
-    let message = input.value;
-
-    if(!message) return;
-
-    addMsg(message,'user');
-
-    fetch("/chat_ia", {
-        method:"POST",
-        headers:{'Content-Type':'application/json'},
-        body: JSON.stringify({message})
-    })
-    .then(res => res.json())
-    .then(data => {
-        addMsg(data.response,'ia');
-    });
-
-    input.value = "";
-}
-</script>
-
-<link rel="manifest" href="/static/manifest.json">
-
-<script>
-if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('/static/sw.js');
-}
 </script>
 
 </body>
