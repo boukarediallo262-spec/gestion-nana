@@ -1,3 +1,8 @@
+import traceback
+import os
+print("=== APP START ===")
+print("DATABASE_URL =", os.getenv("DATABASE_URL"))
+
 from flask import Flask, render_template, request, redirect, session, send_file, jsonify
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
@@ -32,44 +37,44 @@ def init():
     cur = conn.cursor()
 
     cur.execute("""
-    CREATE TABLE IF NOT EXISTS users(
+        CREATE TABLE IF NOT EXISTS users(
         id SERIAL PRIMARY KEY,
         username TEXT UNIQUE,
         password TEXT
     )""")
 
     cur.execute("""
-    CREATE TABLE IF NOT EXISTS produits(
+        CREATE TABLE IF NOT EXISTS produits(
         id SERIAL PRIMARY KEY,
         nom TEXT,
         quantite INT,
-        prix_vente FLOAT,
+        prix_vente NUMERIC(12,2),
         user_id INT
     )""")
 
     cur.execute("""
-    CREATE TABLE IF NOT EXISTS factures(
+        CREATE TABLE IF NOT EXISTS factures(
         id SERIAL PRIMARY KEY,
-        total FLOAT DEFAULT 0,
+        total NUMERIC(12,2),
         statut TEXT DEFAULT 'impayé',
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         user_id INT
     )""")
 
     cur.execute("""
-    CREATE TABLE IF NOT EXISTS facture_items(
+        CREATE TABLE IF NOT EXISTS facture_items(
         id SERIAL PRIMARY KEY,
         facture_id INT,
         produit_id INT,
         quantite INT,
-        total FLOAT
+        total NUMERIC(12,2)
     )""")
 
     cur.execute("""
-    CREATE TABLE IF NOT EXISTS depenses(
+        CREATE TABLE IF NOT EXISTS depenses(
         id SERIAL PRIMARY KEY,
         categorie TEXT,
-        montant FLOAT,
+        montant NUMERIC(12,2),
         description TEXT,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         user_id INT
@@ -86,17 +91,28 @@ def init():
     """)
 
     cur.execute("""
-    ALTER TABLE users ADD COLUMN IF NOT EXISTS entreprise_id INT
+        ALTER TABLE users ADD COLUMN IF NOT EXISTS entreprise_id INT
     """)
 
     cur.execute("""
-    ALTER TABLE users ADD COLUMN IF NOT EXISTS role TEXT DEFAULT 'admin'
+        ALTER TABLE users ADD COLUMN IF NOT EXISTS role TEXT DEFAULT 'admin'
     """)
 
     conn.commit()
+    cur.close()
     conn.close()
 
-init()
+@app.before_request
+def initialize_once():
+    global db_initialized
+
+    if not globals().get("db_initialized"):
+        try:
+            init()
+            db_initialized = True
+            print("Database initialized")
+        except Exception as e:
+            print("Init DB error:", e)
 
 
 # =========================
