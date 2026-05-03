@@ -138,20 +138,35 @@ def register():
     return render_template("register.html")
 
 
-@app.route("/login", methods=["POST","GET"])
+@app.route("/login", methods=["GET", "POST"])
 def login():
+    error = None
+
     if request.method == "POST":
+        username = request.form.get("username", "").strip()
+        password = request.form.get("password", "").strip()
+
+        if not username or not password:
+            error = "Veuillez remplir tous les champs"
+            return render_template("login.html", error=error)
+
         conn = db()
         cur = conn.cursor()
-        cur.execute("SELECT * FROM users WHERE username=%s AND entreprise_id=%s",(request.form["username, entreprise_id"],))
+        cur.execute("SELECT * FROM users WHERE username=%s", (username,))
         user = cur.fetchone()
         conn.close()
 
-        if user and check_password_hash(user["password"], request.form["password"]):
+        if not user:
+            error = "Utilisateur introuvable"
+
+        elif not check_password_hash(user["password"], password):
+            error = "Mot de passe incorrect"
+
+        else:
             session["user_id"] = user["id"]
             return redirect("/dashboard")
 
-    return render_template("login.html")
+    return render_template("login.html", error=error)
 
 
 @app.route("/logout")
