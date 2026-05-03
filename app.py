@@ -587,7 +587,7 @@ def export_excel():
 
     return send_file(file_path, as_attachment=True)
 #==================================
-
+from datetime import datetime, timedelta
 @app.route("/payer_abonnement", methods=["POST"])
 def payer_abonnement():
     if "user_id" not in session:
@@ -595,20 +595,26 @@ def payer_abonnement():
 
     user_id = session["user_id"]
 
-    date_fin = datetime.now() + timedelta(days=30)
+    try:
+        date_fin = datetime.now() + timedelta(days=30)
 
-    conn = get_db()
-    conn.execute("""
-        UPDATE users
-        SET abonnement=1, date_fin_abonnement=?
-        WHERE id=?
-    """, (date_fin.strftime("%Y-%m-%d"), user_id))
+        conn = get_db()
+        cur = conn.cursor()
 
-    conn.commit()
-    conn.close()
+        cur.execute("""
+            UPDATE users
+            SET abonnement=1, date_fin_abonnement=%s
+            WHERE id=%s
+        """, (date_fin.strftime("%Y-%m-%d"), user_id))
 
-    return redirect("/dashboard")
+        conn.commit()
+        conn.close()
 
+        return redirect("/dashboard")
+
+    except Exception as e:
+        print("ERREUR ABONNEMENT:", e)
+        return "Erreur serveur abonnement", 500
 # =========================
 # RUN
 # =========================
