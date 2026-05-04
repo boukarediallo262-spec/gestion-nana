@@ -233,5 +233,40 @@ new Chart(document.getElementById('chart'), {
 });
 </script>
 
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+const labels = {{ labels|safe }};
+const ventes = {{ ventes_data|safe }};
+const depenses = {{ depenses_data|safe }};
+const benefices = {{ benefice_data|safe }};
+
+const ctx = document.getElementById('chart').getContext('2d');
+
+new Chart(ctx, {
+    type: 'line',
+    data: {
+        labels: labels,
+        datasets: [
+            {
+                label: 'Ventes',
+                data: ventes,
+                borderWidth: 2
+            },
+            {
+                label: 'Dépenses',
+                data: depenses,
+                borderWidth: 2
+            },
+            {
+                label: 'Bénéfices',
+                data: benefices,
+                borderWidth: 2
+            }
+        ]
+    }
+});
+</script>
+
 </body>
 </html>
