@@ -294,21 +294,21 @@ def dashboard():
     ]
 
     conn.close()
-return render_template(
-    "dashboard.html",
-    ventes=ventes,
-    depenses=depenses,
-    benefice=benefice,
-    total_produits=total_produits,
-    total_factures=total_factures,
+    return render_template(
+        "dashboard.html",
+        ventes=ventes,
+        depenses=depenses,
+        benefice=benefice,
+        total_produits=total_produits,
+        total_factures=total_factures,
 
-    labels=json.dumps(labels),
-    ventes_data=json.dumps(ventes_data),
-    depenses_data=json.dumps(depenses_data),
-    benefice_data=json.dumps(benefice_data),
+        labels=json.dumps(labels),
+        ventes_data=json.dumps(ventes_data),
+        depenses_data=json.dumps(depenses_data),
+        benefice_data=json.dumps(benefice_data),
 
-    periode=periode
-)
+        periode=periode
+    )
     
 
 # =========================#
