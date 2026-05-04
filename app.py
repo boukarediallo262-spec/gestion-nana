@@ -187,50 +187,129 @@ def check_abonnement(entreprise_id):
 # =========================
 @app.route("/dashboard")
 def dashboard():
-    uid = session.get("user_id")
-    if not uid:
+    if "user_id" not in session:
         return redirect("/login")
 
-    filtre = request.args.get("filtre","mois")
+    user_id = session["user_id"]
+    filtre = request.args.get("filtre", "mois")
 
-    conn = db()
+    conn = get_db()
     cur = conn.cursor()
 
-    cur.execute("SELECT entreprise_id FROM users WHERE id=%s", (uid,))
-    ent = cur.fetchone()["entreprise_id"]
+    # 🔥 filtre temps
+    if filtre == "jour":
+        condition = "DATE(created_at) = CURRENT_DATE"
+    elif filtre == "semaine":
+        condition = "created_at >= CURRENT_DATE - INTERVAL '7 days'"
+    else:
+        condition = "created_at >= CURRENT_DATE - INTERVAL '30 days'"
 
-    if not check_abonnement(ent):
-        return redirect("/abonnement")
+    # 💰 VENTES
+    cur.execute(f"""
+        SELECT COALESCE(SUM(total),0)
+        FROM factures
+        WHERE user_id=%s AND statut='payé' AND {condition}
+    """, (user_id,))
+    ventes = cur.fetchone()[0] or 0
 
-    # PRODUITS
-    cur.execute("SELECT * FROM produits WHERE user_id=%s",(uid,))
+    # 💸 DEPENSES
+    cur.execute(f"""
+        SELECT COALESCE(SUM(montant),0)
+        FROM depenses
+        WHERE user_id=%s AND {condition}
+    """, (user_id,))
+    depenses = cur.fetchone()[0] or 0
+
+    # 📦 PRODUITS
+    cur.execute("SELECT id, nom, quantite FROM produits WHERE user_id=%s", (user_id,))
     produits = cur.fetchall()
 
-    # FACTURES
-    cur.execute("SELECT * FROM factures WHERE user_id=%s ORDER BY id DESC",(uid,))
+    # 🧾 FACTURES
+    cur.execute("""
+        SELECT id, total, statut
+        FROM factures
+        WHERE user_id=%s
+        ORDER BY id DESC
+        LIMIT 10
+    """, (user_id,))
     factures = cur.fetchall()
 
-    # VENTES
-    cur.execute("SELECT COALESCE(SUM(total),0) FROM factures WHERE user_id=%s AND statut='payé'",(uid,))
-    ventes = cur.fetchone()["coalesce"]
+    # ⚠️ STOCK FAIBLE
+    cur.execute("""
+        SELECT nom, quantite
+        FROM produits
+        WHERE user_id=%s AND quantite <= 5
+    """, (user_id,))
+    stock_faible = cur.fetchall()
 
-    # DEPENSES
-    cur.execute("SELECT COALESCE(SUM(montant),0) FROM depenses WHERE user_id=%s",(uid,))
-    depenses = cur.fetchone()["coalesce"]
-
-    conn.close()
+    # 📊 TOTAL PRODUITS
+    total_produits = sum([p[2] for p in produits]) if produits else 0
 
     benefice = ventes - depenses
 
-    return render_template("dashboard.html",
-        produits=produits,
-        factures=factures,
-        ventes=ventes,
-        depenses=depenses,
-        benefice=benefice,
-        filtre=filtre
-    )
+    # =========================
+# FILTRE TEMPOREL
+# =========================
+    periode = request.args.get("periode", "mois")
 
+    now = datetime.now()
+
+    if periode == "jour":
+        date_debut = now.replace(hour=0, minute=0, second=0)
+    elif periode == "semaine":
+        date_debut = now - timedelta(days=7)
+    else:
+        date_debut = now - timedelta(days=30)
+
+# =========================
+# DATA GRAPHIQUES
+# =========================
+    data = conn.execute("""
+        SELECT DATE(created_at) as date,
+            SUM(total) as ventes
+        FROM factures
+        WHERE user_id=? AND statut='payé' AND created_at >= ?
+        GROUP BY DATE(created_at)
+    """, (user_id, date_debut)).fetchall()
+
+    labels = [row["date"] for row in data]
+    ventes_data = [row["ventes"] for row in data]
+
+# dépenses (depenses table)
+    depenses_data_db = conn.execute("""
+        SELECT DATE(created_at) as date,
+            SUM(montant) as total
+        FROM depenses
+        WHERE user_id=? AND created_at >= ?
+        GROUP BY DATE(created_at)
+    """, (user_id, date_debut)).fetchall()
+
+    depenses_map = {row["date"]: row["total"] for row in depenses_data_db}
+
+    depenses_data = [depenses_map.get(date, 0) for date in labels]
+
+    benefice_data = [
+        ventes_data[i] - depenses_data[i]
+        for i in range(len(labels))
+    ]
+
+    conn.close()
+return render_template(
+    "dashboard.html",
+    ventes=ventes,
+    depenses=depenses,
+    benefice=benefice,
+    total_produits=total_produits,
+    total_factures=total_factures,
+
+    labels=json.dumps(labels),
+    ventes_data=json.dumps(ventes_data),
+    depenses_data=json.dumps(depenses_data),
+    benefice_data=json.dumps(benefice_data),
+
+    periode=periode
+)
+    
 
 # =========================#
 
