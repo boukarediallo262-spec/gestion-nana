@@ -284,36 +284,36 @@ def dashboard():
         WHERE user_id=%s
         GROUP BY DATE(created_at)
         ORDER BY date
-     """, (user_id,))
-     dep_rows = cur.fetchall()
+    """, (user_id,))
+    dep_rows = cur.fetchall()
 
-     dep_map = {str(r["date"]): float(r["total"]) for r in dep_rows}
+    dep_map = {str(r["date"]): float(r["total"]) for r in dep_rows}
 
-     depenses_data = [dep_map.get(d, 0) for d in labels]
+    depenses_data = [dep_map.get(d, 0) for d in labels]
 
-     benefice_data = [
+    benefice_data = [
         ventes_data[i] - depenses_data[i]
         for i in range(len(labels))
-     ]
-     cur.execute("SELECT COUNT(*) FROM factures WHERE user_id=%s", (user_id,))
-     total_factures = cur.fetchone()["count"]
+    ]
+    cur.execute("SELECT COUNT(*) FROM factures WHERE user_id=%s", (user_id,))
+    total_factures = cur.fetchone()["count"]
+    
+    conn.close()
+    return render_template(
+        "dashboard.html",
+        ventes=ventes,
+        depenses=depenses,
+        benefice=benefice,
+        total_produits=total_produits,
+        total_factures=total_factures,
 
-     conn.close()
-     return render_template(
-         "dashboard.html",
-         ventes=ventes,
-         depenses=depenses,
-         benefice=benefice,
-         total_produits=total_produits,
-         total_factures=total_factures,
+        labels=json.dumps(labels),
+        ventes_data=json.dumps(ventes_data),
+        depenses_data=json.dumps(depenses_data),
+        benefice_data=json.dumps(benefice_data),
 
-         labels=json.dumps(labels),
-         ventes_data=json.dumps(ventes_data),
-         depenses_data=json.dumps(depenses_data),
-         benefice_data=json.dumps(benefice_data),
-
-         periode=periode
-     )
+        periode=periode
+    )
     
 
 # =========================#
