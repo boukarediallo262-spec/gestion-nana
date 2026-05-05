@@ -1,29 +1,47 @@
-from flask import Flask, render_template, request, redirect, session, send_file, jsonify
+from flask import Flask, render_template, request, redirect, session, jsonify, send_file
 from werkzeug.security import generate_password_hash, check_password_hash
+from functools import wraps
 from datetime import datetime, timedelta
-import os, json, io
 import psycopg2
 from psycopg2.extras import RealDictCursor
-from reportlab.pdfgen import canvas
+import os
+import io
 import pandas as pd
+from reportlab.pdfgen import canvas
 
+# =========================
+# APP CONFIG
+# =========================
 app = Flask(__name__)
-app.secret_key = os.getenv("SECRET_KEY", "secret")
+app.secret_key = os.getenv("SECRET_KEY", "dev_secret")
 
 DATABASE_URL = os.getenv("DATABASE_URL")
 
+
 # =========================
-# DB
+# DB CONNECTION
 # =========================
-def get_db():
+def db():
     return psycopg2.connect(DATABASE_URL, cursor_factory=RealDictCursor)
+
+
+# =========================
+# LOGIN REQUIRED DECORATOR
+# =========================
+def login_required(f):
+    @wraps(f)
+    def wrapper(*args, **kwargs):
+        if "user_id" not in session:
+            return redirect("/login")
+        return f(*args, **kwargs)
+    return wrapper
 
 
 # =========================
 # INIT DB
 # =========================
 def init_db():
-    conn = get_db()
+    conn = db()
     cur = conn.cursor()
 
     cur.execute("""
@@ -41,7 +59,7 @@ def init_db():
         id SERIAL PRIMARY KEY,
         nom TEXT,
         quantite INT,
-        prix_vente FLOAT,
+        prix FLOAT,
         user_id INT
     )
     """)
@@ -53,16 +71,6 @@ def init_db():
         statut TEXT DEFAULT 'impayé',
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         user_id INT
-    )
-    """)
-
-    cur.execute("""
-    CREATE TABLE IF NOT EXISTS facture_items (
-        id SERIAL PRIMARY KEY,
-        facture_id INT,
-        produit_id INT,
-        quantite INT,
-        total FLOAT
     )
     """)
 
@@ -82,10 +90,10 @@ def init_db():
 
 
 @app.before_request
-def init_once():
-    if not hasattr(app, "init_done"):
+def setup():
+    if not hasattr(app, "ready"):
         init_db()
-        app.init_done = True
+        app.ready = True
 
 
 # =========================
@@ -93,31 +101,27 @@ def init_once():
 # =========================
 @app.route("/")
 def home():
-    return redirect("/login")
+    return redirect("/dashboard")
 
 
 @app.route("/register", methods=["GET", "POST"])
 def register():
     if request.method == "POST":
-        try:
-            conn = get_db()
-            cur = conn.cursor()
+        conn = db()
+        cur = conn.cursor()
 
-            cur.execute(
-                "INSERT INTO users(username,password) VALUES(%s,%s)",
-                (
-                    request.form["username"],
-                    generate_password_hash(request.form["password"])
-                )
-            )
+        cur.execute("""
+            INSERT INTO users(username,password)
+            VALUES(%s,%s)
+        """, (
+            request.form["username"],
+            generate_password_hash(request.form["password"])
+        ))
 
-            conn.commit()
-            conn.close()
+        conn.commit()
+        conn.close()
 
-            return redirect("/login")
-
-        except Exception as e:
-            return f"Erreur: {e}"
+        return redirect("/login")
 
     return render_template("register.html")
 
@@ -127,11 +131,12 @@ def login():
     error = None
 
     if request.method == "POST":
-        conn = get_db()
+        conn = db()
         cur = conn.cursor()
 
         cur.execute("SELECT * FROM users WHERE username=%s", (request.form["username"],))
         user = cur.fetchone()
+
         conn.close()
 
         if not user:
@@ -155,14 +160,11 @@ def logout():
 # DASHBOARD
 # =========================
 @app.route("/dashboard")
+@login_required
 def dashboard():
-    if "user_id" not in session:
-        return redirect("/login")
-
-    uid = session["user_id"]
-
-    conn = get_db()
+    conn = db()
     cur = conn.cursor()
+    uid = session["user_id"]
 
     cur.execute("SELECT COALESCE(SUM(total),0) as total FROM factures WHERE user_id=%s", (uid,))
     ventes = cur.fetchone()["total"]
@@ -175,17 +177,13 @@ def dashboard():
     cur.execute("SELECT * FROM produits WHERE user_id=%s", (uid,))
     produits = cur.fetchall()
 
-    cur.execute("SELECT * FROM factures WHERE user_id=%s ORDER BY id DESC LIMIT 10", (uid,))
-    factures = cur.fetchall()
-
     conn.close()
 
     return render_template("dashboard.html",
         ventes=ventes,
         depenses=depenses,
         benefice=benefice,
-        produits=produits,
-        factures=factures
+        produits=produits
     )
 
 
@@ -193,26 +191,26 @@ def dashboard():
 # PRODUITS
 # =========================
 @app.route("/produits")
-def produits_page():
-    if "user_id" not in session:
-        return redirect("/login")
-
-    conn = get_db()
+@login_required
+def produits():
+    conn = db()
     cur = conn.cursor()
-    cur.execute("SELECT * FROM produits WHERE user_id=%s", (session["user_id"],))
-    produits = cur.fetchall()
-    conn.close()
 
-    return render_template("produits.html", produits=produits)
+    cur.execute("SELECT * FROM produits WHERE user_id=%s", (session["user_id"],))
+    data = cur.fetchall()
+
+    conn.close()
+    return render_template("produits.html", produits=data)
 
 
 @app.route("/ajouter_produit", methods=["POST"])
+@login_required
 def ajouter_produit():
-    conn = get_db()
+    conn = db()
     cur = conn.cursor()
 
     cur.execute("""
-        INSERT INTO produits(nom,quantite,prix_vente,user_id)
+        INSERT INTO produits(nom,quantite,prix,user_id)
         VALUES(%s,%s,%s,%s)
     """, (
         request.form["nom"],
@@ -226,39 +224,39 @@ def ajouter_produit():
     return redirect("/produits")
 
 
-# =========================
-# FACTURES
-# =========================
-@app.route("/factures")
-def factures_page():
-    conn = get_db()
+@app.route("/supprimer_produit/<int:id>")
+@login_required
+def supprimer_produit(id):
+    conn = db()
     cur = conn.cursor()
 
-    cur.execute("SELECT * FROM factures WHERE user_id=%s", (session["user_id"],))
-    factures = cur.fetchall()
+    cur.execute("DELETE FROM produits WHERE id=%s", (id,))
 
+    conn.commit()
     conn.close()
-    return render_template("factures.html", factures=factures)
+    return redirect("/produits")
 
 
 # =========================
 # DEPENSES
 # =========================
 @app.route("/depenses")
-def depenses_page():
-    conn = get_db()
+@login_required
+def depenses():
+    conn = db()
     cur = conn.cursor()
 
     cur.execute("SELECT * FROM depenses WHERE user_id=%s", (session["user_id"],))
-    depenses = cur.fetchall()
+    data = cur.fetchall()
 
     conn.close()
-    return render_template("depenses.html", depenses=depenses)
+    return render_template("depenses.html", depenses=data)
 
 
 @app.route("/ajouter_depense", methods=["POST"])
+@login_required
 def ajouter_depense():
-    conn = get_db()
+    conn = db()
     cur = conn.cursor()
 
     cur.execute("""
@@ -273,21 +271,59 @@ def ajouter_depense():
 
     conn.commit()
     conn.close()
-
     return redirect("/depenses")
+
+
+# =========================
+# FACTURES PDF
+# =========================
+@app.route("/facture_pdf/<int:id>")
+@login_required
+def facture_pdf(id):
+    buffer = io.BytesIO()
+    p = canvas.Canvas(buffer)
+
+    p.drawString(100, 800, f"FACTURE #{id}")
+    p.drawString(100, 780, "Faso Gestion IA")
+
+    p.save()
+    buffer.seek(0)
+
+    return send_file(buffer, as_attachment=True, download_name="facture.pdf")
+
+
+# =========================
+# EXPORT EXCEL
+# =========================
+@app.route("/export_excel")
+@login_required
+def export_excel():
+    conn = db()
+    cur = conn.cursor()
+
+    cur.execute("SELECT * FROM factures WHERE user_id=%s", (session["user_id"],))
+    data = cur.fetchall()
+
+    df = pd.DataFrame(data)
+    path = "/tmp/data.xlsx"
+    df.to_excel(path, index=False)
+
+    return send_file(path, as_attachment=True)
 
 
 # =========================
 # ABONNEMENT
 # =========================
 @app.route("/abonnement")
+@login_required
 def abonnement():
     return render_template("abonnement.html")
 
 
 @app.route("/payer_abonnement", methods=["POST"])
+@login_required
 def payer_abonnement():
-    conn = get_db()
+    conn = db()
     cur = conn.cursor()
 
     date_fin = datetime.now() + timedelta(days=30)
@@ -305,43 +341,27 @@ def payer_abonnement():
 
 
 # =========================
-# IA (safe version)
+# IA SIMPLIFIÉE (SAFE)
 # =========================
 @app.route("/ia")
-def ia_page():
+@login_required
+def ia():
     return render_template("ia.html")
 
 
 @app.route("/chat_ia", methods=["POST"])
+@login_required
 def chat_ia():
     data = request.get_json()
-    question = data.get("message")
+    msg = data.get("message")
 
     return jsonify({
-        "response": f"Analyse IA simulée: {question}"
+        "response": f"Analyse IA simulée: {msg}"
     })
-
-
-# =========================
-# EXPORT
-# =========================
-@app.route("/export_excel")
-def export_excel():
-    conn = get_db()
-    cur = conn.cursor()
-
-    cur.execute("SELECT * FROM factures WHERE user_id=%s", (session["user_id"],))
-    data = cur.fetchall()
-
-    df = pd.DataFrame(data)
-    path = "/tmp/export.xlsx"
-    df.to_excel(path, index=False)
-
-    return send_file(path, as_attachment=True)
 
 
 # =========================
 # RUN
 # =========================
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(host="0.0.0.0", port=5000)
