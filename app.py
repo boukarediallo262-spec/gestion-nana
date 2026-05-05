@@ -142,10 +142,10 @@ def login():
 
         if not user:
             error = "Utilisateur introuvable"
-        elif not check_password_hash(user[2], password):
+        elif not check_password_hash(user["password"], password):
             error = "Mot de passe incorrect"
         else:
-            session["user_id"] = user[0]
+            session["user_id"] = user["id"]
             return redirect("/dashboard")
 
     return render_template("login.html", error=error)
