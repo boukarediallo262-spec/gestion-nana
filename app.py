@@ -22,8 +22,7 @@ client = OpenAI(api_key=os.getenv("OPENAI_API_KEY")) if os.getenv("OPENAI_API_KE
 # DB
 # =========================
 def get_db():
-    conn = psycopg2.connect(DATABASE_URL)
-    return conn
+    return psycopg2.connect(DATABASE_URL, cursor_factory=RealDictCursor)
 
 # =========================
 # INIT DB
@@ -112,7 +111,7 @@ def home():
 @app.route("/register", methods=["POST","GET"])
 def register():
     if request.method == "POST":
-        conn = db()
+        conn = get_db()
         cur = conn.cursor()
         cur.execute(
             "INSERT INTO users(username,password) VALUES(%s,%s)",
@@ -160,7 +159,7 @@ def logout():
 
 # =========================
 def check_abonnement(entreprise_id):
-    conn = db()
+    conn = get_db()
     cur = conn.cursor()
 
     cur.execute("""
@@ -210,7 +209,7 @@ def dashboard():
         FROM factures
         WHERE user_id=%s AND statut='payé' AND {condition}
     """, (user_id,))
-    ventes = cur.fetchone()[0] or 0
+    ventes = cur.fetchone()["coalesce"] or 0
 
     # 💸 DEPENSES
     cur.execute(f"""
@@ -218,7 +217,7 @@ def dashboard():
         FROM depenses
         WHERE user_id=%s AND {condition}
     """, (user_id,))
-    depenses = cur.fetchone()[0] or 0
+    depenses = cur.fetchone()["coalesce"] or 0
 
     # 📦 PRODUITS
     cur.execute("SELECT id, nom, quantite FROM produits WHERE user_id=%s", (user_id,))
@@ -264,34 +263,40 @@ def dashboard():
 # =========================
 # DATA GRAPHIQUES
 # =========================
-    data = conn.execute("""
-        SELECT DATE(created_at) as date,
-            SUM(total) as ventes
+    from datetime import datetime, timedelta
+
+# DATA GRAPHIQUES
+    cur.execute("""
+        SELECT DATE(created_at) as date, SUM(total) as ventes
         FROM factures
-        WHERE user_id=? AND statut='payé' AND created_at >= ?
+        WHERE user_id=%s AND statut='payé'
         GROUP BY DATE(created_at)
-    """, (user_id, date_debut)).fetchall()
+        ORDER BY date
+    """, (user_id,))
+    rows = cur.fetchall()
 
-    labels = [row["date"] for row in data]
-    ventes_data = [row["ventes"] for row in data]
+    labels = [str(r["date"]) for r in rows]
+    ventes_data = [float(r["ventes"]) for r in rows]
 
-# dépenses (depenses table)
-    depenses_data_db = conn.execute("""
-        SELECT DATE(created_at) as date,
-            SUM(montant) as total
+    cur.execute("""
+        SELECT DATE(created_at) as date, SUM(montant) as total
         FROM depenses
-        WHERE user_id=? AND created_at >= ?
+        WHERE user_id=%s
         GROUP BY DATE(created_at)
-    """, (user_id, date_debut)).fetchall()
+        ORDER BY date
+     """, (user_id,))
+     dep_rows = cur.fetchall()
 
-    depenses_map = {row["date"]: row["total"] for row in depenses_data_db}
+    dep_map = {str(r["date"]): float(r["total"]) for r in dep_rows}
 
-    depenses_data = [depenses_map.get(date, 0) for date in labels]
+    depenses_data = [dep_map.get(d, 0) for d in labels]
 
     benefice_data = [
         ventes_data[i] - depenses_data[i]
         for i in range(len(labels))
     ]
+    cur.execute("SELECT COUNT(*) FROM factures WHERE user_id=%s", (user_id,))
+    total_factures = cur.fetchone()["count"]
 
     conn.close()
     return render_template(
@@ -559,11 +564,8 @@ Donne:
 4. recommandations stratégiques
 5. prédiction du mois prochain
 """
-
-    res = client.chat.completions.create(
-        model="gpt-4o-mini",
-        messages=[{"role":"user","content":prompt}]
-    )
+    if not client:
+        return jsonify({"response": "IA non configurée"})
 
     return jsonify({"response": res.choices[0].message.content})
 #=========================
@@ -604,10 +606,8 @@ Question utilisateur:
 Réponds comme un comptable + conseiller financier + détecteur de fraude.
 """
 
-    res = client.chat.completions.create(
-        model="gpt-4o-mini",
-        messages=[{"role": "user", "content": prompt}]
-    )
+    if not client:
+        return jsonify({"response": "IA non configurée"})
 
     return jsonify({"response": res.choices[0].message.content})
 
