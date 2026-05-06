@@ -2,26 +2,127 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<title>Faso Gestion IA</title>
-<link rel="stylesheet" href="/static/style.css">
+<title>Faso Gestion</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+body{
+    margin:0;
+    font-family:Inter, sans-serif;
+    background:#f8fafc;
+    color:#111827;
+}
+
+/* SIDEBAR */
+.sidebar{
+    width:220px;
+    height:100vh;
+    position:fixed;
+    background:white;
+    border-right:1px solid #e5e7eb;
+    padding:20px;
+}
+
+.sidebar h2{
+    font-size:18px;
+    margin-bottom:25px;
+}
+
+.sidebar a{
+    display:block;
+    padding:10px;
+    margin-bottom:8px;
+    border-radius:8px;
+    text-decoration:none;
+    color:#374151;
+}
+
+.sidebar a:hover{
+    background:#f1f5f9;
+}
+
+/* CONTENT */
+.content{
+    margin-left:240px;
+    padding:25px;
+}
+
+/* CARDS */
+.cards{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+    gap:20px;
+}
+
+.card{
+    background:white;
+    padding:20px;
+    border-radius:14px;
+    box-shadow:0 4px 10px rgba(0,0,0,0.05);
+}
+
+.card h3{
+    font-size:14px;
+    color:#6b7280;
+}
+
+.card p{
+    font-size:22px;
+    font-weight:bold;
+}
+
+/* TABLE */
+table{
+    width:100%;
+    margin-top:20px;
+    border-collapse:collapse;
+    background:white;
+    border-radius:10px;
+    overflow:hidden;
+}
+
+th, td{
+    padding:12px;
+    border-bottom:1px solid #eee;
+}
+
+th{
+    background:#f1f5f9;
+    text-align:left;
+}
+
+/* BUTTON */
+button{
+    padding:10px 15px;
+    border:none;
+    border-radius:8px;
+    background:#2563eb;
+    color:white;
+    cursor:pointer;
+}
+
+button:hover{
+    background:#1d4ed8;
+}
+</style>
 </head>
 
 <body>
 
 <div class="sidebar">
-    <h2>Faso IA gestion </h2>
-
-    <a href="/dashboard">📊 Dashboard</a>
-    <a href="/produits">📦 Produits</a>
-    <a href="/factures">🧾 Factures</a>
-    <a href="/depenses">💸 Dépenses</a>
-    <a href="/ia">🤖 IA</a>
-    <a href="/abonnement">💳 Abonnement</a>
-    <a href="/logout">🚪 Déconnexion</a>
+    <h2>Faso Gestion</h2>
+    <a href="/dashboard">Dashboard</a>
+    <a href="/produits">Produits</a>
+    <a href="/factures">Factures</a>
+    <a href="/depenses">Dépenses</a>
+    <a href="/ia">IA Business</a>
+    <a href="/abonnement">Abonnement</a>
+    <a href="/logout">Déconnexion</a>
 </div>
 
-<div class="main">
+<div class="content">
     {% block content %}{% endblock %}
 </div>
 
