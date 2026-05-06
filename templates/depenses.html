@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h1>💸 Dépenses</h1>
+
+<form method="POST" action="/ajouter_depense">
+<input name="categorie" placeholder="Catégorie">
+<input name="montant" placeholder="Montant">
+<input name="description" placeholder="Description">
+<button>Ajouter</button>
+</form>
+
+{% endblock %}
