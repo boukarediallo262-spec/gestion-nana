@@ -58,3 +58,36 @@ body {
 .error {
     color:red;
 }
+.chat-box{
+    background:#111827;
+    height:400px;
+    overflow-y:auto;
+    padding:15px;
+    border-radius:10px;
+}
+
+.user{
+    background:#2563eb;
+    padding:10px;
+    margin:5px;
+    border-radius:8px;
+    text-align:right;
+}
+
+.bot{
+    background:#1f2937;
+    padding:10px;
+    margin:5px;
+    border-radius:8px;
+}
+
+.chat-input{
+    margin-top:10px;
+    display:flex;
+    gap:10px;
+}
+
+.chat-input input{
+    flex:1;
+    padding:10px;
+}
