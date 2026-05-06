@@ -186,13 +186,11 @@ def produits():
 # =====================
 # IA SIMPLE (SAFE)
 # =====================
-@app.route("/ia", methods=["POST"])
-def ia():
-    data = request.get_json()
-    question = data.get("message")
-
-    response = f"Analyse simple: {question}. (IA à connecter ensuite)"
-    return jsonify({"response": response})
+@app.route("/ia")
+def ia_page():
+    if "user_id" not in session:
+        return redirect("/login")
+    return render_template("ia.html")
 
 # =====================
 @app.route("/chat_ia", methods=["POST"])
