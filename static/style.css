@@ -66,3 +66,25 @@ body{
     padding:20px;
     border-radius:15px;
 }
+.card.green p{color:#22c55e;}
+.card.red p{color:#ef4444;}
+.card.blue p{color:#3b82f6;}
+
+.alerts{
+    margin-top:20px;
+}
+
+.alert{
+    background:#7f1d1d;
+    padding:10px;
+    margin:5px 0;
+    border-radius:8px;
+}
+
+.insight{
+    margin-top:20px;
+    background:#1e293b;
+    padding:15px;
+    border-radius:10px;
+    font-weight:bold;
+}
