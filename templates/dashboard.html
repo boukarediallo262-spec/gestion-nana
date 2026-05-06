@@ -2,15 +2,49 @@
 
 {% block content %}
 
-<h1>Dashboard</h1>
+<h1>📊 Dashboard</h1>
 
-<div class="grid">
+<div class="cards">
 
-<div class="box">Produits: {{ produits }}</div>
-<div class="box">Ventes: {{ ventes }}</div>
-<div class="box">Dépenses: {{ depenses }}</div>
-<div class="box">Bénéfice: {{ benefice }}</div>
+<div class="card">
+<h3>Ventes</h3>
+<p>{{ ventes }}</p>
+</div>
+
+<div class="card">
+<h3>Dépenses</h3>
+<p>{{ depenses }}</p>
+</div>
+
+<div class="card">
+<h3>Bénéfice</h3>
+<p>{{ benefice }}</p>
+</div>
+
+<div class="card">
+<h3>Produits</h3>
+<p>{{ produits }}</p>
+</div>
 
 </div>
+
+<div class="chart">
+<canvas id="chart"></canvas>
+</div>
+
+<script>
+const ctx = document.getElementById('chart');
+
+new Chart(ctx, {
+    type: 'line',
+    data: {
+        labels: ["Ventes","Dépenses","Bénéfice"],
+        datasets: [{
+            label: 'Statistiques',
+            data: [{{ ventes }}, {{ depenses }}, {{ benefice }}]
+        }]
+    }
+});
+</script>
 
 {% endblock %}
