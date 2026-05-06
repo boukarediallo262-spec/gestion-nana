@@ -1,50 +1,32 @@
-{% extends "base.html" %}
+{% extends "layout.html" %}
 
 {% block content %}
 
-<h1>📊 Dashboard</h1>
+<h2>Dashboard</h2>
 
-<!-- KPI -->
 <div class="cards">
+    <div class="card">
+        <h3>Ventes</h3>
+        <p>{{ ventes }} FCFA</p>
+    </div>
 
-<div class="card green">
-<h3>Ventes</h3>
-<p>{{ ventes }}</p>
+    <div class="card">
+        <h3>Dépenses</h3>
+        <p>{{ depenses }} FCFA</p>
+    </div>
+
+    <div class="card">
+        <h3>Bénéfice</h3>
+        <p>{{ benefice }} FCFA</p>
+    </div>
+
+    <div class="card">
+        <h3>Produits</h3>
+        <p>{{ total_produits }}</p>
+    </div>
 </div>
 
-<div class="card red">
-<h3>Dépenses</h3>
-<p>{{ depenses }}</p>
-</div>
-
-<div class="card blue">
-<h3>Bénéfice</h3>
-<p>{{ benefice }}</p>
-</div>
-
-<div class="card">
-<h3>Produits</h3>
-<p>{{ produits }}</p>
-</div>
-
-</div>
-
-<!-- ALERTES -->
-<div class="alerts">
-{% for a in alerts %}
-<div class="alert">{{ a }}</div>
-{% endfor %}
-</div>
-
-<!-- INSIGHT -->
-<div class="insight">
-🧠 {{ insight }}
-</div>
-
-<!-- GRAPH -->
-<div class="chart">
-<canvas id="chart"></canvas>
-</div>
+<canvas id="chart" height="100"></canvas>
 
 <script>
 const ctx = document.getElementById('chart');
@@ -54,21 +36,16 @@ new Chart(ctx, {
     data: {
         labels: {{ labels|safe }},
         datasets: [
-        {
-            label: 'Ventes',
-            data: {{ ventes_chart|safe }},
-            borderWidth:2
-        },
-        {
-            label: 'Dépenses',
-            data: {{ dep_chart|safe }},
-            borderWidth:2
-        },
-        {
-            label: 'Bénéfice',
-            data: {{ benef_chart|safe }},
-            borderWidth:2
-        }
+            {
+                label: 'Ventes',
+                data: {{ ventes_data|safe }},
+                borderWidth: 2
+            },
+            {
+                label: 'Dépenses',
+                data: {{ depenses_data|safe }},
+                borderWidth: 2
+            }
         ]
     }
 });
