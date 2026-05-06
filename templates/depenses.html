@@ -1,14 +1,24 @@
 {% extends "base.html" %}
-
 {% block content %}
 
-<h1>💸 Dépenses</h1>
+<h2>Dépenses</h2>
 
 <form method="POST" action="/ajouter_depense">
-<input name="categorie" placeholder="Catégorie">
-<input name="montant" placeholder="Montant">
-<input name="description" placeholder="Description">
-<button>Ajouter</button>
+    <input name="categorie" placeholder="Catégorie">
+    <input name="montant" type="number">
+    <input name="description" placeholder="Description">
+    <button>Ajouter</button>
 </form>
+
+<table>
+<tr><th>Catégorie</th><th>Montant</th><th>Description</th></tr>
+{% for d in depenses %}
+<tr>
+<td>{{ d.categorie }}</td>
+<td>{{ d.montant }}</td>
+<td>{{ d.description }}</td>
+</tr>
+{% endfor %}
+</table>
 
 {% endblock %}
