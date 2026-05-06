@@ -4,19 +4,20 @@
 
 <h1>📊 Dashboard</h1>
 
+<!-- KPI -->
 <div class="cards">
 
-<div class="card">
+<div class="card green">
 <h3>Ventes</h3>
 <p>{{ ventes }}</p>
 </div>
 
-<div class="card">
+<div class="card red">
 <h3>Dépenses</h3>
 <p>{{ depenses }}</p>
 </div>
 
-<div class="card">
+<div class="card blue">
 <h3>Bénéfice</h3>
 <p>{{ benefice }}</p>
 </div>
@@ -28,6 +29,19 @@
 
 </div>
 
+<!-- ALERTES -->
+<div class="alerts">
+{% for a in alerts %}
+<div class="alert">{{ a }}</div>
+{% endfor %}
+</div>
+
+<!-- INSIGHT -->
+<div class="insight">
+🧠 {{ insight }}
+</div>
+
+<!-- GRAPH -->
 <div class="chart">
 <canvas id="chart"></canvas>
 </div>
@@ -38,11 +52,24 @@ const ctx = document.getElementById('chart');
 new Chart(ctx, {
     type: 'line',
     data: {
-        labels: ["Ventes","Dépenses","Bénéfice"],
-        datasets: [{
-            label: 'Statistiques',
-            data: [{{ ventes }}, {{ depenses }}, {{ benefice }}]
-        }]
+        labels: {{ labels|safe }},
+        datasets: [
+        {
+            label: 'Ventes',
+            data: {{ ventes_chart|safe }},
+            borderWidth:2
+        },
+        {
+            label: 'Dépenses',
+            data: {{ dep_chart|safe }},
+            borderWidth:2
+        },
+        {
+            label: 'Bénéfice',
+            data: {{ benef_chart|safe }},
+            borderWidth:2
+        }
+        ]
     }
 });
 </script>
