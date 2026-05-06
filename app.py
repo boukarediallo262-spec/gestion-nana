@@ -62,6 +62,15 @@ def init_db():
         user_id INT
     )
     """)
+    cur.execute("""
+    ALTER TABLE users
+    ADD COLUMN IF NOT EXISTS abonnement INT DEFAULT 0
+    """)
+
+    cur.execute("""
+    ALTER TABLE users
+    ADD COLUMN IF NOT EXISTS date_fin_abonnement DATE
+    """)
 
     conn.commit()
     conn.close()
@@ -247,21 +256,12 @@ def produits():
 # =====================
 # IA SIMPLE (SAFE)
 # =====================
-@app.route("/ia")
-def ia_page():
-    if "user_id" not in session:
-        return redirect("/login")
-    return render_template("ia.html")
+@app.route("/ia_pro", methods=["POST"])
+def ia_pro():
+    if not client:
+        return jsonify({"response": "IA non configurée"})
 
-# =====================
-@app.route("/chat_ia", methods=["POST"])
-def chat_ia():
-    if "user_id" not in session:
-        return jsonify({"response": "Non autorisé"})
-
-    uid = session["user_id"]
-    data = request.get_json()
-    question = data.get("message")
+    uid = session.get("user_id")
 
     conn = get_db()
     cur = conn.cursor()
@@ -270,13 +270,164 @@ def chat_ia():
     ventes = cur.fetchone()["coalesce"]
 
     cur.execute("SELECT COALESCE(SUM(montant),0) FROM depenses WHERE user_id=%s", (uid,))
-    depenses = cur.fetchone()["coalesce"]
+    dep = cur.fetchone()["coalesce"]
 
     conn.close()
 
-    response = ask_ai(ventes, depenses, question)
+    prompt = f"""
+Entreprise:
+Ventes: {ventes}
+Dépenses: {dep}
+Bénéfice: {ventes - dep}
 
-    return jsonify({"response": response})
+Analyse comme un expert africain.
+"""
+
+    res = client.chat.completions.create(
+        model="gpt-4o-mini",
+        messages=[{"role":"user","content":prompt}]
+    )
+
+    return jsonify({"response": res.choices[0].message.content})
+# =====================
+@app.route("/chat_ia", methods=["POST"])
+def chat_ia():
+    if not client:
+        return jsonify({"response": "IA non configurée"})
+
+    data = request.get_json()
+    question = data.get("message", "")
+
+    res = client.chat.completions.create(
+        model="gpt-4o-mini",
+        messages=[{"role":"user","content":question}]
+    )
+
+    return jsonify({"response": res.choices[0].message.content})
+
+#=========================
+from functools import wraps
+
+def abonnement_required(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        if "user_id" not in session:
+            return redirect("/login")
+
+        conn = get_db()
+        cur = conn.cursor()
+
+        cur.execute("""
+            SELECT abonnement, date_fin_abonnement
+            FROM users WHERE id=%s
+        """, (session["user_id"],))
+
+        user = cur.fetchone()
+        conn.close()
+
+        if not user:
+            return redirect("/login")
+
+        if user["abonnement"] == 0:
+            return redirect("/abonnement")
+
+        if user["date_fin_abonnement"] and user["date_fin_abonnement"] < datetime.now().date():
+            return redirect("/abonnement")
+
+        return f(*args, **kwargs)
+
+    return decorated
+
+#=====================
+@app.route("/payer", methods=["POST"])
+def payer():
+    user_id = session["user_id"]
+
+    # ici tu peux vérifier paiement manuel
+
+    conn = get_db()
+    cur = conn.cursor()
+
+    date_fin = datetime.now() + timedelta(days=30)
+
+    cur.execute("""
+        UPDATE users
+        SET abonnement=1, date_fin_abonnement=%s
+        WHERE id=%s
+    """, (date_fin, user_id))
+
+    conn.commit()
+    conn.close()
+
+    return redirect("/dashboard")
+
+
+
+#====================
+@app.route("/create_facture", methods=["POST"])
+def create_facture():
+    uid = session["user_id"]
+    items = request.json["items"]
+
+    conn = get_db()
+    cur = conn.cursor()
+
+    cur.execute("""
+        INSERT INTO factures(user_id,total)
+        VALUES(%s,0) RETURNING id
+    """, (uid,))
+
+    facture_id = cur.fetchone()["id"]
+
+    total = 0
+
+    for item in items:
+        total += item["prix"] * item["quantite"]
+
+        cur.execute("""
+            INSERT INTO facture_items(facture_id,produit_id,quantite,total)
+            VALUES(%s,%s,%s,%s)
+        """, (
+            facture_id,
+            item["id"],
+            item["quantite"],
+            item["prix"] * item["quantite"]
+        ))
+
+    cur.execute("UPDATE factures SET total=%s WHERE id=%s", (total, facture_id))
+
+    conn.commit()
+    conn.close()
+
+    return jsonify({"success": True})
+
+#======================
+@app.route("/facture_pdf/<int:id>")
+def pdf(id):
+    buffer = io.BytesIO()
+    p = canvas.Canvas(buffer)
+
+    conn = get_db()
+    cur = conn.cursor()
+
+    cur.execute("SELECT * FROM facture_items WHERE facture_id=%s",(id,))
+    items = cur.fetchall()
+
+    y = 800
+    total = 0
+
+    p.drawString(50,820,f"FACTURE #{id}")
+
+    for i in items:
+        p.drawString(50,y,f"{i['quantite']} x {i['total']}")
+        total += i["total"]
+        y -= 20
+
+    p.drawString(50,y-20,f"TOTAL: {total}")
+    p.save()
+
+    buffer.seek(0)
+    return send_file(buffer, as_attachment=True, download_name="facture.pdf")
 # RUN
 # =====================
 if __name__ == "__main__":
