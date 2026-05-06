@@ -1,7 +1,36 @@
-<h2>🤖 Analyse IA</h2>
+{% extends "base.html" %}
 
-<pre>
-{{ analyse }}
-</pre>
+{% block content %}
 
-<a href="/dashboard">Retour</a>
+<h1>🤖 Assistant IA</h1>
+
+<div class="chat-box" id="chat"></div>
+
+<div class="chat-input">
+    <input id="msg" placeholder="Pose ta question...">
+    <button onclick="send()">Envoyer</button>
+</div>
+
+<script>
+async function send() {
+    let msg = document.getElementById("msg").value;
+
+    document.getElementById("chat").innerHTML += 
+        `<div class="user">${msg}</div>`;
+
+    let res = await fetch("/chat_ia", {
+        method: "POST",
+        headers: {"Content-Type":"application/json"},
+        body: JSON.stringify({message: msg})
+    });
+
+    let data = await res.json();
+
+    document.getElementById("chat").innerHTML += 
+        `<div class="bot">${data.response}</div>`;
+
+    document.getElementById("msg").value = "";
+}
+</script>
+
+{% endblock %}
