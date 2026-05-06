@@ -1,3 +1,4 @@
+from services.ai_service import ask_ai
 from flask import Flask, render_template, request, redirect, session, jsonify
 from werkzeug.security import generate_password_hash, check_password_hash
 import os
@@ -194,6 +195,29 @@ def ia():
     return jsonify({"response": response})
 
 # =====================
+@app.route("/chat_ia", methods=["POST"])
+def chat_ia():
+    if "user_id" not in session:
+        return jsonify({"response": "Non autorisé"})
+
+    uid = session["user_id"]
+    data = request.get_json()
+    question = data.get("message")
+
+    conn = get_db()
+    cur = conn.cursor()
+
+    cur.execute("SELECT COALESCE(SUM(total),0) FROM factures WHERE user_id=%s", (uid,))
+    ventes = cur.fetchone()["coalesce"]
+
+    cur.execute("SELECT COALESCE(SUM(montant),0) FROM depenses WHERE user_id=%s", (uid,))
+    depenses = cur.fetchone()["coalesce"]
+
+    conn.close()
+
+    response = ask_ai(ventes, depenses, question)
+
+    return jsonify({"response": response})
 # RUN
 # =====================
 if __name__ == "__main__":
