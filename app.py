@@ -138,6 +138,9 @@ def logout():
 # =====================
 # DASHBOARD
 # =====================
+from datetime import datetime, timedelta
+import json
+
 @app.route("/dashboard")
 def dashboard():
     if "user_id" not in session:
@@ -147,6 +150,7 @@ def dashboard():
     conn = get_db()
     cur = conn.cursor()
 
+    # 📊 KPI
     cur.execute("SELECT COUNT(*) FROM produits WHERE user_id=%s", (uid,))
     produits = cur.fetchone()["count"]
 
@@ -156,16 +160,73 @@ def dashboard():
     cur.execute("SELECT COALESCE(SUM(montant),0) FROM depenses WHERE user_id=%s", (uid,))
     depenses = cur.fetchone()["coalesce"]
 
+    benefice = ventes - depenses
+
+    # 📈 DONNÉES GRAPHIQUES (7 jours)
+    cur.execute("""
+        SELECT DATE(created_at) as date, SUM(total) as total
+        FROM factures
+        WHERE user_id=%s
+        GROUP BY DATE(created_at)
+        ORDER BY date DESC
+        LIMIT 7
+    """, (uid,))
+    ventes_data = cur.fetchall()
+
+    cur.execute("""
+        SELECT DATE(created_at) as date, SUM(montant) as total
+        FROM depenses
+        WHERE user_id=%s
+        GROUP BY DATE(created_at)
+        ORDER BY date DESC
+        LIMIT 7
+    """, (uid,))
+    dep_data = cur.fetchall()
+
     conn.close()
+
+    # Format graphique
+    labels = [str(d["date"]) for d in ventes_data][::-1]
+    ventes_chart = [float(d["total"] or 0) for d in ventes_data][::-1]
+
+    dep_map = {str(d["date"]): float(d["total"]) for d in dep_data}
+    dep_chart = [dep_map.get(l, 0) for l in labels]
+
+    benef_chart = [ventes_chart[i] - dep_chart[i] for i in range(len(labels))]
+
+    # ⚠️ ALERTES
+    alerts = []
+    if benefice < 0:
+        alerts.append("⚠️ Ton business est en perte")
+
+    if depenses > ventes:
+        alerts.append("⚠️ Dépenses supérieures aux ventes")
+
+    if produits == 0:
+        alerts.append("⚠️ Aucun produit enregistré")
+
+    # 🧠 INSIGHT SIMPLE
+    insight = "Ton business est stable"
+    if benefice > 100000:
+        insight = "🔥 Forte rentabilité"
+    elif benefice < 0:
+        insight = "⚠️ Situation critique"
 
     return render_template(
         "dashboard.html",
         produits=produits,
         ventes=ventes,
         depenses=depenses,
-        benefice=ventes - depenses
-    )
+        benefice=benefice,
 
+        labels=json.dumps(labels),
+        ventes_chart=json.dumps(ventes_chart),
+        dep_chart=json.dumps(dep_chart),
+        benef_chart=json.dumps(benef_chart),
+
+        alerts=alerts,
+        insight=insight
+    )
 # =====================
 # PRODUITS
 # =====================
