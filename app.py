@@ -362,8 +362,8 @@ def ajouter_depense():
 # =====================
 # IA SIMPLE (SAFE)
 # =====================
-@app.route("/ia_pro", methods=["POST"])
-def ia_pro():
+@app.route("/ia", methods=["POST"])
+def ia():
     if not client:
         return jsonify({"response": "IA non configurée"})
 
@@ -721,6 +721,7 @@ def abonnement():
     )
 
 #===========================================================
+from datetime import datetime, timedelta
 @app.route("/activer_abonnement", methods=["POST"])
 def activer_abonnement():
 
