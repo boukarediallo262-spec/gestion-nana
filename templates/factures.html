@@ -1,32 +1,35 @@
-{% extends "base.html" %}
+{% extends "layout.html" %}
+
 {% block content %}
+
 <h2>Factures</h2>
 
-<a href="/ajouter_facture">➕ Nouvelle facture</a><br><br>
-
-<table border="1">
+<table>
 <tr>
     <th>ID</th>
-    <th>Produit</th>
-    <th>Quantité</th>
     <th>Total</th>
     <th>Statut</th>
+    <th>Date</th>
+    <th>PDF</th>
 </tr>
 
 {% for f in factures %}
+
 <tr>
-    <td>{{ f.id }}</td>
-    <td>{{ f.nom_produit }}</td>
-    <td>{{ f.quantite }}</td>
-    <td>{{ f.total }}</td>
+    <td>#{{ f.id }}</td>
+    <td>{{ f.total }} FCFA</td>
     <td>{{ f.statut }}</td>
+    <td>{{ f.created_at }}</td>
+
+    <td>
+        <a href="/facture_pdf/{{ f.id }}">
+            PDF
+        </a>
+    </td>
 </tr>
+
 {% endfor %}
+
 </table>
 
-<br>
-<a href="/dashboard">⬅ Retour</a>
-<a href="/facture_detail/{{ f.id }}">🔍 Voir</a>
-<a href="/edit_facture/{{ f.id }}">✏️ Modifier</a>
-<a href="/facture_pdf/{{ f.id }}">📥 PDF</a>
 {% endblock %}
