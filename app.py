@@ -46,9 +46,19 @@ def init_db():
     CREATE TABLE IF NOT EXISTS factures (
         id SERIAL PRIMARY KEY,
         total FLOAT DEFAULT 0,
-        statut TEXT DEFAULT 'impayé',
+        statut TEXT DEFAULT 'payé',
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         user_id INT
+    )
+    """)
+
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS facture_items(
+        id SERIAL PRIMARY KEY,
+        facture_id INT,
+        produit_id INT,
+        quantite INT,
+        total FLOAT
     )
     """)
 
@@ -144,6 +154,33 @@ def logout():
     session.clear()
     return redirect("/login")
 
+#===============================================
+def abonnement_actif(user_id):
+
+    conn = get_db()
+    cur = conn.cursor()
+
+    cur.execute("""
+        SELECT abonnement, date_fin_abonnement
+        FROM users
+        WHERE id=%s
+    """, (user_id,))
+
+    user = cur.fetchone()
+
+    conn.close()
+
+    if not user:
+        return False
+
+    if user["abonnement"] != 1:
+        return False
+
+    if not user["date_fin_abonnement"]:
+        return False
+
+    return user["date_fin_abonnement"] >= datetime.now().date()
+
 # =====================
 # DASHBOARD
 # =====================
@@ -152,8 +189,13 @@ import json
 
 @app.route("/dashboard")
 def dashboard():
+
     if "user_id" not in session:
         return redirect("/login")
+
+    if not abonnement_actif(session["user_id"]):
+        return redirect("/abonnement")
+    
 
     uid = session["user_id"]
     conn = get_db()
@@ -170,6 +212,23 @@ def dashboard():
     depenses = cur.fetchone()["coalesce"]
 
     benefice = ventes - depenses
+
+    # affiche abonnement
+    cur.execute("""
+    SELECT abonnement, date_fin_abonnement
+    FROM users
+    WHERE id=%s
+    """, (user_id,))
+
+    abonnement_data = cur.fetchone()
+
+    jours_restants = 0
+
+    if abonnement_data["date_fin_abonnement"]:
+        jours_restants = (
+            abonnement_data["date_fin_abonnement"]
+            - datetime.now().date()
+        ).days
 
     # 📈 DONNÉES GRAPHIQUES (7 jours)
     cur.execute("""
@@ -234,7 +293,10 @@ def dashboard():
         benef_chart=json.dumps(benef_chart),
 
         alerts=alerts,
-        insight=insight
+        insight=insight,
+
+        abonnement=abonnement_data["abonnement"],
+        jours_restants=jours_restants
     )
 # =====================
 # Depenses
@@ -329,7 +391,12 @@ Analyse comme un expert africain.
 
     res = client.chat.completions.create(
         model="gpt-4o-mini",
-        messages=[{"role":"user","content":prompt}]
+        messages=[
+            {
+                "role":"user",
+                "content": prompt
+            }
+        ]
     )
 
     return jsonify({"response": res.choices[0].message.content})
