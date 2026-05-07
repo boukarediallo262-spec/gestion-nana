@@ -237,22 +237,32 @@ def dashboard():
         insight=insight
     )
 # =====================
-# PRODUITS
+# Depenses
 # =====================
-@app.route("/produits")
-def produits():
+
+@app.route("/depenses")
+def depenses_page():
     if "user_id" not in session:
         return redirect("/login")
 
     conn = get_db()
     cur = conn.cursor()
 
-    cur.execute("SELECT * FROM produits WHERE user_id=%s", (session["user_id"],))
-    data = cur.fetchall()
+    cur.execute("""
+        SELECT *
+        FROM depenses
+        WHERE user_id=%s
+        ORDER BY id DESC
+    """, (session["user_id"],))
+
+    depenses = cur.fetchall()
 
     conn.close()
-    return render_template("produits.html", produits=data)
 
+    return render_template(
+        "depenses.html",
+        depenses=depenses
+    )
 # =====================
 # IA SIMPLE (SAFE)
 # =====================
@@ -289,21 +299,48 @@ Analyse comme un expert africain.
     )
 
     return jsonify({"response": res.choices[0].message.content})
+
+#==========================================================
+@app.route("/ia")
+def ia_page():
+    return render_template("ia.html")
 # =====================
 @app.route("/chat_ia", methods=["POST"])
 def chat_ia():
+
     if not client:
-        return jsonify({"response": "IA non configurée"})
+        return jsonify({
+            "response": "OPENAI_API_KEY manquante dans Render"
+        })
 
     data = request.get_json()
+
     question = data.get("message", "")
 
-    res = client.chat.completions.create(
-        model="gpt-4o-mini",
-        messages=[{"role":"user","content":question}]
-    )
+    try:
 
-    return jsonify({"response": res.choices[0].message.content})
+        res = client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[
+                {
+                    "role":"system",
+                    "content":"Tu es un assistant business africain."
+                },
+                {
+                    "role":"user",
+                    "content":question
+                }
+            ]
+        )
+
+        return jsonify({
+            "response": res.choices[0].message.content
+        })
+
+    except Exception as e:
+        return jsonify({
+            "response": str(e)
+        })
 
 #=========================
 from functools import wraps
@@ -428,6 +465,110 @@ def pdf(id):
 
     buffer.seek(0)
     return send_file(buffer, as_attachment=True, download_name="facture.pdf")
+
+
+#=================================================================
+@app.route("/produits")
+def produits():
+    if "user_id" not in session:
+        return redirect("/login")
+
+    conn = get_db()
+    cur = conn.cursor()
+
+    cur.execute("""
+        SELECT *
+        FROM produits
+        WHERE user_id=%s
+        ORDER BY id DESC
+    """, (session["user_id"],))
+
+    produits = cur.fetchall()
+
+    conn.close()
+
+    return render_template(
+        "produits.html",
+        produits=produits
+    )
+#==============================================
+@app.route("/ajouter_produit", methods=["POST"])
+def ajouter_produit():
+
+    if "user_id" not in session:
+        return redirect("/login")
+
+    conn = get_db()
+    cur = conn.cursor()
+
+    cur.execute("""
+        INSERT INTO produits(
+            nom,
+            quantite,
+            prix_vente,
+            user_id
+        )
+        VALUES(%s,%s,%s,%s)
+    """, (
+        request.form["nom"],
+        request.form["quantite"],
+        request.form["prix"],
+        session["user_id"]
+    ))
+
+    conn.commit()
+    conn.close()
+
+    return redirect("/produits")
+#==============================================
+@app.route("/factures")
+def factures():
+    if "user_id" not in session:
+        return redirect("/login")
+
+    conn = get_db()
+    cur = conn.cursor()
+
+    cur.execute("""
+        SELECT *
+        FROM factures
+        WHERE user_id=%s
+        ORDER BY id DESC
+    """, (session["user_id"],))
+
+    factures = cur.fetchall()
+
+    conn.close()
+
+    return render_template(
+        "factures.html",
+        factures=factures
+    )
+
+
+#==================================================
+@app.route("/abonnement")
+def abonnement():
+    if "user_id" not in session:
+        return redirect("/login")
+
+    conn = get_db()
+    cur = conn.cursor()
+
+    cur.execute("""
+        SELECT abonnement, date_fin_abonnement
+        FROM users
+        WHERE id=%s
+    """, (session["user_id"],))
+
+    user = cur.fetchone()
+
+    conn.close()
+
+    return render_template(
+        "abonnement.html",
+        user=user
+    )
 # RUN
 # =====================
 if __name__ == "__main__":
