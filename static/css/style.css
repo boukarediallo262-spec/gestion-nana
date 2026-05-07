@@ -88,3 +88,33 @@ body{
     border-radius:10px;
     font-weight:bold;
 }
+
+.subscription-box{
+margin-bottom:20px;
+}
+
+.active-sub{
+background:#dcfce7;
+padding:20px;
+border-radius:16px;
+font-weight:bold;
+color:#166534;
+}
+
+.inactive-sub{
+background:#fee2e2;
+padding:20px;
+border-radius:16px;
+font-weight:bold;
+color:#991b1b;
+}
+
+.inactive-sub a{
+display:inline-block;
+margin-top:10px;
+padding:10px 18px;
+background:#dc2626;
+color:white;
+border-radius:10px;
+text-decoration:none;
+}
