@@ -263,6 +263,40 @@ def depenses_page():
         "depenses.html",
         depenses=depenses
     )
+
+#=======================================================================
+@app.route("/ajouter_depense", methods=["POST"])
+def ajouter_depense():
+
+    if "user_id" not in session:
+        return redirect("/login")
+
+    categorie = request.form["categorie"]
+    montant = request.form["montant"]
+    description = request.form["description"]
+
+    conn = get_db()
+    cur = conn.cursor()
+
+    cur.execute("""
+        INSERT INTO depenses(
+            categorie,
+            montant,
+            description,
+            user_id
+        )
+        VALUES(%s,%s,%s,%s)
+    """, (
+        categorie,
+        montant,
+        description,
+        session["user_id"]
+    ))
+
+    conn.commit()
+    conn.close()
+
+    return redirect("/depenses") 
 # =====================
 # IA SIMPLE (SAFE)
 # =====================
@@ -310,21 +344,21 @@ def chat_ia():
 
     if not client:
         return jsonify({
-            "response": "OPENAI_API_KEY manquante dans Render"
+            "response": "OPENAI_API_KEY manquante"
         })
 
-    data = request.get_json()
-
-    question = data.get("message", "")
-
     try:
+
+        data = request.get_json()
+
+        question = data.get("message", "")
 
         res = client.chat.completions.create(
             model="gpt-4o-mini",
             messages=[
                 {
                     "role":"system",
-                    "content":"Tu es un assistant business africain."
+                    "content":"Tu es un expert business africain."
                 },
                 {
                     "role":"user",
@@ -338,10 +372,10 @@ def chat_ia():
         })
 
     except Exception as e:
+
         return jsonify({
             "response": str(e)
         })
-
 #=========================
 from functools import wraps
 
@@ -498,23 +532,72 @@ def ajouter_produit():
     if "user_id" not in session:
         return redirect("/login")
 
+    nom = request.form["nom"].strip().lower()
+    quantite = int(request.form["quantite"])
+    prix = float(request.form["prix"])
+
+    conn = get_db()
+    cur = conn.cursor()
+
+    # vérifier si produit existe déjà
+    cur.execute("""
+        SELECT * FROM produits
+        WHERE nom=%s AND user_id=%s
+    """, (nom, session["user_id"]))
+
+    produit = cur.fetchone()
+
+    if produit:
+
+        nouvelle_quantite = produit["quantite"] + quantite
+
+        cur.execute("""
+            UPDATE produits
+            SET quantite=%s,
+                prix_vente=%s
+            WHERE id=%s
+        """, (
+            nouvelle_quantite,
+            prix,
+            produit["id"]
+        ))
+
+    else:
+
+        cur.execute("""
+            INSERT INTO produits(
+                nom,
+                quantite,
+                prix_vente,
+                user_id
+            )
+            VALUES(%s,%s,%s,%s)
+        """, (
+            nom,
+            quantite,
+            prix,
+            session["user_id"]
+        ))
+
+    conn.commit()
+    conn.close()
+
+    return redirect("/produits")
+
+#==============================================
+@app.route("/supprimer_produit/<int:id>")
+def supprimer_produit(id):
+
+    if "user_id" not in session:
+        return redirect("/login")
+
     conn = get_db()
     cur = conn.cursor()
 
     cur.execute("""
-        INSERT INTO produits(
-            nom,
-            quantite,
-            prix_vente,
-            user_id
-        )
-        VALUES(%s,%s,%s,%s)
-    """, (
-        request.form["nom"],
-        request.form["quantite"],
-        request.form["prix"],
-        session["user_id"]
-    ))
+        DELETE FROM produits
+        WHERE id=%s AND user_id=%s
+    """, (id, session["user_id"]))
 
     conn.commit()
     conn.close()
@@ -569,6 +652,33 @@ def abonnement():
         "abonnement.html",
         user=user
     )
+
+#===========================================================
+@app.route("/activer_abonnement", methods=["POST"])
+def activer_abonnement():
+
+    if "user_id" not in session:
+        return redirect("/login")
+
+    date_fin = datetime.now() + timedelta(days=30)
+
+    conn = get_db()
+    cur = conn.cursor()
+
+    cur.execute("""
+        UPDATE users
+        SET abonnement=1,
+            date_fin_abonnement=%s
+        WHERE id=%s
+    """, (
+        date_fin,
+        session["user_id"]
+    ))
+
+    conn.commit()
+    conn.close()
+
+    return redirect("/dashboard")
 # RUN
 # =====================
 if __name__ == "__main__":
