@@ -1,100 +1,40 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <title>Faso Gestion IA</title>
 
-<title>{% block title %}Faso Gestion IA{% endblock %}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<link rel="stylesheet"
-href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-
-<link rel="stylesheet"
-href="{{ url_for('static', filename='css/style.css') }}">
-
+    <link rel="stylesheet"
+    href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 
 <body>
 
-<div class="layout">
+<div class="sidebar">
 
-    <!-- SIDEBAR -->
-    <aside class="sidebar">
+    <h2>FASO IA</h2>
 
-        <div class="logo">
-            <h2>FasoGestion</h2>
-        </div>
+    <a href="/">Dashboard</a>
+    <a href="/produits">Produits</a>
+    <a href="/factures">Factures</a>
+    <a href="/depenses">Dépenses</a>
+    <a href="/abonnement">Abonnement</a>
+    <a href="/ia">IA Business</a>
 
-        <nav>
+</div>
 
-            <a href="/">
-                <i class="fa fa-chart-line"></i>
-                Dashboard
-            </a>
+<div class="main">
 
-            <a href="/produits">
-                <i class="fa fa-box"></i>
-                Produits
-            </a>
+    <div class="topbar">
 
-            <a href="/factures">
-                <i class="fa fa-file-invoice"></i>
-                Factures
-            </a>
+        <h1>Faso Gestion IA</h1>
 
-            <a href="/depenses">
-                <i class="fa fa-money-bill"></i>
-                Dépenses
-            </a>
+    </div>
 
-            <a href="/abonnement">
-                <i class="fa fa-crown"></i>
-                Abonnement
-            </a>
-
-            <a href="/ia">
-                <i class="fa fa-robot"></i>
-                IA Business
-            </a>
-
-            <a href="/logout">
-                <i class="fa fa-right-from-bracket"></i>
-                Déconnexion
-            </a>
-
-        </nav>
-
-    </aside>
-
-    <!-- CONTENT -->
-    <main class="main-content">
-
-        <!-- TOPBAR -->
-        <div class="topbar">
-
-            <div>
-                <h1>
-                    {% block page_title %}
-                    Dashboard
-                    {% endblock %}
-                </h1>
-            </div>
-
-            <div class="profile">
-                <i class="fa fa-user"></i>
-            </div>
-
-        </div>
-
-        <!-- PAGE -->
-        <div class="content">
-
-            {% block content %}
-            {% endblock %}
-
-        </div>
-
-    </main>
+    {% block content %}
+    {% endblock %}
 
 </div>
 
