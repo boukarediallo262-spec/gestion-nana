@@ -1,14 +1,76 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <title>Dashboard</title>
-</head>
-<body>
+{% extends "base.html" %}
 
-<h1>Faso Gestion IA</h1>
+{% block title %}
+Dashboard
+{% endblock %}
 
-<a href="/login">Connexion</a>
+{% block page_title %}
+Dashboard
+{% endblock %}
 
-</body>
-</html>
+{% block content %}
+
+<div class="cards">
+
+    <div class="card">
+        <h3>Ventes</h3>
+        <p>250 000 FCFA</p>
+    </div>
+
+    <div class="card">
+        <h3>Dépenses</h3>
+        <p>80 000 FCFA</p>
+    </div>
+
+    <div class="card">
+        <h3>Bénéfice</h3>
+        <p>170 000 FCFA</p>
+    </div>
+
+    <div class="card">
+        <h3>Produits</h3>
+        <p>120</p>
+    </div>
+
+</div>
+
+<div class="table-box">
+
+    <h2 style="margin-bottom:20px;">
+        Dernières Factures
+    </h2>
+
+    <table>
+
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Client</th>
+                <th>Total</th>
+                <th>Statut</th>
+            </tr>
+        </thead>
+
+        <tbody>
+
+            <tr>
+                <td>#001</td>
+                <td>Client A</td>
+                <td>50 000 FCFA</td>
+                <td>Payé</td>
+            </tr>
+
+            <tr>
+                <td>#002</td>
+                <td>Client B</td>
+                <td>30 000 FCFA</td>
+                <td>En attente</td>
+            </tr>
+
+        </tbody>
+
+    </table>
+
+</div>
+
+{% endblock %}
