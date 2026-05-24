@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="cards">
+
+    <div class="card">
+        <h3>Produits</h3>
+        <p>{{ total_produits }}</p>
+    </div>
+
+    <div class="card">
+        <h3>Factures</h3>
+        <p>{{ total_factures }}</p>
+    </div>
+
+    <div class="card">
+        <h3>Dépenses</h3>
+        <p>{{ total_depenses }} FCFA</p>
+    </div>
+
+    <div class="card">
+        <h3>Abonnement</h3>
+        <p>{{ abonnement }}</p>
+    </div>
+
+</div>
+
+{% endblock %}
