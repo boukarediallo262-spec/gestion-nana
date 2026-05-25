@@ -5,12 +5,12 @@
 <div class="cards">
 
     <div class="card">
-        <h3>Produits</h3>
+        <h3>Total Produits</h3>
         <p>{{ total_produits }}</p>
     </div>
 
     <div class="card">
-        <h3>Factures</h3>
+        <h3>Total Factures</h3>
         <p>{{ total_factures }}</p>
     </div>
 
@@ -23,6 +23,40 @@
         <h3>Abonnement</h3>
         <p>{{ abonnement }}</p>
     </div>
+
+</div>
+
+<br><br>
+
+<div class="table-container">
+
+    <div class="table-header">
+        <h2>Produits récents</h2>
+
+        <a href="/produits">
+            <button>Voir Produits</button>
+        </a>
+    </div>
+
+    <table>
+
+        <tr>
+            <th>Nom</th>
+            <th>Prix</th>
+            <th>Stock</th>
+        </tr>
+
+        {% for produit in produits %}
+
+        <tr>
+            <td>{{ produit.nom }}</td>
+            <td>{{ produit.prix }} FCFA</td>
+            <td>{{ produit.stock }}</td>
+        </tr>
+
+        {% endfor %}
+
+    </table>
 
 </div>
 
