@@ -6,8 +6,7 @@ import os
 db = SQLAlchemy()
 
 def create_app():
-    app.register_blueprint(abonnement_bp)
-
+    
     app = Flask(
         __name__,
         template_folder="templates",
@@ -17,6 +16,8 @@ def create_app():
     app.config["SECRET_KEY"] = os.getenv("SECRET_KEY", "secret")
     app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DATABASE_URL")
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+    app.register_blueprint(abonnement_bp)
+
 
     db.init_app(app)
 
