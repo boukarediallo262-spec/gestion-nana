@@ -17,6 +17,7 @@ class Produit(db.Model):
     nom = db.Column(db.String(200))
     quantite = db.Column(db.Integer)
     prix = db.Column(db.Float)
+    stock = db.Column(db.Integer)
 
     user_id = db.Column(db.Integer)
 
