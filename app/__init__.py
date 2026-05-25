@@ -1,3 +1,4 @@
+from app.routes.produit_routes import produit_bp
 from app.routes.abonnement_routes import abonnement_bp
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
@@ -16,7 +17,7 @@ def create_app():
     app.config["SECRET_KEY"] = os.getenv("SECRET_KEY", "secret")
     app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DATABASE_URL")
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-    app.register_blueprint(abonnement_bp)
+    
 
 
     db.init_app(app)
@@ -27,6 +28,9 @@ def create_app():
 
     app.register_blueprint(auth_bp)
     app.register_blueprint(dashboard_bp)
+    app.register_blueprint(abonnement_bp)
+    app.register_blueprint(produit_bp)
+    
 
     # CREATE TABLES
     with app.app_context():
