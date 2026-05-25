@@ -1,156 +1,24 @@
-*{
-    margin:0;
-    padding:0;
-    box-sizing:border-box;
-    font-family:Arial, sans-serif;
-}
+from flask import Blueprint, render_template
+from app.models.models import Produit, Facture, Depense
 
-body{
-    display:flex;
-    background:#f1fdf6;
-    color:#1f2937;
-}
+dashboard_bp = Blueprint("dashboard", __name__)
 
-/* SIDEBAR */
+@dashboard_bp.route("/")
+def home():
 
-.sidebar{
-    width:260px;
-    height:100vh;
-    background:linear-gradient(180deg,#065f46,#047857);
-    padding:25px;
-    position:fixed;
-    box-shadow:4px 0 20px rgba(0,0,0,0.1);
-}
+    total_produits = Produit.query.count()
+    total_factures = Facture.query.count()
 
-.sidebar h2{
-    color:white;
-    margin-bottom:40px;
-    font-size:28px;
-}
+    depenses = Depense.query.all()
 
-.sidebar a{
-    display:block;
-    color:white;
-    text-decoration:none;
-    padding:15px;
-    margin-bottom:12px;
-    border-radius:14px;
-    transition:0.3s;
-    font-size:17px;
-}
+    total_depenses = sum([d.montant for d in depenses])
 
-.sidebar a:hover{
-    background:rgba(255,255,255,0.15);
-    transform:translateX(5px);
-}
+    abonnement = "Actif"
 
-/* MAIN */
-
-.main{
-    margin-left:260px;
-    width:100%;
-    padding:30px;
-}
-
-/* TOPBAR */
-
-.topbar{
-    background:white;
-    padding:25px;
-    border-radius:20px;
-    margin-bottom:30px;
-    box-shadow:0 5px 20px rgba(0,0,0,0.05);
-}
-
-.topbar h1{
-    color:#065f46;
-}
-
-/* CARDS */
-
-.cards{
-    display:grid;
-    grid-template-columns:repeat(auto-fit,minmax(230px,1fr));
-    gap:25px;
-}
-
-.card{
-    background:white;
-    padding:30px;
-    border-radius:22px;
-    box-shadow:0 10px 25px rgba(0,0,0,0.05);
-    transition:0.3s;
-    border-left:6px solid #10b981;
-}
-
-.card:hover{
-    transform:translateY(-5px);
-}
-
-.card h3{
-    margin-bottom:15px;
-    color:#047857;
-    font-size:20px;
-}
-
-.card p{
-    font-size:34px;
-    font-weight:bold;
-    color:#111827;
-}
-
-/* TABLES */
-
-table{
-    width:100%;
-    border-collapse:collapse;
-    background:white;
-    border-radius:20px;
-    overflow:hidden;
-    margin-top:25px;
-    box-shadow:0 5px 20px rgba(0,0,0,0.05);
-}
-
-table th{
-    background:#047857;
-    color:white;
-    padding:15px;
-}
-
-table td{
-    padding:15px;
-    border-bottom:1px solid #e5e7eb;
-}
-
-/* BUTTONS */
-
-button{
-    background:#10b981;
-    color:white;
-    border:none;
-    padding:12px 20px;
-    border-radius:12px;
-    cursor:pointer;
-    font-size:16px;
-    transition:0.3s;
-}
-
-button:hover{
-    background:#059669;
-}
-
-/* INPUTS */
-
-input{
-    width:100%;
-    padding:14px;
-    margin-top:10px;
-    margin-bottom:20px;
-    border-radius:12px;
-    border:1px solid #d1d5db;
-    outline:none;
-}
-
-input:focus{
-    border:1px solid #10b981;
-}
+    return render_template(
+        "dashboard/index.html",
+        total_produits=total_produits,
+        total_factures=total_factures,
+        total_depenses=total_depenses,
+        abonnement=abonnement
+    )
