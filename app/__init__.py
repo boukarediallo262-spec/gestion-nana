@@ -1,3 +1,4 @@
+from app.routes.abonnement_routes import abonnement_bp
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 import os
@@ -5,6 +6,7 @@ import os
 db = SQLAlchemy()
 
 def create_app():
+    app.register_blueprint(abonnement_bp)
 
     app = Flask(
         __name__,
