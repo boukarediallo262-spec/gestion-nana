@@ -1,1 +1,25 @@
+<h1>Liste Produits</h1>
 
+<a href="/ajouter_produit">
+    Ajouter produit
+</a>
+
+<hr>
+
+{% for produit in produits %}
+
+<p>
+    {{ produit.nom }} -
+    {{ produit.prix }} FCFA -
+    Stock : {{ produit.stock }}
+
+    <a href="/modifier_produit/{{ produit.id }}">
+        Modifier
+    </a>
+
+    <a href="/supprimer_produit/{{ produit.id }}">
+        Supprimer
+    </a>
+</p>
+
+{% endfor %}
