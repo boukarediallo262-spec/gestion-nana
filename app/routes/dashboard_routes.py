@@ -13,6 +13,8 @@ def home():
 
     total_depenses = sum([d.montant for d in depenses])
 
+    produits = Produit.query.limit(5).all()
+
     abonnement = "Actif"
 
     return render_template(
@@ -20,5 +22,6 @@ def home():
         total_produits=total_produits,
         total_factures=total_factures,
         total_depenses=total_depenses,
-        abonnement=abonnement
+        abonnement=abonnement,
+        produits=produits
     )
