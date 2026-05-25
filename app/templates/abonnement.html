@@ -1,1 +1,59 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Gestion Abonnements</title>
+</head>
+<body>
 
+<h1>Gestion des abonnements</h1>
+
+<table border="1" cellpadding="10">
+
+<tr>
+    <th>ID</th>
+    <th>Nom</th>
+    <th>Abonnement</th>
+    <th>Action</th>
+</tr>
+
+{% for user in users %}
+
+<tr>
+    <td>{{ user.id }}</td>
+    <td>{{ user.username }}</td>
+
+    <td>
+        {% if user.abonnement == 1 %}
+            Actif
+        {% else %}
+            Inactif
+        {% endif %}
+    </td>
+
+    <td>
+
+        {% if user.abonnement == 1 %}
+
+        <a href="/desactiver_abonnement/{{ user.id }}">
+            Désactiver
+        </a>
+
+        {% else %}
+
+        <a href="/activer_abonnement/{{ user.id }}">
+            Activer
+        </a>
+
+        {% endif %}
+
+    </td>
+
+</tr>
+
+{% endfor %}
+
+</table>
+
+</body>
+</html>
