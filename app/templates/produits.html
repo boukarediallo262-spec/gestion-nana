@@ -1,4 +1,9 @@
 <h1>Liste Produits</h1>
+{% extends 'base.html' %}
+
+{% block content %}
+
+<h1>Liste Produits</h1>
 
 <a href="/ajouter_produit">
     Ajouter produit
@@ -9,8 +14,11 @@
 {% for produit in produits %}
 
 <p>
-    {{ produit.nom }} -
-    {{ produit.prix }} FCFA -
+
+    {{ produit.nom }}
+    -
+    {{ produit.prix }} FCFA
+    -
     Stock : {{ produit.stock }}
 
     <a href="/modifier_produit/{{ produit.id }}">
@@ -20,6 +28,9 @@
     <a href="/supprimer_produit/{{ produit.id }}">
         Supprimer
     </a>
+
 </p>
 
 {% endfor %}
+
+{% endblock %}
