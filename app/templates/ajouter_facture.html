@@ -1,37 +1,79 @@
-<h1>Ajouter Facture</h1>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Ajouter Facture</title>
 
-<form method="POST">
+    <style>
 
-    <input
-        type="text"
-        name="client"
-        placeholder="Nom client"
-    >
+        body{
+            font-family:Arial;
+            background:#f4fff7;
+            padding:40px;
+        }
 
-    <select name="produit_id">
+        .box{
+            width:400px;
+            background:white;
+            padding:30px;
+            border-radius:15px;
+            margin:auto;
+        }
 
-        {% for produit in produits %}
+        h1{
+            color:#198754;
+        }
 
-        <option value="{{ produit.id }}">
+        input{
+            width:100%;
+            padding:12px;
+            margin-top:10px;
+            margin-bottom:20px;
+            border:1px solid #ccc;
+            border-radius:8px;
+        }
 
-            {{ produit.nom }}
+        button,a{
+            background:#198754;
+            color:white;
+            padding:12px 18px;
+            border:none;
+            border-radius:8px;
+            text-decoration:none;
+            cursor:pointer;
+        }
 
-        </option>
+    </style>
 
-        {% endfor %}
+</head>
+<body>
 
-    </select>
+<div class="box">
 
-    <input
-        type="number"
-        name="quantite"
-        placeholder="Quantité"
-    >
+    <h1>➕ Ajouter Facture</h1>
 
-    <button type="submit">
+    <form method="POST">
 
-        Valider
+        <input type="text"
+               name="client"
+               placeholder="Nom du client"
+               required>
 
-    </button>
+        <input type="number"
+               name="montant"
+               placeholder="Montant"
+               required>
 
-</form>
+        <button type="submit">
+            Enregistrer
+        </button>
+
+        <a href="/factures">
+            Retour
+        </a>
+
+    </form>
+
+</div>
+
+</body>
+</html>
