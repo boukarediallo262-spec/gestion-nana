@@ -1,1 +1,27 @@
+<h1>Liste Dépenses</h1>
 
+<a href="/ajouter_depense">
+    Ajouter dépense
+</a>
+
+<hr>
+
+<h3>Total Dépenses : {{ total_depenses }} FCFA</h3>
+
+<hr>
+
+{% for depense in depenses %}
+
+<p>
+
+    {{ depense.nom }}
+    -
+    {{ depense.montant }} FCFA
+
+    <a href="/supprimer_depense/{{ depense.id }}">
+        Supprimer
+    </a>
+
+</p>
+
+{% endfor %}
