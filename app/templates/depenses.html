@@ -1,31 +1,125 @@
-<h1>Liste Dépenses</h1>
-{% extends 'base.html' %}
+<!DOCTYPE html>
+<html>
+<head>
 
-{% block content %}
+    <title>Dépenses</title>
 
-<a href="/ajouter_depense">
-    Ajouter dépense
-</a>
+    <style>
 
-<hr>
+        body{
+            font-family:Arial;
+            background:#f4fff7;
+            padding:20px;
+        }
 
-<h3>Total Dépenses : {{ total_depenses }} FCFA</h3>
+        h1{
+            color:#198754;
+        }
 
-<hr>
+        .top{
+            margin-bottom:20px;
+        }
 
-{% for depense in depenses %}
+        .btn{
+            background:#198754;
+            color:white;
+            padding:10px 15px;
+            text-decoration:none;
+            border-radius:8px;
+            margin-right:10px;
+        }
 
-<p>
+        .delete{
+            background:red;
+        }
 
-    {{ depense.nom }}
-    -
-    {{ depense.montant }} FCFA
+        table{
+            width:100%;
+            background:white;
+            border-collapse:collapse;
+            border-radius:10px;
+            overflow:hidden;
+        }
 
-    <a href="/supprimer_depense/{{ depense.id }}">
-        Supprimer
-    </a>
+        th{
+            background:#198754;
+            color:white;
+        }
 
-</p>
+        th,td{
+            padding:15px;
+            border-bottom:1px solid #ddd;
+        }
 
-{% endfor %}
-{% endblock %}
+        .total{
+            margin-top:20px;
+            background:white;
+            padding:20px;
+            border-radius:10px;
+            font-size:22px;
+            color:#198754;
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+    <h1>💰 Gestion des Dépenses</h1>
+
+    <div class="top">
+
+        <a class="btn" href="/ajouter_depense">
+            ➕ Ajouter Dépense
+        </a>
+
+        <a class="btn" href="/">
+            🏠 Accueil
+        </a>
+
+    </div>
+
+    <table>
+
+        <tr>
+            <th>ID</th>
+            <th>Nom</th>
+            <th>Montant</th>
+            <th>Action</th>
+        </tr>
+
+        {% for depense in depenses %}
+
+        <tr>
+
+            <td>{{ depense.id }}</td>
+
+            <td>{{ depense.nom }}</td>
+
+            <td>{{ depense.montant }} FCFA</td>
+
+            <td>
+
+                <a class="btn delete"
+                   href="/supprimer_depense/{{ depense.id }}">
+                   Supprimer
+                </a>
+
+            </td>
+
+        </tr>
+
+        {% endfor %}
+
+    </table>
+
+    <div class="total">
+
+        Total Dépenses :
+        <strong>{{ total }} FCFA</strong>
+
+    </div>
+
+</body>
+</html>
