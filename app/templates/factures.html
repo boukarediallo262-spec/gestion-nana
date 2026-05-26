@@ -1,33 +1,101 @@
-<h1>Liste Factures</h1>
-{% extends 'base.html' %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Factures</title>
 
-{% block content %}
+    <style>
 
-<a href="/ajouter_facture">
-    Nouvelle facture
-</a>
+        body{
+            font-family:Arial;
+            background:#f4fff7;
+            padding:20px;
+        }
 
-<hr>
+        h1{
+            color:#0f5132;
+        }
 
-{% for facture in factures %}
+        table{
+            width:100%;
+            background:white;
+            border-collapse:collapse;
+            border-radius:10px;
+            overflow:hidden;
+        }
 
-<p>
+        th,td{
+            padding:15px;
+            border-bottom:1px solid #ddd;
+        }
 
-    {{ facture.client }}
-    -
-    {{ facture.produit }}
-    -
-    {{ facture.total }} FCFA
+        th{
+            background:#198754;
+            color:white;
+        }
 
-    <a href="/facture/{{ facture.id }}">
-        Voir
+        .btn{
+            background:#198754;
+            color:white;
+            padding:10px 15px;
+            text-decoration:none;
+            border-radius:8px;
+            margin-right:10px;
+        }
+
+        .delete{
+            background:red;
+        }
+
+    </style>
+
+</head>
+<body>
+
+    <h1>📄 Liste des Factures</h1>
+
+    <br>
+
+    <a class="btn" href="/ajouter_facture">
+        ➕ Ajouter Facture
     </a>
 
-    <a href="/supprimer_facture/{{ facture.id }}">
-        Supprimer
+    <a class="btn" href="/">
+        🏠 Retour Accueil
     </a>
 
-</p>
+    <br><br>
 
-{% endfor %}
-{% endblock %}
+    <table>
+
+        <tr>
+            <th>ID</th>
+            <th>Client</th>
+            <th>Montant</th>
+            <th>Action</th>
+        </tr>
+
+        {% for facture in factures %}
+
+        <tr>
+
+            <td>{{ facture.id }}</td>
+
+            <td>{{ facture.client }}</td>
+
+            <td>{{ facture.montant }} FCFA</td>
+
+            <td>
+                <a class="btn delete"
+                   href="/supprimer_facture/{{ facture.id }}">
+                   Supprimer
+                </a>
+            </td>
+
+        </tr>
+
+        {% endfor %}
+
+    </table>
+
+</body>
+</html>
