@@ -1,38 +1,30 @@
-from app.routes.produit_routes import produit_bp
-from app.routes.abonnement_routes import abonnement_bp
 from flask import Flask
-from flask_sqlalchemy import SQLAlchemy
-import os
-
-db = SQLAlchemy()
+from app.models.models import db
 
 def create_app():
-    
-    app = Flask(
-        __name__,
-        template_folder="templates",
-        static_folder="static"
-    )
 
-    app.config["SECRET_KEY"] = os.getenv("SECRET_KEY", "secret")
-    app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DATABASE_URL")
-    app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-    
+    app = Flask(__name__)
+
+    app.config['SECRET_KEY'] = 'faso_secret'
+
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///gestion.db'
+
+    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 
     db.init_app(app)
 
-    # IMPORT BLUEPRINTS
-    from app.routes.auth_routes import auth_bp
+
     from app.routes.dashboard_routes import dashboard_bp
+    from app.routes.produit_routes import produit_bp
+    from app.routes.abonnement_routes import abonnement_bp
 
-    app.register_blueprint(auth_bp)
+
     app.register_blueprint(dashboard_bp)
-    app.register_blueprint(abonnement_bp)
     app.register_blueprint(produit_bp)
-    
+    app.register_blueprint(abonnement_bp)
 
-    # CREATE TABLES
+
     with app.app_context():
         db.create_all()
 
