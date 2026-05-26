@@ -1,42 +1,86 @@
 <!DOCTYPE html>
 <html lang="fr">
+
 <head>
+
     <meta charset="UTF-8">
+
     <title>Faso Gestion IA</title>
 
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
 
-    <link rel="stylesheet"
-    href="{{ url_for('static', filename='css/style.css') }}">
+        body{
+            margin:0;
+            padding:0;
+            font-family:Arial;
+            background:#f5f7f8;
+        }
+
+        .navbar{
+            background:#0f8b4c;
+            padding:15px;
+            display:flex;
+            gap:15px;
+        }
+
+        .navbar a{
+            color:white;
+            text-decoration:none;
+            font-weight:bold;
+        }
+
+        .navbar a:hover{
+            color:#d4ffd4;
+        }
+
+        .container{
+            padding:20px;
+        }
+
+        h1{
+            color:#0f8b4c;
+        }
+
+        .card{
+            background:white;
+            padding:20px;
+            border-radius:10px;
+            box-shadow:0 0 10px rgba(0,0,0,0.1);
+        }
+
+    </style>
+
 </head>
 
 <body>
 
-<div class="sidebar">
+    <div class="navbar">
 
-    <h2>FASO IA</h2>
+        <a href="/">Accueil</a>
 
-    <a href="/">Dashboard</a>
-    <a href="/produits">Produits</a>
-    <a href="/factures">Factures</a>
-    <a href="/depenses">Dépenses</a>
-    <a href="/abonnement">Abonnement</a>
-    <a href="/ia">IA Business</a>
+        <a href="/produits">Produits</a>
 
-</div>
+        <a href="/factures">Factures</a>
 
-<div class="main">
+        <a href="/depenses">Dépenses</a>
 
-    <div class="topbar">
-
-        <h1>Faso Gestion IA</h1>
+        <a href="/abonnement">Abonnements</a>
+        <a href="/ia">Ia-bisness</a>
 
     </div>
 
-    {% block content %}
-    {% endblock %}
+    <div class="container">
 
-</div>
+        <div class="card">
+
+            {% block content %}
+
+            {% endblock %}
+
+        </div>
+
+    </div>
 
 </body>
+
 </html>
