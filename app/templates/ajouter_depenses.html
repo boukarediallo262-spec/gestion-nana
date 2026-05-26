@@ -1,23 +1,81 @@
-<h1>Ajouter Dépense</h1>
+<!DOCTYPE html>
+<html>
+<head>
 
-<form method="POST">
+    <title>Ajouter Dépense</title>
 
-    <input
-        type="text"
-        name="nom"
-        placeholder="Nom dépense"
-    >
+    <style>
 
-    <input
-        type="number"
-        name="montant"
-        placeholder="Montant"
-    >
+        body{
+            font-family:Arial;
+            background:#f4fff7;
+            padding:40px;
+        }
 
-    <button type="submit">
+        .box{
+            width:400px;
+            background:white;
+            padding:30px;
+            border-radius:15px;
+            margin:auto;
+        }
 
-        Ajouter
+        h1{
+            color:#198754;
+        }
 
-    </button>
+        input{
+            width:100%;
+            padding:12px;
+            margin-top:10px;
+            margin-bottom:20px;
+            border:1px solid #ccc;
+            border-radius:8px;
+        }
 
-</form>
+        button,a{
+            background:#198754;
+            color:white;
+            padding:12px 18px;
+            border:none;
+            border-radius:8px;
+            text-decoration:none;
+            cursor:pointer;
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+<div class="box">
+
+    <h1>➕ Ajouter Dépense</h1>
+
+    <form method="POST">
+
+        <input type="text"
+               name="nom"
+               placeholder="Nom de la dépense"
+               required>
+
+        <input type="number"
+               name="montant"
+               placeholder="Montant"
+               required>
+
+        <button type="submit">
+            Enregistrer
+        </button>
+
+        <a href="/depenses">
+            Retour
+        </a>
+
+    </form>
+
+</div>
+
+</body>
+</html>
