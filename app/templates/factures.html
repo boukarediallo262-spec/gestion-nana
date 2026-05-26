@@ -1,1 +1,29 @@
+<h1>Liste Factures</h1>
 
+<a href="/ajouter_facture">
+    Nouvelle facture
+</a>
+
+<hr>
+
+{% for facture in factures %}
+
+<p>
+
+    {{ facture.client }}
+    -
+    {{ facture.produit }}
+    -
+    {{ facture.total }} FCFA
+
+    <a href="/facture/{{ facture.id }}">
+        Voir
+    </a>
+
+    <a href="/supprimer_facture/{{ facture.id }}">
+        Supprimer
+    </a>
+
+</p>
+
+{% endfor %}
