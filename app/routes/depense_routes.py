@@ -1,25 +1,28 @@
-from flask import Blueprint, render_template, request, redirect, url_for, flash
+from flask import Blueprint, render_template, request, redirect, url_for
 from app.models.models import db, Depense
 
 depense_bp = Blueprint('depense', __name__)
 
-
-# LISTE DEPENSES
+# ==============================
+# LISTE DES DEPENSES
+# ==============================
 @depense_bp.route('/depenses')
 def depenses():
 
-    depenses = Depense.query.all()
+    depenses = Depense.query.order_by(Depense.id.desc()).all()
 
-    total_depenses = sum(depense.montant for depense in depenses)
+    total = sum(depense.montant for depense in depenses)
 
     return render_template(
         'depenses.html',
         depenses=depenses,
-        total_depenses=total_depenses
+        total=total
     )
 
 
+# ==============================
 # AJOUT DEPENSE
+# ==============================
 @depense_bp.route('/ajouter_depense', methods=['GET', 'POST'])
 def ajouter_depense():
 
@@ -34,26 +37,22 @@ def ajouter_depense():
         )
 
         db.session.add(nouvelle_depense)
-
         db.session.commit()
-
-        flash("Dépense ajoutée avec succès", "success")
 
         return redirect(url_for('depense.depenses'))
 
     return render_template('ajouter_depense.html')
 
 
+# ==============================
 # SUPPRIMER DEPENSE
+# ==============================
 @depense_bp.route('/supprimer_depense/<int:id>')
 def supprimer_depense(id):
 
     depense = Depense.query.get_or_404(id)
 
     db.session.delete(depense)
-
     db.session.commit()
-
-    flash("Dépense supprimée", "danger")
 
     return redirect(url_for('depense.depenses'))
