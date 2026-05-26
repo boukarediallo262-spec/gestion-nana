@@ -32,6 +32,7 @@ class Facture(db.Model):
     produit = db.Column(db.String(200))
 
     quantite = db.Column(db.Integer)
+    montant = db.Column(db.Integer)
 
     total = db.Column(db.Float)
 
