@@ -24,7 +24,14 @@ class Produit(db.Model):
     user_id = db.Column(db.Integer)
 
 class Facture(db.Model):
+
     id = db.Column(db.Integer, primary_key=True)
+
+    client = db.Column(db.String(200))
+
+    produit = db.Column(db.String(200))
+
+    quantite = db.Column(db.Integer)
 
     total = db.Column(db.Float)
 
