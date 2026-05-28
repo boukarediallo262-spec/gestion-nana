@@ -1,63 +1,356 @@
-{% extends 'base.html' %}
+<!DOCTYPE html>
+<html lang="fr">
 
-{% block content %}
+<head>
 
-<div class="cards">
+    <meta charset="UTF-8">
 
-    <div class="card">
-        <h3>Total Produits</h3>
-        <p>{{ total_produits }}</p>
-    </div>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <div class="card">
-        <h3>Total Factures</h3>
-        <p>{{ total_factures }}</p>
-    </div>
+    <title>FASO GESTION IA</title>
 
-    <div class="card">
-        <h3>Dépenses</h3>
-        <p>{{ total_depenses }} FCFA</p>
-    </div>
+    <style>
 
-    <div class="card">
-        <h3>Abonnement</h3>
-        <p>{{ abonnement }}</p>
-    </div>
+        *{
+            margin:0;
+            padding:0;
+            box-sizing:border-box;
+            font-family:Arial;
+        }
 
-</div>
+        body{
+            background:#f4fff7;
+        }
 
-<br><br>
+        /* HEADER */
 
-<div class="table-container">
+        header{
 
-    <div class="table-header">
-        <h2>Produits récents</h2>
+            background:linear-gradient(135deg,#198754,#0d6b42);
 
-        <a href="/produits">
-            <button>Voir Produits</button>
+            padding:20px;
+
+            color:white;
+
+            display:flex;
+
+            justify-content:space-between;
+
+            align-items:center;
+
+            box-shadow:0 4px 10px rgba(0,0,0,0.2);
+
+        }
+
+        header h1{
+            font-size:30px;
+        }
+
+        .logout{
+
+            background:white;
+
+            color:#198754;
+
+            padding:10px 18px;
+
+            border-radius:8px;
+
+            text-decoration:none;
+
+            font-weight:bold;
+
+        }
+
+        /* HERO */
+
+        .hero{
+
+            padding:40px;
+
+        }
+
+        .welcome{
+
+            background:white;
+
+            padding:30px;
+
+            border-radius:15px;
+
+            box-shadow:0 5px 15px rgba(0,0,0,0.1);
+
+            margin-bottom:30px;
+
+        }
+
+        .welcome h2{
+            color:#198754;
+            margin-bottom:10px;
+        }
+
+        .welcome p{
+            color:#555;
+            font-size:18px;
+        }
+
+        /* CARDS */
+
+        .dashboard{
+
+            display:grid;
+
+            grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+
+            gap:25px;
+
+        }
+
+        .card{
+
+            background:white;
+
+            border-radius:20px;
+
+            padding:30px;
+
+            text-decoration:none;
+
+            color:black;
+
+            transition:0.3s;
+
+            box-shadow:0 5px 15px rgba(0,0,0,0.08);
+
+            position:relative;
+
+            overflow:hidden;
+
+        }
+
+        .card:hover{
+
+            transform:translateY(-8px);
+
+            box-shadow:0 10px 25px rgba(0,0,0,0.15);
+
+        }
+
+        .icon{
+
+            font-size:50px;
+
+            margin-bottom:20px;
+
+        }
+
+        .card h3{
+
+            color:#198754;
+
+            margin-bottom:10px;
+
+            font-size:24px;
+
+        }
+
+        .card p{
+
+            color:#666;
+
+            line-height:1.5;
+
+        }
+
+        /* FOOTER */
+
+        footer{
+
+            text-align:center;
+
+            padding:25px;
+
+            margin-top:40px;
+
+            color:#666;
+
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+    <!-- HEADER -->
+
+    <header>
+
+        <h1>🌍 FASO GESTION IA</h1>
+
+        <a href="/logout" class="logout">
+            Déconnexion
         </a>
+
+    </header>
+
+
+    <!-- HERO -->
+
+    <div class="hero">
+
+        <div class="welcome">
+
+            <h2>
+                Bienvenue sur votre plateforme de gestion intelligente
+            </h2>
+
+            <p>
+
+                Gérez vos produits, clients, factures, dépenses et stock
+                avec une interface moderne et professionnelle.
+
+            </p>
+
+        </div>
+
+
+        <!-- DASHBOARD -->
+
+        <div class="dashboard">
+
+            <!-- PRODUITS -->
+
+            <a href="/produits" class="card">
+
+                <div class="icon">📦</div>
+
+                <h3>Produits</h3>
+
+                <p>
+                    Ajouter et gérer tous vos produits facilement.
+                </p>
+
+            </a>
+
+
+            <!-- CLIENTS -->
+
+            <a href="/clients" class="card">
+
+                <div class="icon">👥</div>
+
+                <h3>Clients</h3>
+
+                <p>
+                    Gérez votre liste de clients professionnels.
+                </p>
+
+            </a>
+
+
+            <!-- FACTURES -->
+
+            <a href="/factures" class="card">
+
+                <div class="icon">🧾</div>
+
+                <h3>Factures</h3>
+
+                <p>
+                    Créez et imprimez vos factures rapidement.
+                </p>
+
+            </a>
+
+
+            <!-- DEPENSES -->
+
+            <a href="/depenses" class="card">
+
+                <div class="icon">💰</div>
+
+                <h3>Dépenses</h3>
+
+                <p>
+                    Suivez toutes les dépenses de votre activité.
+                </p>
+
+            </a>
+
+
+            <!-- STOCK -->
+
+            <a href="/stock" class="card">
+
+                <div class="icon">🏪</div>
+
+                <h3>Gestion Stock</h3>
+
+                <p>
+                    Contrôlez les quantités et alertes de stock.
+                </p>
+
+            </a>
+
+
+            <!-- ABONNEMENTS -->
+
+            <a href="/abonnements" class="card">
+
+                <div class="icon">⭐</div>
+
+                <h3>Abonnements</h3>
+
+                <p>
+                    Gérez les abonnements premium des utilisateurs.
+                </p>
+
+            </a>
+
+
+            <!-- STATISTIQUES -->
+
+            <a href="/statistiques" class="card">
+
+                <div class="icon">📊</div>
+
+                <h3>Statistiques</h3>
+
+                <p>
+                    Analysez les ventes et performances.
+                </p>
+
+            </a>
+
+
+            <!-- PARAMETRES -->
+
+            <a href="/parametres" class="card">
+
+                <div class="icon">⚙️</div>
+
+                <h3>Paramètres</h3>
+
+                <p>
+                    Configurez votre application facilement.
+                </p>
+
+            </a>
+
+        </div>
+
     </div>
 
-    <table>
 
-        <tr>
-            <th>Nom</th>
-            <th>Prix</th>
-            <th>Stock</th>
-        </tr>
+    <!-- FOOTER -->
 
-        {% for produit in produits %}
+    <footer>
 
-        <tr>
-            <td>{{ produit.nom }}</td>
-            <td>{{ produit.prix }} FCFA</td>
-            <td>{{ produit.stock }}</td>
-        </tr>
+        © 2026 FASO GESTION IA — Application Premium de Gestion
 
-        {% endfor %}
+    </footer>
 
-    </table>
+</body>
 
-</div>
-
-{% endblock %}
+</html>
