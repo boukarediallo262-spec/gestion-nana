@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+    <title>Gestion Stock</title>
+
+    <style>
+
+        body{
+            font-family:Arial;
+            background:#f4fff7;
+            padding:20px;
+        }
+
+        h1{
+            color:#198754;
+        }
+
+        .top{
+            margin-bottom:20px;
+        }
+
+        .btn{
+            background:#198754;
+            color:white;
+            padding:10px 15px;
+            text-decoration:none;
+            border-radius:8px;
+            margin-right:10px;
+        }
+
+        .delete{
+            background:red;
+        }
+
+        table{
+            width:100%;
+            border-collapse:collapse;
+            background:white;
+            border-radius:10px;
+            overflow:hidden;
+        }
+
+        th{
+            background:#198754;
+            color:white;
+        }
+
+        th,td{
+            padding:15px;
+            border-bottom:1px solid #ddd;
+        }
+
+        .faible{
+            color:red;
+            font-weight:bold;
+        }
+
+        .normal{
+            color:green;
+            font-weight:bold;
+        }
+
+        .card{
+            background:white;
+            padding:20px;
+            border-radius:10px;
+            margin-top:20px;
+            font-size:22px;
+            color:#198754;
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+    <h1>📦 Gestion du Stock</h1>
+
+    <div class="top">
+
+        <a class="btn" href="/produits">
+            📦 Produits
+        </a>
+
+        <a class="btn" href="/">
+            🏠 Accueil
+        </a>
+
+    </div>
+
+    <table>
+
+        <tr>
+            <th>ID</th>
+            <th>Produit</th>
+            <th>Prix</th>
+            <th>Quantité</th>
+            <th>État</th>
+            <th>Action</th>
+        </tr>
+
+        {% for produit in produits %}
+
+        <tr>
+
+            <td>{{ produit.id }}</td>
+
+            <td>{{ produit.nom }}</td>
+
+            <td>{{ produit.prix }} FCFA</td>
+
+            <td>{{ produit.quantite }}</td>
+
+            <td>
+
+                {% if produit.quantite <= 5 %}
+
+                    <span class="faible">
+                        ⚠ Stock Faible
+                    </span>
+
+                {% else %}
+
+                    <span class="normal">
+                        ✔ Disponible
+                    </span>
+
+                {% endif %}
+
+            </td>
+
+            <td>
+
+                <a class="btn delete"
+                   href="/supprimer_stock/{{ produit.id }}">
+                   Supprimer
+                </a>
+
+            </td>
+
+        </tr>
+
+        {% endfor %}
+
+    </table>
+
+    <div class="card">
+
+        Total Articles en stock :
+        <strong>{{ total_stock }}</strong>
+
+    </div>
+
+</body>
+</html>
