@@ -57,10 +57,16 @@ button{
 
 <form method="POST">
 
-<input type="text" name="nom" placeholder="Nom client" required>
+<input type="text"
+name="nom"
+value="{{ client.nom }}"
+required>
 
-<input type="text" name="telephone" placeholder="Téléphone" required>
-
+<input type="text"
+name="telephone"
+value="{{ client.telephone }}"
+required>
+    
 <button type="submit">
 Ajouter
 </button>
