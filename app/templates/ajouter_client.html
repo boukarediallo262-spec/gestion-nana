@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+    <title>Ajouter Client</title>
+
+    <style>
+
+        body{
+            font-family:Arial;
+            background:#f4fff7;
+            padding:40px;
+        }
+
+        .box{
+            width:400px;
+            background:white;
+            padding:30px;
+            border-radius:15px;
+            margin:auto;
+        }
+
+        h1{
+            color:#198754;
+        }
+
+        input{
+            width:100%;
+            padding:12px;
+            margin-top:10px;
+            margin-bottom:20px;
+            border:1px solid #ccc;
+            border-radius:8px;
+        }
+
+        button,a{
+            background:#198754;
+            color:white;
+            padding:12px 18px;
+            border:none;
+            border-radius:8px;
+            text-decoration:none;
+            cursor:pointer;
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+<div class="box">
+
+    <h1>➕ Ajouter Client</h1>
+
+    <form method="POST">
+
+        <input type="text"
+               name="nom"
+               placeholder="Nom du client"
+               required>
+
+        <input type="text"
+               name="telephone"
+               placeholder="Téléphone"
+               required>
+
+        <input type="text"
+               name="adresse"
+               placeholder="Adresse">
+
+        <button type="submit">
+            Enregistrer
+        </button>
+
+        <a href="/clients">
+            Retour
+        </a>
+
+    </form>
+
+</div>
+
+</body>
+</html>
