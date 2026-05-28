@@ -19,10 +19,15 @@ class Produit(db.Model):
 
     prix = db.Column(db.Integer)
 
-    quantite = db.Column(db.Integer)
-    def __repr__(self):
-        return f"{self.nom}"
+    stock = db.Column(db.Integer, default=0)
 
+    stock_min = db.Column(db.Integer, default=5)
+
+    categorie = db.Column(db.String(100))
+
+    description = db.Column(db.Text)
+
+    date_creation = db.Column(db.DateTime, default=datetime.utcnow)
 class Facture(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
