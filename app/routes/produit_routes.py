@@ -3,7 +3,6 @@ from app.models.models import db, Produit
 
 produit_bp = Blueprint('produit', __name__)
 
-
 # LISTE PRODUITS
 @produit_bp.route('/produits')
 def produits():
