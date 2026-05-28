@@ -14,14 +14,14 @@ class User(db.Model):
     date_fin_abonnement = db.Column(db.Date)
 
 class Produit(db.Model):
+
     id = db.Column(db.Integer, primary_key=True)
 
     nom = db.Column(db.String(200))
-    quantite = db.Column(db.Integer)
-    prix = db.Column(db.Float)
-    stock = db.Column(db.Integer)
 
-    user_id = db.Column(db.Integer)
+    prix = db.Column(db.Integer)
+
+    quantite = db.Column(db.Integer)
 
 class Facture(db.Model):
 
