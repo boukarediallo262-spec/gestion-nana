@@ -1,27 +1,464 @@
-<h1>Modifier Produit</h1>
+<!DOCTYPE html>
+<html lang="fr">
 
-<form method="POST">
+<head>
 
-    <input
-        type="text"
-        name="nom"
-        value="{{ produit.nom }}"
-    >
+    <meta charset="UTF-8">
 
-    <input
-        type="number"
-        name="prix"
-        value="{{ produit.prix }}"
-    >
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <input
-        type="number"
-        name="stock"
-        value="{{ produit.stock }}"
-    >
+    <title>Modifier Produit - FASO GESTION IA</title>
 
-    <button type="submit">
-        Modifier
-    </button>
+    <style>
 
-</form>
+        *{
+            margin:0;
+            padding:0;
+            box-sizing:border-box;
+            font-family:Arial, sans-serif;
+        }
+
+        body{
+
+            background:#f4fff7;
+
+            min-height:100vh;
+
+        }
+
+        /* HEADER */
+
+        .topbar{
+
+            background:linear-gradient(135deg,#198754,#0d6b42);
+
+            color:white;
+
+            padding:20px 30px;
+
+            display:flex;
+
+            justify-content:space-between;
+
+            align-items:center;
+
+            box-shadow:0 4px 10px rgba(0,0,0,0.15);
+
+        }
+
+        .topbar h1{
+            font-size:30px;
+        }
+
+        .topbar a{
+
+            background:white;
+
+            color:#198754;
+
+            text-decoration:none;
+
+            padding:12px 18px;
+
+            border-radius:10px;
+
+            font-weight:bold;
+
+            transition:0.3s;
+
+        }
+
+        .topbar a:hover{
+            transform:scale(1.05);
+        }
+
+        /* CONTAINER */
+
+        .container{
+
+            width:100%;
+
+            max-width:800px;
+
+            margin:40px auto;
+
+            padding:20px;
+
+        }
+
+        /* CARD */
+
+        .card{
+
+            background:white;
+
+            padding:40px;
+
+            border-radius:25px;
+
+            box-shadow:0 5px 20px rgba(0,0,0,0.08);
+
+        }
+
+        .card h2{
+
+            color:#198754;
+
+            margin-bottom:10px;
+
+            font-size:34px;
+
+        }
+
+        .subtitle{
+
+            color:#666;
+
+            margin-bottom:35px;
+
+            font-size:17px;
+
+        }
+
+        /* FORM */
+
+        form{
+
+            display:flex;
+
+            flex-direction:column;
+
+            gap:25px;
+
+        }
+
+        .input-group{
+
+            display:flex;
+
+            flex-direction:column;
+
+            gap:10px;
+
+        }
+
+        label{
+
+            color:#198754;
+
+            font-weight:bold;
+
+            font-size:16px;
+
+        }
+
+        input{
+
+            padding:16px;
+
+            border-radius:14px;
+
+            border:1px solid #ccc;
+
+            font-size:16px;
+
+            outline:none;
+
+            transition:0.3s;
+
+        }
+
+        input:focus{
+
+            border:2px solid #198754;
+
+            box-shadow:0 0 8px rgba(25,135,84,0.2);
+
+        }
+
+        /* INFO BOX */
+
+        .info-box{
+
+            background:#e8fff0;
+
+            border-left:5px solid #198754;
+
+            padding:18px;
+
+            border-radius:12px;
+
+            color:#146c43;
+
+            margin-bottom:20px;
+
+        }
+
+        /* BUTTONS */
+
+        .actions{
+
+            display:flex;
+
+            gap:15px;
+
+            flex-wrap:wrap;
+
+            margin-top:10px;
+
+        }
+
+        button{
+
+            background:#198754;
+
+            color:white;
+
+            border:none;
+
+            padding:16px 25px;
+
+            border-radius:14px;
+
+            font-size:16px;
+
+            font-weight:bold;
+
+            cursor:pointer;
+
+            transition:0.3s;
+
+            flex:1;
+
+        }
+
+        button:hover{
+
+            background:#146c43;
+
+            transform:translateY(-2px);
+
+        }
+
+        .cancel{
+
+            background:#dc3545;
+
+            color:white;
+
+            text-decoration:none;
+
+            padding:16px 25px;
+
+            border-radius:14px;
+
+            text-align:center;
+
+            font-weight:bold;
+
+            transition:0.3s;
+
+            flex:1;
+
+        }
+
+        .cancel:hover{
+
+            background:#bb2d3b;
+
+            transform:translateY(-2px);
+
+        }
+
+        /* FOOTER */
+
+        footer{
+
+            text-align:center;
+
+            padding:30px;
+
+            color:#666;
+
+            margin-top:30px;
+
+        }
+
+        /* MOBILE */
+
+        @media(max-width:768px){
+
+            .topbar{
+
+                flex-direction:column;
+
+                gap:15px;
+
+                text-align:center;
+
+            }
+
+            .card{
+
+                padding:25px;
+
+            }
+
+            .actions{
+
+                flex-direction:column;
+
+            }
+
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+    <!-- HEADER -->
+
+    <div class="topbar">
+
+        <h1>✏ Modifier Produit</h1>
+
+        <a href="/produits">
+
+            ← Retour Produits
+
+        </a>
+
+    </div>
+
+
+    <!-- CONTAINER -->
+
+    <div class="container">
+
+        <div class="card">
+
+            <h2>
+
+                Mise à jour du produit
+
+            </h2>
+
+            <p class="subtitle">
+
+                Modifiez les informations du produit puis enregistrez les changements.
+
+            </p>
+
+
+            <!-- INFO -->
+
+            <div class="info-box">
+
+                Produit ID :
+                <strong>#{{ produit.id }}</strong>
+
+            </div>
+
+
+            <!-- FORM -->
+
+            <form method="POST">
+
+                <!-- NOM -->
+
+                <div class="input-group">
+
+                    <label>
+
+                        Nom du produit
+
+                    </label>
+
+                    <input
+                        type="text"
+                        name="nom"
+                        value="{{ produit.nom }}"
+                        required
+                    >
+
+                </div>
+
+
+                <!-- PRIX -->
+
+                <div class="input-group">
+
+                    <label>
+
+                        Prix du produit (FCFA)
+
+                    </label>
+
+                    <input
+                        type="number"
+                        name="prix"
+                        value="{{ produit.prix }}"
+                        required
+                    >
+
+                </div>
+
+
+                <!-- QUANTITE -->
+
+                <div class="input-group">
+
+                    <label>
+
+                        Quantité en stock
+
+                    </label>
+
+                    <input
+                        type="number"
+                        name="quantite"
+                        value="{{ produit.quantite }}"
+                        required
+                    >
+
+                </div>
+
+
+                <!-- ACTIONS -->
+
+                <div class="actions">
+
+                    <button type="submit">
+
+                        💾 Sauvegarder les modifications
+
+                    </button>
+
+                    <a href="/produits" class="cancel">
+
+                        ❌ Annuler
+
+                    </a>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+
+    <!-- FOOTER -->
+
+    <footer>
+
+        © 2026 FASO GESTION IA — Gestion Professionnelle
+
+    </footer>
+
+</body>
+
+</html>               
