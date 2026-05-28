@@ -1,15 +1,15 @@
 <h1>Ajouter Produit</h1>
 
-<form method="POST">
+<form method="POST" action="{{ url_for('produit.ajouter_produit') }}">
+    <input type="text" name="nom" required>
 
-    <input type="text" name="nom" placeholder="Nom produit">
+    <input type="number" step="0.01" name="prix" required>
 
-    <input type="number" name="prix" placeholder="Prix">
+    <input type="number" name="stock" required>
 
-    <input type="number" name="stock" placeholder="Stock">
 
     <button type="submit">
-        Ajouter
+        Ajouter Produit
     </button>
 
 </form>
