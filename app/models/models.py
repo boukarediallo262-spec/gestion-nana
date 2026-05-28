@@ -22,6 +22,8 @@ class Produit(db.Model):
     prix = db.Column(db.Integer)
 
     quantite = db.Column(db.Integer)
+    def __repr__(self):
+        return f"{self.nom}"
 
 class Facture(db.Model):
 
