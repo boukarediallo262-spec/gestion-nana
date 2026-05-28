@@ -25,3 +25,30 @@ def home():
         abonnement=abonnement,
         produits=produits
     )
+
+@dashboard_bp.route("/produits", methods=["GET", "POST"])
+def produits():
+
+    if request.method == "POST":
+
+        nom = request.form.get("nom")
+        prix = request.form.get("prix")
+        quantite = request.form.get("quantite")
+
+        nouveau_produit = Produit(
+            nom=nom,
+            prix=prix,
+            quantite=quantite
+        )
+
+        db.session.add(nouveau_produit)
+        db.session.commit()
+
+        return redirect("/produits")
+
+    produits = Produit.query.all()
+
+    return render_template(
+        "produits.html",
+        produits=produits
+    )
