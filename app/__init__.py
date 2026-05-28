@@ -21,6 +21,7 @@ def create_app():
     from app.routes.facture_routes import facture_bp
     from app.routes.depense_routes import depense_bp
     from app.routes.client_routes import client_bp
+    from app.routes.stock_routes import stock_bp
 
 
     app.register_blueprint(dashboard_bp)
@@ -29,6 +30,8 @@ def create_app():
     app.register_blueprint(facture_bp)
     app.register_blueprint(depense_bp)
     app.register_blueprint(client_bp)
+    app.register_blueprint(stock_bp)
+    
 
 
     with app.app_context():
