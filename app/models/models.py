@@ -55,3 +55,13 @@ class Depense(db.Model):
     )
 
     user_id = db.Column(db.Integer)
+
+class Client(db.Model):
+
+    id = db.Column(db.Integer, primary_key=True)
+
+    nom = db.Column(db.String(200))
+
+    telephone = db.Column(db.String(50))
+
+    adresse = db.Column(db.String(200))
