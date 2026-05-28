@@ -1,6 +1,4 @@
-from flask_sqlalchemy import SQLAlchemy
-
-db = SQLAlchemy()
+from app.__init__ import db
 from datetime import datetime
 
 class User(db.Model):
@@ -67,3 +65,8 @@ class Client(db.Model):
     telephone = db.Column(db.String(50))
 
     adresse = db.Column(db.String(200))
+
+class Abonnement(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    nom = db.Column(db.String(100))
+    prix = db.Column(db.Float)
