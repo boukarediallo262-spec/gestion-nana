@@ -1,83 +1,71 @@
 <!DOCTYPE html>
-<html>
+<html lang="fr">
 <head>
+<meta charset="UTF-8">
+<title>Ajouter Client</title>
 
-    <title>Ajouter Client</title>
+<style>
 
-    <style>
+body{
+    background:#f4fff7;
+    font-family:Arial;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    height:100vh;
+}
 
-        body{
-            font-family:Arial;
-            background:#f4fff7;
-            padding:40px;
-        }
+.form-box{
+    background:white;
+    padding:40px;
+    border-radius:20px;
+    width:450px;
+    box-shadow:0 5px 20px rgba(0,0,0,0.1);
+}
 
-        .box{
-            width:400px;
-            background:white;
-            padding:30px;
-            border-radius:15px;
-            margin:auto;
-        }
+h1{
+    color:#198754;
+    margin-bottom:20px;
+}
 
-        h1{
-            color:#198754;
-        }
+input{
+    width:100%;
+    padding:15px;
+    margin-bottom:20px;
+    border-radius:10px;
+    border:1px solid #ccc;
+}
 
-        input{
-            width:100%;
-            padding:12px;
-            margin-top:10px;
-            margin-bottom:20px;
-            border:1px solid #ccc;
-            border-radius:8px;
-        }
+button{
+    width:100%;
+    padding:15px;
+    background:#198754;
+    color:white;
+    border:none;
+    border-radius:10px;
+    font-size:16px;
+    font-weight:bold;
+}
 
-        button,a{
-            background:#198754;
-            color:white;
-            padding:12px 18px;
-            border:none;
-            border-radius:8px;
-            text-decoration:none;
-            cursor:pointer;
-        }
-
-    </style>
-
+</style>
 </head>
-
 <body>
 
-<div class="box">
+<div class="form-box">
 
-    <h1>➕ Ajouter Client</h1>
+<h1>➕ Ajouter Client</h1>
 
-    <form method="POST">
+<form method="POST">
 
-        <input type="text"
-               name="nom"
-               placeholder="Nom du client"
-               required>
+<input type="text" name="nom" placeholder="Nom client" required>
 
-        <input type="text"
-               name="telephone"
-               placeholder="Téléphone"
-               required>
+<input type="text" name="telephone" placeholder="Téléphone" required>
 
-        <input type="text"
-               name="adresse"
-               placeholder="Adresse">
+<button type="submit">
+Ajouter
+</button>
 
-        <button type="submit">
-            Enregistrer
-        </button>
-
-        <a href="/clients">
-            Retour
-        </a>
-
-    </form>
+</form>
 
 </div>
 
