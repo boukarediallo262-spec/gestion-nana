@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template
+from flask import Blueprint, render_template, request, redirect
 from app.models.models import Produit, Facture, Depense
 
 dashboard_bp = Blueprint("dashboard", __name__)
