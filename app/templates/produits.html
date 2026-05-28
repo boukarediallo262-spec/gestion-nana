@@ -1,36 +1,566 @@
-<h1>Liste Produits</h1>
-{% extends 'base.html' %}
+<!DOCTYPE html>
+<html lang="fr">
 
-{% block content %}
+<head>
 
-<h1>Liste Produits</h1>
+    <meta charset="UTF-8">
 
-<a href="/ajouter_produit">
-    Ajouter produit
-</a>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<hr>
+    <title>Gestion Produits - FASO GESTION IA</title>
 
-{% for produit in produits %}
+    <style>
 
-<p>
+        *{
+            margin:0;
+            padding:0;
+            box-sizing:border-box;
+            font-family:Arial;
+        }
 
-    {{ produit.nom }}
-    -
-    {{ produit.prix }} FCFA
-    -
-    Stock : {{ produit.stock }}
+        body{
+            background:#f4fff7;
+        }
 
-    <a href="/modifier_produit/{{ produit.id }}">
-        Modifier
-    </a>
+        /* HEADER */
 
-    <a href="/supprimer_produit/{{ produit.id }}">
-        Supprimer
-    </a>
+        .topbar{
 
-</p>
+            background:linear-gradient(135deg,#198754,#0d6b42);
 
-{% endfor %}
+            padding:20px 30px;
 
-{% endblock %}
+            display:flex;
+
+            justify-content:space-between;
+
+            align-items:center;
+
+            color:white;
+
+            box-shadow:0 4px 10px rgba(0,0,0,0.15);
+
+        }
+
+        .topbar h1{
+            font-size:32px;
+        }
+
+        .top-actions{
+            display:flex;
+            gap:15px;
+        }
+
+        .btn{
+
+            background:white;
+
+            color:#198754;
+
+            text-decoration:none;
+
+            padding:12px 18px;
+
+            border-radius:10px;
+
+            font-weight:bold;
+
+            transition:0.3s;
+
+        }
+
+        .btn:hover{
+            transform:scale(1.05);
+        }
+
+        /* CONTAINER */
+
+        .container{
+            padding:35px;
+        }
+
+        /* STATS */
+
+        .stats{
+
+            display:grid;
+
+            grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+
+            gap:20px;
+
+            margin-bottom:35px;
+
+        }
+
+        .stat-card{
+
+            background:white;
+
+            padding:25px;
+
+            border-radius:20px;
+
+            box-shadow:0 5px 15px rgba(0,0,0,0.08);
+
+        }
+
+        .stat-card h3{
+            color:#198754;
+            margin-bottom:10px;
+            font-size:20px;
+        }
+
+        .stat-card p{
+            font-size:32px;
+            font-weight:bold;
+            color:#222;
+        }
+
+        /* FORM */
+
+        .form-box{
+
+            background:white;
+
+            padding:30px;
+
+            border-radius:20px;
+
+            box-shadow:0 5px 15px rgba(0,0,0,0.08);
+
+            margin-bottom:40px;
+
+        }
+
+        .form-box h2{
+
+            margin-bottom:25px;
+
+            color:#198754;
+
+            font-size:28px;
+
+        }
+
+        form{
+
+            display:grid;
+
+            grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+
+            gap:20px;
+
+        }
+
+        input{
+
+            padding:15px;
+
+            border-radius:12px;
+
+            border:1px solid #ccc;
+
+            font-size:16px;
+
+            outline:none;
+
+        }
+
+        input:focus{
+            border:2px solid #198754;
+        }
+
+        button{
+
+            background:#198754;
+
+            color:white;
+
+            border:none;
+
+            padding:15px;
+
+            border-radius:12px;
+
+            font-size:17px;
+
+            font-weight:bold;
+
+            cursor:pointer;
+
+            transition:0.3s;
+
+        }
+
+        button:hover{
+            background:#146c43;
+        }
+
+        /* TABLE */
+
+        .table-box{
+
+            background:white;
+
+            border-radius:20px;
+
+            overflow:hidden;
+
+            box-shadow:0 5px 15px rgba(0,0,0,0.08);
+
+        }
+
+        .table-header{
+
+            background:#198754;
+
+            color:white;
+
+            padding:20px;
+
+            font-size:24px;
+
+            font-weight:bold;
+
+        }
+
+        table{
+
+            width:100%;
+
+            border-collapse:collapse;
+
+        }
+
+        th{
+
+            background:#e8fff0;
+
+            color:#198754;
+
+            padding:18px;
+
+            text-align:left;
+
+        }
+
+        td{
+
+            padding:18px;
+
+            border-bottom:1px solid #eee;
+
+        }
+
+        tr:hover{
+            background:#f7fff9;
+        }
+
+        /* ACTIONS */
+
+        .action-btn{
+
+            padding:10px 14px;
+
+            border-radius:8px;
+
+            text-decoration:none;
+
+            color:white;
+
+            font-size:14px;
+
+            font-weight:bold;
+
+            margin-right:8px;
+
+        }
+
+        .edit{
+            background:#0d6efd;
+        }
+
+        .delete{
+            background:#dc3545;
+        }
+
+        /* STOCK */
+
+        .stock-ok{
+            color:green;
+            font-weight:bold;
+        }
+
+        .stock-low{
+            color:red;
+            font-weight:bold;
+        }
+
+        /* EMPTY */
+
+        .empty{
+
+            text-align:center;
+
+            padding:40px;
+
+            color:#777;
+
+            font-size:18px;
+
+        }
+
+        /* FOOTER */
+
+        footer{
+
+            text-align:center;
+
+            padding:25px;
+
+            color:#666;
+
+        }
+
+        @media(max-width:768px){
+
+            .topbar{
+                flex-direction:column;
+                gap:15px;
+            }
+
+            .top-actions{
+                flex-wrap:wrap;
+                justify-content:center;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+    <!-- HEADER -->
+
+    <div class="topbar">
+
+        <h1>📦 Gestion des Produits</h1>
+
+        <div class="top-actions">
+
+            <a href="/" class="btn">
+                🏠 Dashboard
+            </a>
+
+            <a href="/stock" class="btn">
+                📊 Stock
+            </a>
+
+        </div>
+
+    </div>
+
+
+    <div class="container">
+
+        <!-- STATS -->
+
+        <div class="stats">
+
+            <div class="stat-card">
+
+                <h3>Total Produits</h3>
+
+                <p>{{ produits|length }}</p>
+
+            </div>
+
+            <div class="stat-card">
+
+                <h3>Produits Disponibles</h3>
+
+                <p>
+
+                    {% set total = 0 %}
+
+                    {% for p in produits %}
+                        {% if p.quantite > 0 %}
+                            {% set total = total + 1 %}
+                        {% endif %}
+                    {% endfor %}
+
+                    {{ total }}
+
+                </p>
+
+            </div>
+
+            <div class="stat-card">
+
+                <h3>Alertes Stock</h3>
+
+                <p>
+
+                    {% set alertes = 0 %}
+
+                    {% for p in produits %}
+                        {% if p.quantite <= 5 %}
+                            {% set alertes = alertes + 1 %}
+                        {% endif %}
+                    {% endfor %}
+
+                    {{ alertes }}
+
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <!-- FORMULAIRE -->
+
+        <div class="form-box">
+
+            <h2>➕ Ajouter un Produit</h2>
+
+            <form method="POST">
+
+                <input
+                    type="text"
+                    name="nom"
+                    placeholder="Nom du produit"
+                    required
+                >
+
+                <input
+                    type="number"
+                    name="prix"
+                    placeholder="Prix"
+                    required
+                >
+
+                <input
+                    type="number"
+                    name="quantite"
+                    placeholder="Quantité"
+                    required
+                >
+
+                <button type="submit">
+                    Ajouter Produit
+                </button>
+
+            </form>
+
+        </div>
+
+
+        <!-- TABLEAU -->
+
+        <div class="table-box">
+
+            <div class="table-header">
+
+                📋 Liste des Produits
+
+            </div>
+
+            {% if produits %}
+
+            <table>
+
+                <tr>
+
+                    <th>ID</th>
+                    <th>Produit</th>
+                    <th>Prix</th>
+                    <th>Quantité</th>
+                    <th>État</th>
+                    <th>Actions</th>
+
+                </tr>
+
+                {% for produit in produits %}
+
+                <tr>
+
+                    <td>{{ produit.id }}</td>
+
+                    <td>{{ produit.nom }}</td>
+
+                    <td>{{ produit.prix }} FCFA</td>
+
+                    <td>{{ produit.quantite }}</td>
+
+                    <td>
+
+                        {% if produit.quantite <= 5 %}
+
+                            <span class="stock-low">
+                                ⚠ Stock Faible
+                            </span>
+
+                        {% else %}
+
+                            <span class="stock-ok">
+                                ✔ Disponible
+                            </span>
+
+                        {% endif %}
+
+                    </td>
+
+                    <td>
+
+                        <a
+                           href="/modifier_produit/{{ produit.id }}"
+                           class="action-btn edit">
+
+                           Modifier
+
+                        </a>
+
+                        <a
+                           href="/supprimer_produit/{{ produit.id }}"
+                           class="action-btn delete">
+
+                           Supprimer
+
+                        </a>
+
+                    </td>
+
+                </tr>
+
+                {% endfor %}
+
+            </table>
+
+            {% else %}
+
+            <div class="empty">
+
+                Aucun produit enregistré.
+
+            </div>
+
+            {% endif %}
+
+        </div>
+
+    </div>
+
+
+    <footer>
+
+        © 2026 FASO GESTION IA — Gestion Professionnelle des Produits
+
+    </footer>
+
+</body>
+
+</html>    
