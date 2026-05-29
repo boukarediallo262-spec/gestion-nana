@@ -23,13 +23,25 @@ def home():
 
     abonnement = "Actif"
 
+    ventes_data = Facture.query.all()
+
+    total_ventes = sum([f.total for f in ventes_data])
+
+    depenses_data = Depense.query.all()
+
+    total_depenses_graph = sum([d.montant for d in depenses_data])
+
+    benefices = total_ventes - total_depenses_graph
+
     return render_template(
         "dashboard/index.html",
         total_produits=total_produits,
         total_factures=total_factures,
         total_depenses=total_depenses,
         abonnement=abonnement,
-        produits=produits
+        produits=produits,
+        total_ventes=total_ventes,
+        benefices=benefices
     )
 
 @dashboard_bp.route("/produits", methods=["GET", "POST"])
