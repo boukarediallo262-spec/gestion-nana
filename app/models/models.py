@@ -47,6 +47,10 @@ class Facture(db.Model):
     )
 
     user_id = db.Column(db.Integer)
+    date_facture = db.Column(
+        db.DateTime,
+        default=datetime.utcnow
+    )
 
     lignes = db.relationship(
         'LigneFacture',
