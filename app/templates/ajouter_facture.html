@@ -15,47 +15,59 @@
             padding:30px;
         }
 
+        .box{
+
+            background:white;
+
+            max-width:700px;
+
+            margin:auto;
+
+            padding:30px;
+
+            border-radius:20px;
+
+            box-shadow:0 5px 15px rgba(0,0,0,0.1);
+
+        }
+
         h1{
             color:#198754;
+            margin-bottom:25px;
         }
 
-        .box{
-            background:white;
-            padding:30px;
-            border-radius:15px;
-        }
+        input,select{
 
-        input, select{
             width:100%;
-            padding:12px;
-            margin-top:10px;
+
+            padding:15px;
+
             margin-bottom:20px;
-        }
 
-        table{
-            width:100%;
-            border-collapse:collapse;
-        }
+            border-radius:10px;
 
-        th,td{
-            border:1px solid #ddd;
-            padding:12px;
-        }
+            border:1px solid #ccc;
 
-        th{
-            background:#198754;
-            color:white;
         }
 
         button{
+
             background:#198754;
+
             color:white;
+
             border:none;
+
             padding:15px;
-            border-radius:10px;
-            cursor:pointer;
+
             width:100%;
+
+            border-radius:10px;
+
             font-size:18px;
+
+            cursor:pointer;
+
         }
 
     </style>
@@ -64,84 +76,81 @@
 
 <body>
 
-    <div class="box">
+<div class="box">
 
-        <h1>🧾 Nouvelle Facture</h1>
+    <h1>🧾 Nouvelle Facture</h1>
 
-        <form method="POST">
+    <form method="POST">
 
-            <label>Nom du client</label>
+        <input
+            type="text"
+            name="client"
+            placeholder="Nom du client"
+            required
+        >
 
-            <input
-                type="text"
-                name="client"
-                required
-            >
+        <select name="produit_id" required>
 
-            <label>Mode de paiement</label>
+            <option value="">
+                Choisir un produit
+            </option>
 
-            <select name="mode_paiement">
+            {% for produit in produits %}
 
-                <option>Espèces</option>
+            <option value="{{ produit.id }}">
 
-                <option>Mobile Money</option>
+                {{ produit.nom }}
+                -
+                {{ produit.prix }} FCFA
+                -
+                Stock: {{ produit.quantite }}
 
-                <option>Bancaire</option>
+            </option>
 
-                <option>En attente</option>
+            {% endfor %}
 
-            </select>
+        </select>
 
-            <br><br>
+        <input
+            type="number"
+            name="quantite"
+            placeholder="Quantité"
+            required
+        >
 
-            <table>
+        <select name="paiement" required>
 
-                <tr>
-                    <th>Produit</th>
-                    <th>Prix</th>
-                    <th>Stock</th>
-                    <th>Quantité</th>
-                </tr>
+            <option value="">
+                Mode de paiement
+            </option>
 
-                {% for produit in produits %}
+            <option value="Espèces">
+                Espèces
+            </option>
 
-                <tr>
+            <option value="Mobile Money">
+                Mobile Money
+            </option>
 
-                    <td>{{ produit.nom }}</td>
+            <option value="Bancaire">
+                Bancaire
+            </option>
 
-                    <td>{{ produit.prix }} FCFA</td>
+            <option value="En attente">
+                En attente
+            </option>
 
-                    <td>{{ produit.quantite }}</td>
+        </select>
 
-                    <td>
+        <button type="submit">
 
-                        <input
-                            type="number"
-                            min="0"
-                            name="quantite_{{ produit.id }}"
-                            value="0"
-                        >
+            Enregistrer Facture
 
-                    </td>
+        </button>
 
-                </tr>
+    </form>
 
-                {% endfor %}
-
-            </table>
-
-            <br>
-
-            <button type="submit">
-
-                Générer la Facture
-
-            </button>
-
-        </form>
-
-    </div>
+</div>
 
 </body>
-
 </html>
