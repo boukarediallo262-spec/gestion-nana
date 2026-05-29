@@ -31,12 +31,9 @@ class Facture(db.Model):
 
     client = db.Column(db.String(200))
 
-    produit = db.Column(db.String(200))
-
-    quantite = db.Column(db.Integer)
-    montant = db.Column(db.Integer)
-
     total = db.Column(db.Float)
+
+    mode_paiement = db.Column(db.String(100))
 
     created_at = db.Column(
         db.DateTime,
@@ -44,6 +41,30 @@ class Facture(db.Model):
     )
 
     user_id = db.Column(db.Integer)
+
+    lignes = db.relationship(
+        'LigneFacture',
+        backref='facture',
+        lazy=True
+    )
+
+class LigneFacture(db.Model):
+
+    id = db.Column(db.Integer, primary_key=True)
+
+    facture_id = db.Column(
+        db.Integer,
+        db.ForeignKey('facture.id')
+    )
+
+    produit_id = db.Column(
+        db.Integer,
+        db.ForeignKey('produit.id')
+    )
+
+    quantite = db.Column(db.Integer)
+
+    prix = db.Column(db.Float)
 
 class Depense(db.Model):
     id = db.Column(db.Integer, primary_key=True)
