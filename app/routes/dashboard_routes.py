@@ -35,15 +35,23 @@ def produits():
         prix = request.form.get("prix")
         quantite = request.form.get("quantite")
 
-        nouveau_produit = Produit(
-            nom=nom,
-            prix=prix,
-            quantite=quantite
-        )
+        produit_existant = Produit.query.filter_by(nom=nom).first()
 
-        db.session.add(nouveau_produit)
+        if produit_existant:
+
+            produit_existant.quantite += int(quantite)
+
+        else:
+
+            nouveau_produit = Produit(
+                nom=nom,
+                prix=prix,
+                quantite=quantite
+            )
+
+            db.session.add(nouveau_produit)
+
         db.session.commit()
-
         return redirect("/produits")
 
     produits = Produit.query.all()
