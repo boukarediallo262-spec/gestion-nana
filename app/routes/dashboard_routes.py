@@ -52,3 +52,51 @@ def produits():
         "produits.html",
         produits=produits
     )
+
+# =========================
+# FACTURES
+# =========================
+
+@dashboard_bp.route("/factures")
+def factures():
+
+    toutes_factures = Facture.query.all()
+
+    return render_template(
+        "factures.html",
+        factures=toutes_factures
+    )
+
+
+@dashboard_bp.route("/ajouter_facture", methods=["GET", "POST"])
+def ajouter_facture():
+
+    if request.method == "POST":
+
+        client = request.form.get("client")
+        montant = request.form.get("montant")
+
+        nouvelle_facture = Facture(
+            client=client,
+            montant=montant
+        )
+
+        db.session.add(nouvelle_facture)
+        db.session.commit()
+
+        return redirect("/factures")
+
+    return render_template("ajouter_facture.html")
+
+
+@dashboard_bp.route("/supprimer_facture/<int:id>")
+def supprimer_facture(id):
+
+    facture = Facture.query.get(id)
+
+    if facture:
+
+        db.session.delete(facture)
+        db.session.commit()
+
+    return redirect("/factures")
