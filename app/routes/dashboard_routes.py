@@ -153,3 +153,49 @@ def supprimer_facture(id):
         db.session.commit()
 
     return redirect("/factures")
+
+
+@dashboard_bp.route("/ajouter_depense", methods=["GET", "POST"])
+def ajouter_depense():
+
+    if request.method == "POST":
+
+        categorie = request.form.get("categorie")
+
+        montant = request.form.get("montant")
+
+        depense = Depense(
+            categorie=categorie,
+            montant=montant
+        )
+
+        db.session.add(depense)
+
+        db.session.commit()
+
+        return redirect("/")
+
+    return render_template("ajouter_depense.html")
+
+@dashboard_bp.route(
+    "/modifier_facture/<int:id>",
+    methods=["GET", "POST"]
+)
+def modifier_facture(id):
+
+    facture = Facture.query.get_or_404(id)
+
+    if request.method == "POST":
+
+        facture.client = request.form.get("client")
+
+        facture.paiement = request.form.get("paiement")
+
+        db.session.commit()
+
+        return redirect("/factures")
+
+    return render_template(
+        "modifier_facture.html",
+        facture=facture
+    )
