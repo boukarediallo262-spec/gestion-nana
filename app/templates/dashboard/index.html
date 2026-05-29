@@ -344,6 +344,8 @@
 
     </div>
 
+<!-- STATISTIQUES CIRCULAIRES -->
+
 <div class="chart-box">
 
     <h2>📊 Statistiques Globales</h2>
@@ -352,17 +354,42 @@
 
 </div>
 
-<footer>
+<style>
 
+.chart-box{
 
+    background:white;
 
-    <!-- FOOTER -->
+    margin:40px;
 
-    <footer>
+    padding:30px;
 
-        © 2026 FASO GESTION IA — Application Premium de Gestion
+    border-radius:20px;
 
-    </footer>
+    box-shadow:0 5px 15px rgba(0,0,0,0.08);
+
+}
+
+.chart-box h2{
+
+    color:#198754;
+
+    margin-bottom:20px;
+
+    text-align:center;
+
+}
+
+#ventesChart{
+
+    max-width:450px;
+
+    margin:auto;
+
+}
+
+</style>
+
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script>
@@ -376,9 +403,13 @@ new Chart(ventesCtx, {
     data: {
 
         labels: [
+
             'Ventes',
+
             'Bénéfices',
+
             'Dépenses'
+
         ],
 
         datasets: [{
@@ -428,6 +459,19 @@ new Chart(ventesCtx, {
 });
 
 </script>
+
+<footer>
+
+
+
+    <!-- FOOTER -->
+
+    <footer>
+
+        © 2026 FASO GESTION IA — Application Premium de Gestion
+
+    </footer>
+
 </body>
 
 </html>
