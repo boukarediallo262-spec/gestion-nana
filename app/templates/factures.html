@@ -1,101 +1,330 @@
 <!DOCTYPE html>
-<html>
+<html lang="fr">
+
 <head>
-    <title>Factures</title>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Factures Pro - FASO GESTION IA</title>
 
     <style>
 
-        body{
+        *{
+            margin:0;
+            padding:0;
+            box-sizing:border-box;
             font-family:Arial;
-            background:#f4fff7;
-            padding:20px;
         }
 
-        h1{
-            color:#0f5132;
+        body{
+            background:#f4fff7;
+        }
+
+        .topbar{
+
+            background:linear-gradient(135deg,#198754,#0d6b42);
+
+            padding:20px 30px;
+
+            display:flex;
+
+            justify-content:space-between;
+
+            align-items:center;
+
+            color:white;
+
+        }
+
+        .topbar h1{
+            font-size:30px;
+        }
+
+        .actions{
+            display:flex;
+            gap:15px;
+        }
+
+        .btn{
+
+            background:white;
+
+            color:#198754;
+
+            padding:12px 18px;
+
+            text-decoration:none;
+
+            border-radius:10px;
+
+            font-weight:bold;
+
+            transition:0.3s;
+
+        }
+
+        .btn:hover{
+            transform:scale(1.05);
+        }
+
+        .container{
+            padding:35px;
+        }
+
+        .stats{
+
+            display:grid;
+
+            grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+
+            gap:20px;
+
+            margin-bottom:35px;
+
+        }
+
+        .card{
+
+            background:white;
+
+            padding:25px;
+
+            border-radius:20px;
+
+            box-shadow:0 5px 15px rgba(0,0,0,0.08);
+
+        }
+
+        .card h3{
+            color:#198754;
+            margin-bottom:10px;
+        }
+
+        .card p{
+            font-size:32px;
+            font-weight:bold;
+        }
+
+        .table-box{
+
+            background:white;
+
+            border-radius:20px;
+
+            overflow:hidden;
+
+            box-shadow:0 5px 15px rgba(0,0,0,0.08);
+
+        }
+
+        .table-header{
+
+            background:#198754;
+
+            color:white;
+
+            padding:20px;
+
+            font-size:24px;
+
+            font-weight:bold;
+
         }
 
         table{
             width:100%;
-            background:white;
             border-collapse:collapse;
-            border-radius:10px;
-            overflow:hidden;
-        }
-
-        th,td{
-            padding:15px;
-            border-bottom:1px solid #ddd;
         }
 
         th{
-            background:#198754;
-            color:white;
+
+            background:#e8fff0;
+
+            color:#198754;
+
+            padding:18px;
+
+            text-align:left;
+
         }
 
-        .btn{
-            background:#198754;
-            color:white;
-            padding:10px 15px;
-            text-decoration:none;
-            border-radius:8px;
-            margin-right:10px;
+        td{
+
+            padding:18px;
+
+            border-bottom:1px solid #eee;
+
+        }
+
+        tr:hover{
+            background:#f8fff9;
         }
 
         .delete{
-            background:red;
+
+            background:#dc3545;
+
+            color:white;
+
+            padding:10px 14px;
+
+            border-radius:8px;
+
+            text-decoration:none;
+
+            font-weight:bold;
+
+        }
+
+        .empty{
+
+            text-align:center;
+
+            padding:40px;
+
+            color:#777;
+
+            font-size:18px;
+
+        }
+
+        footer{
+
+            text-align:center;
+
+            padding:25px;
+
+            color:#666;
+
         }
 
     </style>
 
 </head>
+
 <body>
 
-    <h1>📄 Liste des Factures</h1>
+    <div class="topbar">
 
-    <br>
+        <h1>📄 Factures Professionnelles</h1>
 
-    <a class="btn" href="/ajouter_facture">
-        ➕ Ajouter Facture
-    </a>
+        <div class="actions">
 
-    <a class="btn" href="/">
-        🏠 Retour Accueil
-    </a>
+            <a href="/" class="btn">
+                🏠 Dashboard
+            </a>
 
-    <br><br>
+            <a href="/ajouter_facture" class="btn">
+                ➕ Nouvelle Facture
+            </a>
 
-    <table>
+        </div>
 
-        <tr>
-            <th>ID</th>
-            <th>Client</th>
-            <th>Montant</th>
-            <th>Action</th>
-        </tr>
+    </div>
 
-        {% for facture in factures %}
+    <div class="container">
 
-        <tr>
+        <div class="stats">
 
-            <td>{{ facture.id }}</td>
+            <div class="card">
 
-            <td>{{ facture.client }}</td>
+                <h3>Total Factures</h3>
 
-            <td>{{ facture.montant }} FCFA</td>
+                <p>{{ factures|length }}</p>
 
-            <td>
-                <a class="btn delete"
-                   href="/supprimer_facture/{{ facture.id }}">
-                   Supprimer
-                </a>
-            </td>
+            </div>
 
-        </tr>
+            <div class="card">
 
-        {% endfor %}
+                <h3>Montant Total</h3>
 
-    </table>
+                <p>
+
+                    {% set total = 0 %}
+
+                    {% for f in factures %}
+                        {% set total = total + f.montant %}
+                    {% endfor %}
+
+                    {{ total }} FCFA
+
+                </p>
+
+            </div>
+
+        </div>
+
+        <div class="table-box">
+
+            <div class="table-header">
+
+                📋 Liste des Factures
+
+            </div>
+
+            {% if factures %}
+
+            <table>
+
+                <tr>
+
+                    <th>ID</th>
+                    <th>Client</th>
+                    <th>Montant</th>
+                    <th>Actions</th>
+
+                </tr>
+
+                {% for facture in factures %}
+
+                <tr>
+
+                    <td>{{ facture.id }}</td>
+
+                    <td>{{ facture.client }}</td>
+
+                    <td>{{ facture.montant }} FCFA</td>
+
+                    <td>
+
+                        <a
+                           class="delete"
+                           href="/supprimer_facture/{{ facture.id }}">
+
+                           Supprimer
+
+                        </a>
+
+                    </td>
+
+                </tr>
+
+                {% endfor %}
+
+            </table>
+
+            {% else %}
+
+            <div class="empty">
+
+                Aucune facture enregistrée.
+
+            </div>
+
+            {% endif %}
+
+        </div>
+
+    </div>
+
+    <footer>
+
+        © 2026 FASO GESTION IA — Module Facturation
+
+    </footer>
 
 </body>
+
 </html>
