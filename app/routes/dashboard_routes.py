@@ -1,5 +1,11 @@
 from flask import Blueprint, render_template, request, redirect
-from app.models.models import db, Produit, Facture, Depense
+from app.models.models import (
+    db,
+    Produit,
+    Facture,
+    Depense,
+    LigneFacture
+)
 
 dashboard_bp = Blueprint("dashboard", __name__)
 
@@ -79,23 +85,59 @@ def factures():
 @dashboard_bp.route("/ajouter_facture", methods=["GET", "POST"])
 def ajouter_facture():
 
+    produits = Produit.query.all()
+
     if request.method == "POST":
 
         client = request.form.get("client")
-        montant = request.form.get("montant")
+
+        mode_paiement = request.form.get("mode_paiement")
+
+        total = 0
 
         nouvelle_facture = Facture(
             client=client,
-            montant=montant
+            total=0,
+            mode_paiement=mode_paiement
         )
 
         db.session.add(nouvelle_facture)
         db.session.commit()
 
+        for produit in produits:
+
+            quantite = request.form.get(f"quantite_{produit.id}")
+
+            if quantite and int(quantite) > 0:
+
+                quantite = int(quantite)
+
+                # DIMINUTION STOCK
+                produit.quantite -= quantite
+
+                montant = produit.prix * quantite
+
+                total += montant
+
+                ligne = LigneFacture(
+                    facture_id=nouvelle_facture.id,
+                    produit_id=produit.id,
+                    quantite=quantite,
+                    prix=produit.prix
+                )
+
+                db.session.add(ligne)
+
+        nouvelle_facture.total = total
+
+        db.session.commit()
+
         return redirect("/factures")
 
-    return render_template("ajouter_facture.html")
-
+    return render_template(
+        "ajouter_facture.html",
+        produits=produits
+    )
 
 @dashboard_bp.route("/supprimer_facture/<int:id>")
 def supprimer_facture(id):
