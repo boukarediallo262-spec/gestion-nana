@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <title>Ajouter Dépense</title>
+
+    <style>
+
+        body{
+            font-family:Arial;
+            background:#f4fff7;
+            padding:30px;
+        }
+
+        .box{
+
+            background:white;
+
+            max-width:700px;
+
+            margin:auto;
+
+            padding:30px;
+
+            border-radius:20px;
+
+            box-shadow:0 5px 15px rgba(0,0,0,0.1);
+
+        }
+
+        h1{
+            color:#198754;
+            margin-bottom:25px;
+        }
+
+        input,select{
+
+            width:100%;
+
+            padding:15px;
+
+            margin-bottom:20px;
+
+            border-radius:10px;
+
+            border:1px solid #ccc;
+
+        }
+
+        button{
+
+            background:#198754;
+
+            color:white;
+
+            border:none;
+
+            padding:15px;
+
+            width:100%;
+
+            border-radius:10px;
+
+            font-size:18px;
+
+            cursor:pointer;
+
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+<div class="box">
+
+    <h1>💰 Ajouter une Dépense</h1>
+
+    <form method="POST">
+
+        <input
+            type="text"
+            name="categorie"
+            placeholder="Catégorie"
+            required
+        >
+
+        <input
+            type="number"
+            name="montant"
+            placeholder="Montant"
+            required
+        >
+
+        <button type="submit">
+
+            Enregistrer Dépense
+
+        </button>
+
+    </form>
+
+</div>
+
+</body>
+</html>
