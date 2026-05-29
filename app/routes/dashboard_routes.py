@@ -93,7 +93,6 @@ def factures():
         factures=toutes_factures
     )
 
-
 @dashboard_bp.route("/ajouter_facture", methods=["GET", "POST"])
 def ajouter_facture():
 
@@ -103,44 +102,36 @@ def ajouter_facture():
 
         client = request.form.get("client")
 
-        mode_paiement = request.form.get("mode_paiement")
+        produit_id = request.form.get("produit_id")
 
-        total = 0
+        quantite = int(request.form.get("quantite"))
 
-        nouvelle_facture = Facture(
+        paiement = request.form.get("paiement")
+
+        produit = Produit.query.get(produit_id)
+
+        # Vérification stock
+        if produit.quantite < quantite:
+
+            return "Stock insuffisant"
+
+        # Calcul total
+        total = produit.prix * quantite
+
+        # DIMINUER LE STOCK
+        produit.quantite -= quantite
+
+        # Créer facture
+        facture = Facture(
             client=client,
-            total=0,
-            mode_paiement=mode_paiement
+            produit=produit.nom,
+            quantite=quantite,
+            montant=produit.prix,
+            total=total,
+            paiement=paiement
         )
 
-        db.session.add(nouvelle_facture)
-        db.session.commit()
-
-        for produit in produits:
-
-            quantite = request.form.get(f"quantite_{produit.id}")
-
-            if quantite and int(quantite) > 0:
-
-                quantite = int(quantite)
-
-                # DIMINUTION STOCK
-                produit.quantite -= quantite
-
-                montant = produit.prix * quantite
-
-                total += montant
-
-                ligne = LigneFacture(
-                    facture_id=nouvelle_facture.id,
-                    produit_id=produit.id,
-                    quantite=quantite,
-                    prix=produit.prix
-                )
-
-                db.session.add(ligne)
-
-        nouvelle_facture.total = total
+        db.session.add(facture)
 
         db.session.commit()
 
