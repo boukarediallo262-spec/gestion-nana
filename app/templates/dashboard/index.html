@@ -344,23 +344,75 @@
 
     </div>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<div class="charts">
+<div class="chart-box">
 
-    <div class="chart-box">
+    <h2>📊 Statistiques Globales</h2>
 
-        <h2>📈 Ventes</h2>
+    <canvas id="ventesChart"></canvas>
 
-        <canvas id="ventesChart"></canvas>
+</div>
 
-    </div>
+const ventesCtx = document.getElementById('ventesChart');
 
-    <div class="chart-box">
+new Chart(ventesCtx, {
 
-        <h2>💰 Dépenses</h2>
+    type: 'doughnut',
 
-        <canvas id="depensesChart"></canvas>
+    data: {
 
-    </div>
+        labels: [
+            'Ventes',
+            'Bénéfices',
+            'Dépenses'
+        ],
+
+        datasets: [{
+
+            data: [
+
+                {{ total_ventes }},
+
+                {{ benefices }},
+
+                {{ total_depenses }}
+
+            ],
+
+            backgroundColor: [
+
+                '#198754',
+
+                '#0d6efd',
+
+                '#dc3545'
+
+            ],
+
+            borderWidth:2
+
+        }]
+
+    },
+
+    options: {
+
+        responsive:true,
+
+        plugins: {
+
+            legend: {
+
+                position:'bottom'
+
+            }
+
+        }
+
+    }
+
+});
+
+</script>
 
 </div>
 
