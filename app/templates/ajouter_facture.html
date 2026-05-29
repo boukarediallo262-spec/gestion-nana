@@ -1,60 +1,61 @@
 <!DOCTYPE html>
 <html lang="fr">
+
 <head>
 
     <meta charset="UTF-8">
 
-    <title>Ajouter Facture</title>
+    <title>Nouvelle Facture</title>
 
     <style>
 
         body{
             font-family:Arial;
             background:#f4fff7;
-            padding:40px;
+            padding:30px;
+        }
+
+        h1{
+            color:#198754;
         }
 
         .box{
             background:white;
             padding:30px;
             border-radius:15px;
-            width:400px;
-            margin:auto;
-            box-shadow:0 5px 15px rgba(0,0,0,0.1);
         }
 
-        h1{
-            color:#198754;
-            text-align:center;
-        }
-
-        input{
+        input, select{
             width:100%;
-            padding:15px;
-            margin-top:15px;
-            border:1px solid #ccc;
-            border-radius:10px;
+            padding:12px;
+            margin-top:10px;
+            margin-bottom:20px;
+        }
+
+        table{
+            width:100%;
+            border-collapse:collapse;
+        }
+
+        th,td{
+            border:1px solid #ddd;
+            padding:12px;
+        }
+
+        th{
+            background:#198754;
+            color:white;
         }
 
         button{
-            width:100%;
-            margin-top:20px;
-            padding:15px;
             background:#198754;
             color:white;
             border:none;
+            padding:15px;
             border-radius:10px;
-            font-size:16px;
             cursor:pointer;
-        }
-
-        a{
-            display:block;
-            text-align:center;
-            margin-top:20px;
-            color:#198754;
-            text-decoration:none;
-            font-weight:bold;
+            width:100%;
+            font-size:18px;
         }
 
     </style>
@@ -65,35 +66,82 @@
 
     <div class="box">
 
-        <h1>➕ Nouvelle Facture</h1>
+        <h1>🧾 Nouvelle Facture</h1>
 
         <form method="POST">
+
+            <label>Nom du client</label>
 
             <input
                 type="text"
                 name="client"
-                placeholder="Nom du client"
                 required
             >
 
-            <input
-                type="number"
-                name="montant"
-                placeholder="Montant"
-                required
-            >
+            <label>Mode de paiement</label>
+
+            <select name="mode_paiement">
+
+                <option>Espèces</option>
+
+                <option>Mobile Money</option>
+
+                <option>Bancaire</option>
+
+                <option>En attente</option>
+
+            </select>
+
+            <br><br>
+
+            <table>
+
+                <tr>
+                    <th>Produit</th>
+                    <th>Prix</th>
+                    <th>Stock</th>
+                    <th>Quantité</th>
+                </tr>
+
+                {% for produit in produits %}
+
+                <tr>
+
+                    <td>{{ produit.nom }}</td>
+
+                    <td>{{ produit.prix }} FCFA</td>
+
+                    <td>{{ produit.quantite }}</td>
+
+                    <td>
+
+                        <input
+                            type="number"
+                            min="0"
+                            name="quantite_{{ produit.id }}"
+                            value="0"
+                        >
+
+                    </td>
+
+                </tr>
+
+                {% endfor %}
+
+            </table>
+
+            <br>
 
             <button type="submit">
-                Enregistrer Facture
+
+                Générer la Facture
+
             </button>
 
         </form>
 
-        <a href="/factures">
-            ← Retour Factures
-        </a>
-
     </div>
 
 </body>
+
 </html>
