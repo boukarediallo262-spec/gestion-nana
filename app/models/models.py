@@ -15,17 +15,11 @@ class Produit(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
 
-    nom = db.Column(db.String(200))
+    nom = db.Column(db.String(200), nullable=False)
 
-    prix = db.Column(db.Integer)
+    prix = db.Column(db.Integer, nullable=False)
 
-    stock = db.Column(db.Integer, default=0)
-
-    stock_min = db.Column(db.Integer, default=5)
-
-    categorie = db.Column(db.String(100))
-
-    description = db.Column(db.Text)
+    quantite = db.Column(db.Integer, nullable=False)
 
     date_creation = db.Column(db.DateTime, default=datetime.utcnow)
 class Facture(db.Model):
