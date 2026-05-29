@@ -4,7 +4,7 @@ from app.models.models import (
     Produit,
     Facture,
     Depense,
-    LigneFacture
+    
 )
 
 dashboard_bp = Blueprint("dashboard", __name__)
