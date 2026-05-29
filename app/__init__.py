@@ -1,10 +1,6 @@
 from flask import Flask
-
-from flask_sqlalchemy import SQLAlchemy
-
-
-
-db = SQLAlchemy()
+from app.models.models import db
+from app.routes.dashboard_routes import dashboard_bp
 
 def create_app():
 
