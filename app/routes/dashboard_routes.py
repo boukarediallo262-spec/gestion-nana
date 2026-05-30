@@ -124,14 +124,23 @@ def ajouter_facture():
         # Créer facture
         facture = Facture(
             client=client,
-            produit=produit.nom,
+            paiement=paiement,
+            total=total
+        )
+        db.session.add(facture)
+
+        db.session.commit()
+
+        
+        ligne = LigneFacture(
+            facture_id=facture.id,
+            produit_id=produit.id,
             quantite=quantite,
-            montant=produit.prix,
-            total=total,
-            paiement=paiement
+            prix=produit.prix,
+            total=total
         )
 
-        db.session.add(facture)
+        db.session.add(ligne)
 
         db.session.commit()
 
