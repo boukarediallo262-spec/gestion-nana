@@ -1,6 +1,7 @@
 from flask import Blueprint, render_template, request, redirect, url_for
 from app.models.models import db, Facture
 
+
 facture_bp = Blueprint('facture', __name__)
 
 # ==============================
@@ -39,9 +40,7 @@ def ajouter_facture():
         return redirect(url_for('facture.factures'))
 
     return render_template('ajouter_facture.html')
-
-
-# ==============================
+#===============================
 # SUPPRIMER FACTURE
 # ==============================
 @facture_bp.route('/supprimer_facture/<int:id>')
