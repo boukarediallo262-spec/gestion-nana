@@ -1,9 +1,174 @@
-<h1>Facture</h1>
+<!DOCTYPE html>
 
-<p>Client : {{ facture.client }}</p>
+<html lang="fr">
 
-<p>Produit : {{ facture.produit }}</p>
+<head>
 
-<p>Quantité : {{ facture.quantite }}</p>
+<meta charset="UTF-8">
 
-<p>Total : {{ facture.total }} FCFA</p>
+<title>Voir Facture</title>
+
+<style>
+
+body{
+    font-family:Arial;
+    background:#f4fff7;
+    padding:30px;
+}
+
+.box{
+
+    background:white;
+
+    max-width:1100px;
+
+    margin:auto;
+
+    padding:30px;
+
+    border-radius:20px;
+
+    box-shadow:0 5px 15px rgba(0,0,0,0.1);
+
+}
+
+h1{
+    color:#198754;
+    margin-bottom:20px;
+}
+
+.info{
+    margin-bottom:25px;
+}
+
+.info p{
+    margin:8px 0;
+}
+
+table{
+
+    width:100%;
+
+    border-collapse:collapse;
+
+    margin-top:20px;
+
+}
+
+th{
+
+    background:#198754;
+
+    color:white;
+
+    padding:15px;
+
+}
+
+td{
+
+    padding:15px;
+
+    border-bottom:1px solid #ddd;
+
+}
+
+.total{
+
+    margin-top:25px;
+
+    text-align:right;
+
+    font-size:22px;
+
+    font-weight:bold;
+
+    color:#198754;
+
+}
+
+.btn{
+
+    display:inline-block;
+
+    padding:12px 20px;
+
+    background:#198754;
+
+    color:white;
+
+    text-decoration:none;
+
+    border-radius:10px;
+
+    margin-top:20px;
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="box">
+
+<h1>🧾 Facture N°{{ facture.id }}</h1>
+
+<div class="info">
+
+<p><strong>Client :</strong> {{ facture.client }}</p>
+
+<p><strong>Date :</strong> {{ facture.date_facture }}</p>
+
+<p><strong>Paiement :</strong> {{ facture.paiement }}</p>
+
+</div>
+
+<table>
+
+<tr>
+<th>Produit</th>
+<th>Prix</th>
+<th>Quantité</th>
+<th>Total</th>
+</tr>
+
+{% for ligne in lignes %}
+
+<tr>
+
+<td>{{ ligne.produit.nom }}</td>
+
+<td>{{ ligne.prix }} FCFA</td>
+
+<td>{{ ligne.quantite }}</td>
+
+<td>{{ ligne.total }} FCFA</td>
+
+</tr>
+
+{% endfor %}
+
+</table>
+
+<div class="total">
+
+TOTAL FACTURE :
+{{ facture.total }} FCFA
+
+</div>
+
+<a
+href="/modifier_facture/{{ facture.id }}"
+class="btn">
+
+✏ Modifier
+
+</a>
+
+</div>
+
+</body>
+
+</html>
