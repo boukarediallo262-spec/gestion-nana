@@ -104,11 +104,19 @@ def ajouter_facture():
 
         produit_id = request.form.get("produit_id")
 
-        quantite = int(request.form.get("quantite"))
+        quantite_str = request.form.get("quantite")
+
+        if not quantite_str:
+            return "Quantité manquante"
+
+        quantite = int(quantite_str)
 
         paiement = request.form.get("paiement")
 
-        produit = Produit.query.get(produit_id)
+        produit = Produit.query.get(int(produit_id))
+
+        if not produit:
+            return "Produit introuvable")
 
         # Vérification stock
         if produit.quantite < quantite:
