@@ -228,25 +228,3 @@ def ajouter_depense():
 
     return render_template("ajouter_depense.html")
 
-@dashboard_bp.route(
-    "/modifier_facture/<int:id>",
-    methods=["GET", "POST"]
-)
-def modifier_facture(id):
-
-    facture = Facture.query.get_or_404(id)
-
-    if request.method == "POST":
-
-        facture.client = request.form.get("client")
-
-        facture.paiement = request.form.get("paiement")
-
-        db.session.commit()
-
-        return redirect("/factures")
-
-    return render_template(
-        "modifier_facture.html",
-        facture=facture
-    )
