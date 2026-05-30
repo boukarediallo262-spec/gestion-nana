@@ -78,6 +78,11 @@ class LigneFacture(db.Model):
 
     total = db.Column(db.Float)
 
+    produit = db.relationship(
+        "Produit",
+        backref="lignes_facture"
+    )
+
 
 class Depense(db.Model):
     id = db.Column(db.Integer, primary_key=True)
