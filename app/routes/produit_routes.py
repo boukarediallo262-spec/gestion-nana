@@ -23,12 +23,12 @@ def ajouter_produit():
 
         nom = request.form.get('nom')
         prix = request.form.get('prix')
-        stock = request.form.get('stock')
+        quantite = request.form.get('quantite')
 
         nouveau_produit = Produit(
             nom=nom,
             prix=prix,
-            stock=stock
+            quantite=quantite
         )
 
         db.session.add(nouveau_produit)
@@ -51,7 +51,7 @@ def modifier_produit(id):
 
         produit.nom = request.form.get('nom')
         produit.prix = request.form.get('prix')
-        produit.stock = request.form.get('stock')
+        produit.quantite = request.form.get('quantite')
 
         db.session.commit()
 
