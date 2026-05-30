@@ -204,6 +204,18 @@ def modifier_facture(id):
     )
 
 #===========================================
+@dashboard_bp.route("/depenses")
+def depenses():
+
+    toutes_depenses = Depense.query.order_by(
+        Depense.created_at.desc()
+    ).all()
+
+    return render_template(
+        "depenses.html",
+        depenses=toutes_depenses
+    )
+#============================================
 
 
 @dashboard_bp.route("/ajouter_depense", methods=["GET", "POST"])
