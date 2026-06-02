@@ -116,7 +116,7 @@ def ajouter_facture():
         produit = Produit.query.get(int(produit_id))
 
         if not produit:
-            return "Produit introuvable")
+            return "Produit introuvable"
 
         # Vérification stock
         if produit.quantite < quantite:
