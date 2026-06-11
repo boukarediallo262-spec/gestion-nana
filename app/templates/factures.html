@@ -245,7 +245,7 @@
                     {% set total = 0 %}
 
                     {% for f in factures %}
-                        {% set total = total + f.montant %}
+                        {% set total = total + f.total %}
                     {% endfor %}
 
                     {{ total }} FCFA
@@ -272,7 +272,9 @@
 
                     <th>ID</th>
                     <th>Client</th>
-                    <th>Montant</th>
+                    <th>Total</th>
+                    <th>Paiement</th>
+                    <th>Date</th>
                     <th>Actions</th>
 
                 </tr>
@@ -285,7 +287,7 @@
 
                     <td>{{ facture.client }}</td>
 
-                    <td>{{ facture.montant }} FCFA</td>
+                    <td>{{ facture.total }} FCFA</td>
 
                     <td>
 
