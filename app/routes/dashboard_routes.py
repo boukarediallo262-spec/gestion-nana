@@ -101,11 +101,13 @@ def ajouter_facture():
     if request.method == "POST":
 
         client = request.form.get("client")
+        produits_ids = request.form.getlist("produit_id[]")
 
-        produit_id = request.form.get("produit_id")
+        quantites = request.form.getlist("quantite[]")
 
-        quantite_str = request.form.get("quantite")
+        total_facture = 0
 
+        
         if not quantite_str:
             return "Quantité manquante"
 
