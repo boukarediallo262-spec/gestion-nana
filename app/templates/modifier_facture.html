@@ -76,6 +76,9 @@ button{
 <form method="POST">
 
 <input
+    type="date"
+    name="date_facture"
+    value="{{ facture.date_facture.strftime('%Y-%m-%d') }}"
     type="text"
     name="client"
     value="{{ facture.client }}"
