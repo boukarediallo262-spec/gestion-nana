@@ -119,7 +119,10 @@ td{
 
 <p><strong>Client :</strong> {{ facture.client }}</p>
 
-<p><strong>Date :</strong> {{ facture.date_facture }}</p>
+<p>
+    <strong>Date :</strong>
+    {{ facture.date_facture.strftime('%d/%m/%Y %H:%M') }}
+</p>
 
 <p><strong>Paiement :</strong> {{ facture.paiement }}</p>
 
@@ -165,6 +168,14 @@ href="/modifier_facture/{{ facture.id }}"
 class="btn">
 
 ✏ Modifier
+
+</a>
+
+<a
+href="/factures"
+class="btn">
+
+📋 Retour
 
 </a>
 
