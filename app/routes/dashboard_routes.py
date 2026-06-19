@@ -188,6 +188,7 @@ def voir_facture(id):
         lignes=lignes
     )
 #=======================================
+from datetime import datetime
 @dashboard_bp.route(
     "/modifier_facture/<int:id>",
     methods=["GET", "POST"]
@@ -201,6 +202,13 @@ def modifier_facture(id):
         facture.client = request.form.get("client")
 
         facture.paiement = request.form.get("paiement")
+        date_facture = request.form.get("date_facture")
+
+        if date_facture:
+            facture.date_facture = datetime.strptime(
+                date_facture,
+                "%Y-%m-%d"
+            )
 
         db.session.commit()
 
