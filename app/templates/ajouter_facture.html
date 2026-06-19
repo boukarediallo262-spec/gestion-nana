@@ -118,41 +118,73 @@
 
     </select>
 
-    <h3>Produit</h3>
+    <h3>Produits</h3>
 
-    <select name="produit_id" required>
+<div id="produits-container">
 
-        {% for produit in produits %}
+    <div class="ligne-produit">
 
-        <option value="{{ produit.id }}">
+        <select name="produit_id[]" required>
 
-            {{ produit.nom }}
-            -
-            {{ produit.prix }} FCFA
-            -
-            Stock : {{ produit.quantite }}
+            <option value="">
+                Choisir un produit
+            </option>
 
-        </option>
+            {% for produit in produits %}
 
-        {% endfor %}
+            <option value="{{ produit.id }}">
+                {{ produit.nom }}
+                -
+                {{ produit.prix }} FCFA
+                -
+                Stock: {{ produit.quantite }}
+            </option>
 
-    </select>
+            {% endfor %}
 
-    <input
-        type="number"
-        name="quantite"
-        min="1"
-        placeholder="Quantité"
-        required
-    >
+        </select>
 
-    <button type="submit">
-        Enregistrer Facture
-    </button>
+        <input
+            type="number"
+            name="quantite[]"
+            placeholder="Quantité"
+            required
+        >
 
-</form>   
+    </div>
 
 </div>
 
+<button
+    type="button"
+    onclick="ajouterLigne()">
+
+    ➕ Ajouter un produit
+
+</button>
+
+<br><br>
+
+</form>   
+</div>
+<script>
+
+function ajouterLigne() {
+
+    let container =
+        document.getElementById("produits-container");
+
+    let ligne =
+        container.children[0].cloneNode(true);
+
+    ligne.querySelector("input").value = "";
+
+    ligne.querySelector("select").selectedIndex = 0;
+
+    container.appendChild(ligne);
+
+}
+
+</script>
 </body>
-</html>
+</htm
