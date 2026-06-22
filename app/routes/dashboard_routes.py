@@ -92,7 +92,7 @@ def factures():
         "factures.html",
         factures=toutes_factures
     )
-
+from datetime import datetime
 @dashboard_bp.route("/ajouter_facture", methods=["GET", "POST"])
 def ajouter_facture():
 
@@ -109,7 +109,8 @@ def ajouter_facture():
         facture = Facture(
             client=client,
             paiement=paiement,
-            total=0
+            total=0,
+            date_facture=datetime.utcnow()
         )
 
         db.session.add(facture)
