@@ -135,9 +135,50 @@ def ajouter_facture():
         facture = Facture(
             client=client,
             paiement=paiement,
-            total=total
+            total=0
         )
         db.session.add(facture)
+    for i in range(len(produits_ids)):
+
+        produit = Produit.query.get(
+            produits_ids[i]
+        )
+
+        quantite = int(
+            quantites[i]
+        )
+
+        if produit.quantite < quantite:
+
+            return (
+                f"Stock insuffisant pour "
+                f"{produit.nom}"
+            )
+
+        total_ligne = (
+            produit.prix * quantite
+        )
+
+        produit.quantite -= quantite
+
+        ligne = LigneFacture(
+
+            facture_id=facture.id,
+
+            produit_id=produit.id,
+
+            quantite=quantite,
+
+            prix=produit.prix,
+
+            total=total_ligne
+
+        )
+
+        db.session.add(ligne)
+
+        total_facture += total_ligne
+        facture.total = total_facture
 
         db.session.commit()
 
