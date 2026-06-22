@@ -45,6 +45,10 @@ class Facture(db.Model):
         db.DateTime,
         default=datetime.utcnow
     )
+    statut = db.Column(
+        db.String(50),
+        default="Payée"
+    )
 
     user_id = db.Column(db.Integer)
     date_facture = db.Column(
