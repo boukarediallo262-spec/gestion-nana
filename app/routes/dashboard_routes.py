@@ -101,97 +101,55 @@ def ajouter_facture():
     if request.method == "POST":
 
         client = request.form.get("client")
-        produits_ids = request.form.getlist("produit_id[]")
-
-        quantites = request.form.getlist("quantite[]")
-
-        total_facture = 0
-
-        
-        if not quantite_str:
-            return "Quantité manquante"
-
-        quantite = int(quantite_str)
-
         paiement = request.form.get("paiement")
 
-        produit = Produit.query.get(int(produit_id))
+        produits_ids = request.form.getlist("produit_id[]")
+        quantites = request.form.getlist("quantite[]")
 
-        if not produit:
-            return "Produit introuvable"
-
-        # Vérification stock
-        if produit.quantite < quantite:
-
-            return "Stock insuffisant"
-
-        # Calcul total
-        total = produit.prix * quantite
-
-        # DIMINUER LE STOCK
-        produit.quantite -= quantite
-
-        # Créer facture
         facture = Facture(
             client=client,
             paiement=paiement,
             total=0
         )
+
         db.session.add(facture)
-    for i in range(len(produits_ids)):
-
-        produit = Produit.query.get(
-            produits_ids[i]
-        )
-
-        quantite = int(
-            quantites[i]
-        )
-
-        if produit.quantite < quantite:
-
-            return (
-                f"Stock insuffisant pour "
-                f"{produit.nom}"
-            )
-
-        total_ligne = (
-            produit.prix * quantite
-        )
-
-        produit.quantite -= quantite
-
-        ligne = LigneFacture(
-
-            facture_id=facture.id,
-
-            produit_id=produit.id,
-
-            quantite=quantite,
-
-            prix=produit.prix,
-
-            total=total_ligne
-
-        )
-
-        db.session.add(ligne)
-
-        total_facture += total_ligne
-        facture.total = total_facture
-
         db.session.commit()
 
-        
-        ligne = LigneFacture(
-            facture_id=facture.id,
-            produit_id=produit.id,
-            quantite=quantite,
-            prix=produit.prix,
-            total=total
-        )
+        total_facture = 0
 
-        db.session.add(ligne)
+        for i in range(len(produits_ids)):
+
+            produit = Produit.query.get(
+                int(produits_ids[i])
+            )
+
+            quantite = int(
+                quantites[i]
+            )
+
+            if not produit:
+                return "Produit introuvable"
+
+            if produit.quantite < quantite:
+                return f"Stock insuffisant pour {produit.nom}"
+
+            total_ligne = produit.prix * quantite
+
+            produit.quantite -= quantite
+
+            ligne = LigneFacture(
+                facture_id=facture.id,
+                produit_id=produit.id,
+                quantite=quantite,
+                prix=produit.prix,
+                total=total_ligne
+            )
+
+            db.session.add(ligne)
+
+            total_facture += total_ligne
+
+        facture.total = total_facture
 
         db.session.commit()
 
@@ -201,7 +159,6 @@ def ajouter_facture():
         "ajouter_facture.html",
         produits=produits
     )
-
 @dashboard_bp.route("/supprimer_facture/<int:id>")
 def supprimer_facture(id):
 
