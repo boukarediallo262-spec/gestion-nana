@@ -6,7 +6,14 @@ from app.models.models import (
     LigneFacture,
     Depense
 )
-
+from reportlab.platypus import (
+    SimpleDocTemplate,
+    Paragraph,
+    Spacer
+)
+from reportlab.lib.styles import getSampleStyleSheet
+from flask import send_file
+import os
 dashboard_bp = Blueprint("dashboard", __name__)
 
 @dashboard_bp.route("/")
@@ -257,3 +264,77 @@ def ajouter_depense():
 
     return render_template("ajouter_depense.html")
 
+@dashboard_bp.route("/facture_pdf/<int:id>")
+def facture_pdf(id):
+
+    facture = Facture.query.get_or_404(id)
+
+    lignes = LigneFacture.query.filter_by(
+        facture_id=id
+    ).all()
+
+    filename = f"facture_{id}.pdf"
+
+    pdf = SimpleDocTemplate(filename)
+
+    styles = getSampleStyleSheet()
+
+    elements = []
+
+    elements.append(
+        Paragraph(
+            "FASO GESTION IA",
+            styles['Title']
+        )
+    )
+
+    elements.append(
+        Paragraph(
+            f"Facture N° {facture.id}",
+            styles['Heading2']
+        )
+    )
+
+    elements.append(
+        Paragraph(
+            f"Client : {facture.client}",
+            styles['Normal']
+        )
+    )
+
+    elements.append(
+        Paragraph(
+            f"Paiement : {facture.paiement}",
+            styles['Normal']
+        )
+    )
+
+    elements.append(Spacer(1, 20))
+
+    for ligne in lignes:
+
+        elements.append(
+            Paragraph(
+                f"{ligne.produit.nom} | "
+                f"{ligne.quantite} x "
+                f"{ligne.prix} FCFA = "
+                f"{ligne.total} FCFA",
+                styles['Normal']
+            )
+        )
+
+    elements.append(Spacer(1, 20))
+
+    elements.append(
+        Paragraph(
+            f"TOTAL : {facture.total} FCFA",
+            styles['Heading2']
+        )
+    )
+
+    pdf.build(elements)
+
+    return send_file(
+        filename,
+        as_attachment=True
+    )
