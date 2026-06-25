@@ -20,35 +20,41 @@ dashboard_bp = Blueprint("dashboard", __name__)
 def home():
 
     total_produits = Produit.query.count()
+
     total_factures = Facture.query.count()
 
-    depenses = Depense.query.all()
+    total_depenses = db.session.query(
+        db.func.sum(Depense.montant)
+    ).scalar() or 0
 
-    total_depenses = sum([d.montant for d in depenses])
+    chiffre_affaires = db.session.query(
+        db.func.sum(Facture.total)
+    ).scalar() or 0
+
+    benefices = chiffre_affaires - total_depenses
 
     produits = Produit.query.limit(5).all()
 
     abonnement = "Actif"
 
-    ventes_data = Facture.query.all()
-
-    total_ventes = sum([f.total for f in ventes_data])
-
-    depenses_data = Depense.query.all()
-
-    total_depenses_graph = sum([d.montant for d in depenses_data])
-
-    benefices = total_ventes - total_depenses_graph
-
     return render_template(
+
         "dashboard/index.html",
+
         total_produits=total_produits,
+
         total_factures=total_factures,
+
         total_depenses=total_depenses,
+
+        chiffre_affaires=chiffre_affaires,
+
+        benefices=benefices,
+
         abonnement=abonnement,
-        produits=produits,
-        total_ventes=total_ventes,
-        benefices=benefices
+
+        produits=produits
+
     )
 
 @dashboard_bp.route("/produits", methods=["GET", "POST"])
@@ -343,4 +349,60 @@ def facture_pdf(id):
     return send_file(
         filename,
         as_attachment=True
+    )
+# ===========================================
+# STATISTIQUES
+# ===========================================
+
+@dashboard_bp.route("/statistiques")
+def statistiques():
+
+    total_produits = Produit.query.count()
+
+    total_clients = Client.query.count()
+
+    total_factures = Facture.query.count()
+
+    chiffre_affaires = db.session.query(
+        func.sum(Facture.total)
+    ).scalar() or 0
+
+    total_depenses = db.session.query(
+        func.sum(Depense.montant)
+    ).scalar() or 0
+
+    benefice = chiffre_affaires - total_depenses
+
+    rupture_stock = Produit.query.filter(
+        Produit.quantite <= 0
+    ).count()
+
+    produits = Produit.query.order_by(
+        Produit.quantite.asc()
+    ).limit(5).all()
+
+    factures = Facture.query.order_by(
+        Facture.date_facture.desc()
+    ).limit(5).all()
+
+    return render_template(
+        "statistiques.html",
+
+        total_produits=total_produits,
+
+        total_clients=total_clients,
+
+        total_factures=total_factures,
+
+        chiffre_affaires=chiffre_affaires,
+
+        total_depenses=total_depenses,
+
+        benefice=benefice,
+
+        rupture_stock=rupture_stock,
+
+        produits=produits,
+
+        factures=factures
     )
