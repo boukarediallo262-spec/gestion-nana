@@ -89,11 +89,6 @@
         required
     >
 
-    <input
-        type="date"
-        name="date_facture"
-    >
-
     <select name="paiement" required>
 
         <option value="">
@@ -162,7 +157,35 @@
     ➕ Ajouter un produit
 
 </button>
+<br>
 
+<div style="display:flex;gap:15px;">
+
+    <a
+        href="/factures"
+        style="
+            flex:1;
+            background:#6c757d;
+            color:white;
+            text-decoration:none;
+            text-align:center;
+            padding:15px;
+            border-radius:10px;
+            font-weight:bold;
+        ">
+        ← Retour
+    </a>
+
+    <button
+        type="submit"
+        style="
+            flex:2;
+            width:auto;
+        ">
+        💾 Enregistrer Facture
+    </button>
+
+</div>
 <br><br>
 
 </form>   
@@ -187,4 +210,4 @@ function ajouterLigne() {
 
 </script>
 </body>
-</htm
+</html>
