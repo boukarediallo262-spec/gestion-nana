@@ -5,14 +5,25 @@
 
 <meta charset="UTF-8">
 
-<title>Modifier Facture</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Modifier une Facture</title>
 
 <style>
 
-body{
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
     font-family:Arial;
+}
+
+body{
+
     background:#f4fff7;
-    padding:30px;
+
+    padding:40px;
+
 }
 
 .box{
@@ -23,7 +34,7 @@ body{
 
     margin:auto;
 
-    padding:30px;
+    padding:35px;
 
     border-radius:20px;
 
@@ -31,21 +42,87 @@ body{
 
 }
 
-input,select{
+h1{
+
+    color:#198754;
+
+    margin-bottom:30px;
+
+    text-align:center;
+
+}
+
+label{
+
+    display:block;
+
+    margin-bottom:8px;
+
+    font-weight:bold;
+
+    color:#333;
+
+}
+
+input,
+select{
 
     width:100%;
 
     padding:15px;
 
-    margin-bottom:20px;
-
-    border-radius:10px;
+    margin-bottom:22px;
 
     border:1px solid #ccc;
 
+    border-radius:10px;
+
+    font-size:16px;
+
 }
 
-button{
+input:focus,
+select:focus{
+
+    outline:none;
+
+    border-color:#198754;
+
+}
+
+.buttons{
+
+    display:flex;
+
+    gap:15px;
+
+    margin-top:10px;
+
+}
+
+.retour{
+
+    flex:1;
+
+    background:#6c757d;
+
+    color:white;
+
+    text-decoration:none;
+
+    text-align:center;
+
+    padding:15px;
+
+    border-radius:10px;
+
+    font-weight:bold;
+
+}
+
+.enregistrer{
+
+    flex:2;
 
     background:#198754;
 
@@ -53,13 +130,39 @@ button{
 
     border:none;
 
-    padding:15px;
+    border-radius:10px;
 
-    width:100%;
+    font-size:17px;
+
+    cursor:pointer;
+
+}
+
+.enregistrer:hover{
+
+    background:#157347;
+
+}
+
+.retour:hover{
+
+    background:#5a6268;
+
+}
+
+.info{
+
+    background:#e8fff0;
+
+    padding:15px;
 
     border-radius:10px;
 
-    font-size:18px;
+    margin-bottom:25px;
+
+    color:#198754;
+
+    font-weight:bold;
 
 }
 
@@ -71,53 +174,98 @@ button{
 
 <div class="box">
 
-<h1>✏ Modifier Facture</h1>
+<h1>✏ Modifier une Facture</h1>
+
+<div class="info">
+
+Facture N° {{ facture.id }}
+
+</div>
 
 <form method="POST">
 
+<label>
+
+Nom du client
+
+</label>
+
 <input
-    type="date"
-    name="date_facture"
-    value="{{ facture.date_facture.strftime('%Y-%m-%d') }}"
-    type="text"
-    name="client"
-    value="{{ facture.client }}"
-    required
+type="text"
+name="client"
+value="{{ facture.client }}"
+required
 >
- 
-<select name="paiement" required>
 
-<option value="{{ facture.paiement }}">
-    {{ facture.paiement }}
+<label>
+
+Mode de paiement
+
+</label>
+
+<select
+name="paiement"
+required
+>
+
+<option value="Espèces"
+{% if facture.paiement=="Espèces" %}selected{% endif %}>
+Espèces
 </option>
 
-<option value="Espèces">
-    Espèces
+<option value="Mobile Money"
+{% if facture.paiement=="Mobile Money" %}selected{% endif %}>
+Mobile Money
 </option>
 
-<option value="Mobile Money">
-    Mobile Money
+<option value="Bancaire"
+{% if facture.paiement=="Bancaire" %}selected{% endif %}>
+Bancaire
 </option>
 
-<option value="Bancaire">
-    Bancaire
-</option>
-
-<option value="En attente">
-    En attente
+<option value="En attente"
+{% if facture.paiement=="En attente" %}selected{% endif %}>
+En attente
 </option>
 
 </select>
 
-<button type="submit">
+<label>
 
-    Modifier Facture
+Date de création
+
+</label>
+
+<input
+type="text"
+value="{{ facture.date_facture.strftime('%d/%m/%Y à %H:%M') }}"
+readonly
+>
+
+<div class="buttons">
+
+<a
+href="/voir_facture/{{ facture.id }}"
+class="retour">
+
+← Retour
+
+</a>
+
+<button
+type="submit"
+class="enregistrer">
+
+💾 Enregistrer les modifications
 
 </button>
+
+</div>
 
 </form>
 
 </div>
 
 </body>
+
 </html>
