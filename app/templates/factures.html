@@ -240,17 +240,7 @@
 
                 <h3>Montant Total</h3>
 
-                <p>
-
-                    {% set total = 0 %}
-
-                    {% for f in factures %}
-                        {% set total = total + f.total %}
-                    {% endfor %}
-
-                    {{ total }} FCFA
- 
-                </p>
+                {{ total_factures }} FCFA
 
             </div>
 
