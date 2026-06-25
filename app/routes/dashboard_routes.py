@@ -95,9 +95,15 @@ def factures():
 
     toutes_factures = Facture.query.all()
 
+    total_factures = sum(
+        facture.total or 0
+        for facture in toutes_factures
+    )
+
     return render_template(
         "factures.html",
-        factures=toutes_factures
+        factures=toutes_factures,
+        total_factures=total_factures
     )
 from datetime import datetime
 @dashboard_bp.route("/ajouter_facture", methods=["GET", "POST"])
