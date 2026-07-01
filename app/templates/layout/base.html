@@ -5,81 +5,226 @@
 
     <meta charset="UTF-8">
 
-    <title>Faso Gestion IA</title>
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
 
-    <style>
+    <title>
 
-        body{
-            margin:0;
-            padding:0;
-            font-family:Arial;
-            background:#f5f7f8;
-        }
+        {% block title %}
+        FASO GESTION IA
+        {% endblock %}
 
-        .navbar{
-            background:#0f8b4c;
-            padding:15px;
-            display:flex;
-            gap:15px;
-        }
+    </title>
 
-        .navbar a{
-            color:white;
-            text-decoration:none;
-            font-weight:bold;
-        }
+    <!-- CSS principal -->
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
 
-        .navbar a:hover{
-            color:#d4ffd4;
-        }
-
-        .container{
-            padding:20px;
-        }
-
-        h1{
-            color:#0f8b4c;
-        }
-
-        .card{
-            background:white;
-            padding:20px;
-            border-radius:10px;
-            box-shadow:0 0 10px rgba(0,0,0,0.1);
-        }
-
-    </style>
+    <!-- Icônes Font Awesome -->
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
 
 </head>
 
 <body>
 
-    <div class="navbar">
+<div class="app">
 
-        <a href="/">Accueil</a>
+    <!-- ================= SIDEBAR ================= -->
 
-        <a href="/produits">Produits</a>
+    <aside class="sidebar">
 
-        <a href="/factures">Factures</a>
+        <div class="logo">
 
-        <a href="/depenses">Dépenses</a>
+            <h2>
 
-        <a href="/abonnement">Abonnements</a>
-        <a href="/ia">Ia-bisness</a>
+                🌍 FASO<br>GESTION IA
 
-    </div>
+            </h2>
 
-    <div class="container">
+        </div>
 
-        <div class="card">
+        <nav>
+
+            <ul>
+
+                <li>
+
+                    <a href="/">
+
+                        <i class="fas fa-home"></i>
+
+                        Dashboard
+
+                    </a>
+
+                </li>
+
+                <li>
+
+                    <a href="/produits">
+
+                        <i class="fas fa-box"></i>
+
+                        Produits
+
+                    </a>
+
+                </li>
+
+                <li>
+
+                    <a href="/clients">
+
+                        <i class="fas fa-users"></i>
+
+                        Clients
+
+                    </a>
+
+                </li>
+
+                <li>
+
+                    <a href="/factures">
+
+                        <i class="fas fa-file-invoice"></i>
+
+                        Factures
+
+                    </a>
+
+                </li>
+
+                <li>
+
+                    <a href="/depenses">
+
+                        <i class="fas fa-money-bill-wave"></i>
+
+                        Dépenses
+
+                    </a>
+
+                </li>
+
+                <li>
+
+                    <a href="/stock">
+
+                        <i class="fas fa-warehouse"></i>
+
+                        Stock
+
+                    </a>
+
+                </li>
+
+                <li>
+
+                    <a href="/statistiques">
+
+                        <i class="fas fa-chart-line"></i>
+
+                        Statistiques
+
+                    </a>
+
+                </li>
+
+                <li>
+
+                    <a href="/abonnements">
+
+                        <i class="fas fa-crown"></i>
+
+                        Abonnements
+
+                    </a>
+
+                </li>
+
+                <li>
+
+                    <a href="/parametres">
+
+                        <i class="fas fa-gear"></i>
+
+                        Paramètres
+
+                    </a>
+
+                </li>
+
+            </ul>
+
+        </nav>
+
+    </aside>
+
+    <!-- ================= CONTENU ================= -->
+
+    <div class="main">
+
+        <!-- HEADER -->
+
+        <header class="topbar">
+
+            <div>
+
+                <h1>
+
+                    {% block page_title %}
+                    Tableau de bord
+                    {% endblock %}
+
+                </h1>
+
+            </div>
+
+            <div class="topbar-right">
+
+                <span id="date"></span>
+
+                <span id="heure"></span>
+
+                <div class="profil">
+
+                    👤 Boukaré
+
+                </div>
+
+            </div>
+
+        </header>
+
+        <!-- CONTENU -->
+
+        <main class="content">
 
             {% block content %}
 
             {% endblock %}
 
-        </div>
+        </main>
+
+        <!-- FOOTER -->
+
+        <footer>
+
+            © 2026 FASO GESTION IA Premium
+
+        </footer>
 
     </div>
+
+</div>
+
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+
+{% block scripts %}
+
+{% endblock %}
 
 </body>
 
