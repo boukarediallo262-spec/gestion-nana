@@ -1,144 +1,176 @@
 <!DOCTYPE html>
 <html lang="fr">
-
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Statistiques - FASO GESTION IA</title>
+<meta charset="UTF-8">
+<title>Statistiques Pro</title>
 
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-    <style>
+<style>
 
-        body{
-            font-family:Arial;
-            background:#f4fff7;
-            margin:0;
-        }
+body{
+    font-family:Arial;
+    background:#f4fff7;
+    margin:0;
+}
 
-        header{
-            background:linear-gradient(135deg,#198754,#0d6b42);
-            color:white;
-            padding:20px;
-            display:flex;
-            justify-content:space-between;
-            align-items:center;
-        }
+header{
+    background:#198754;
+    color:white;
+    padding:20px;
+    display:flex;
+    justify-content:space-between;
+}
 
-        header h1{
-            font-size:24px;
-        }
+.container{
+    padding:30px;
+}
 
-        .container{
-            padding:30px;
-        }
+/* CARDS */
+.cards{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+    gap:20px;
+}
 
-        .cards{
-            display:grid;
-            grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
-            gap:20px;
-            margin-bottom:30px;
-        }
+.card{
+    background:white;
+    padding:20px;
+    border-radius:15px;
+    box-shadow:0 5px 15px rgba(0,0,0,0.08);
+}
 
-        .card{
-            background:white;
-            padding:20px;
-            border-radius:15px;
-            box-shadow:0 5px 15px rgba(0,0,0,0.08);
-        }
+.card h3{
+    color:#198754;
+}
 
-        .card h3{
-            color:#198754;
-            margin-bottom:10px;
-        }
+.card p{
+    font-size:22px;
+    font-weight:bold;
+}
 
-        .card p{
-            font-size:22px;
-            font-weight:bold;
-        }
+/* ALERTES */
+.alert{
+    padding:10px;
+    border-radius:10px;
+    margin:5px 0;
+}
 
-        .chart-box{
-            background:white;
-            padding:30px;
-            border-radius:15px;
-            box-shadow:0 5px 15px rgba(0,0,0,0.08);
-        }
+.red{background:#ffdddd;}
+.orange{background:#fff3cd;}
 
-        footer{
-            text-align:center;
-            padding:20px;
-            color:#666;
-        }
+.section{
+    margin-top:30px;
+    background:white;
+    padding:20px;
+    border-radius:15px;
+}
 
-    </style>
+</style>
 
 </head>
 
 <body>
 
 <header>
-    <h1>📊 Statistiques Pro</h1>
-    <a href="/" style="color:white;text-decoration:none;">🏠 Retour</a>
+    <h2>📊 Statistiques Avancées</h2>
+    <a href="/" style="color:white;text-decoration:none;">🏠 Dashboard</a>
 </header>
 
 <div class="container">
 
-    <!-- CARDS -->
-    <div class="cards">
+<!-- CARDS -->
+<div class="cards">
 
-        <div class="card">
-            <h3>Ventes</h3>
-            <p>{{ total_ventes }} FCFA</p>
-        </div>
-
-        <div class="card">
-            <h3>Bénéfices</h3>
-            <p>{{ benefices }} FCFA</p>
-        </div>
-
-        <div class="card">
-            <h3>Dépenses</h3>
-            <p>{{ total_depenses }} FCFA</p>
-        </div>
-
-        <div class="card">
-            <h3>Factures</h3>
-            <p>{{ total_factures }}</p>
-        </div>
-
+    <div class="card">
+        <h3>Ventes Totales</h3>
+        <p>{{ total_ventes }} FCFA</p>
     </div>
 
-    <!-- GRAPH -->
-    <div class="chart-box">
-        <canvas id="chart"></canvas>
+    <div class="card">
+        <h3>Bénéfices</h3>
+        <p>{{ benefices }} FCFA</p>
     </div>
+
+    <div class="card">
+        <h3>Dépenses</h3>
+        <p>{{ total_depenses }} FCFA</p>
+    </div>
+
+    <div class="card">
+        <h3>Factures</h3>
+        <p>{{ total_factures }}</p>
+    </div>
+
+    <div class="card">
+        <h3>Ventes Aujourd'hui</h3>
+        <p>{{ total_jour }} FCFA</p>
+    </div>
+
+    <div class="card">
+        <h3>Ventes du Mois</h3>
+        <p>{{ total_mois }} FCFA</p>
+    </div>
+
+</div>
+
+<!-- TOP PRODUITS -->
+<div class="section">
+
+<h3>🔥 Top Produits</h3>
+
+{% for p in top_produits %}
+    <p>📦 {{ p.nom }} — {{ p.total_vendu }} ventes</p>
+{% endfor %}
+
+</div>
+
+<!-- ALERTES STOCK -->
+<div class="section">
+
+<h3>⚠ Produits en alerte</h3>
+
+{% for p in produits_alerte %}
+    <div class="alert orange">
+        {{ p.nom }} - Stock: {{ p.quantite }}
+    </div>
+{% endfor %}
+
+{% for p in produits_rupture %}
+    <div class="alert red">
+        {{ p.nom }} - RUPTURE
+    </div>
+{% endfor %}
+
+</div>
+
+<!-- CHART -->
+<div class="section">
+
+<canvas id="chart"></canvas>
+
+</div>
 
 </div>
 
 <script>
 
-const ctx = document.getElementById('chart');
-
-new Chart(ctx, {
-    type: 'doughnut',
-    data: {
-        labels: ['Ventes', 'Bénéfices', 'Dépenses'],
-        datasets: [{
-            data: [
+new Chart(document.getElementById('chart'), {
+    type:'doughnut',
+    data:{
+        labels:['Ventes','Bénéfices','Dépenses'],
+        datasets:[{
+            data:[
                 {{ total_ventes }},
                 {{ benefices }},
                 {{ total_depenses }}
             ],
-            backgroundColor: ['#198754', '#0d6efd', '#dc3545']
+            backgroundColor:['#198754','#0d6efd','#dc3545']
         }]
     }
 });
 
 </script>
-
-<footer>
-    © 2026 FASO GESTION IA
-</footer>
 
 </body>
 </html>
