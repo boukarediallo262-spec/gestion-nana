@@ -1,175 +1,222 @@
 <!DOCTYPE html>
 <html lang="fr">
+
 <head>
-<meta charset="UTF-8">
-<title>Statistiques Pro</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Statistiques</title>
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-<style>
+    <style>
 
-body{
-    font-family:Arial;
-    background:#f4fff7;
-    margin:0;
-}
+        *{
+            margin:0;
+            padding:0;
+            box-sizing:border-box;
+            font-family:Arial;
+        }
 
-header{
-    background:#198754;
-    color:white;
-    padding:20px;
-    display:flex;
-    justify-content:space-between;
-}
+        body{
+            background:#f4fff7;
+        }
 
-.container{
-    padding:30px;
-}
+        /* TOP BAR */
+        .topbar{
+            background:linear-gradient(135deg,#198754,#0d6b42);
+            padding:20px 30px;
+            color:white;
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+        }
 
-/* CARDS */
-.cards{
-    display:grid;
-    grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
-    gap:20px;
-}
+        .btn{
+            background:white;
+            color:#198754;
+            padding:10px 15px;
+            border-radius:10px;
+            text-decoration:none;
+            font-weight:bold;
+        }
 
-.card{
-    background:white;
-    padding:20px;
-    border-radius:15px;
-    box-shadow:0 5px 15px rgba(0,0,0,0.08);
-}
+        .container{
+            padding:30px;
+        }
 
-.card h3{
-    color:#198754;
-}
+        /* CARDS */
+        .grid{
+            display:grid;
+            grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+            gap:20px;
+        }
 
-.card p{
-    font-size:22px;
-    font-weight:bold;
-}
+        .card{
+            background:white;
+            padding:25px;
+            border-radius:20px;
+            box-shadow:0 5px 15px rgba(0,0,0,0.08);
+        }
 
-/* ALERTES */
-.alert{
-    padding:10px;
-    border-radius:10px;
-    margin:5px 0;
-}
+        .card h3{
+            color:#198754;
+            margin-bottom:10px;
+        }
 
-.red{background:#ffdddd;}
-.orange{background:#fff3cd;}
+        .card p{
+            font-size:25px;
+            font-weight:bold;
+        }
 
-.section{
-    margin-top:30px;
-    background:white;
-    padding:20px;
-    border-radius:15px;
-}
+        /* BOX */
+        .box{
+            background:white;
+            padding:25px;
+            margin-top:25px;
+            border-radius:20px;
+            box-shadow:0 5px 15px rgba(0,0,0,0.08);
+        }
 
-</style>
+        table{
+            width:100%;
+            border-collapse:collapse;
+        }
+
+        th,td{
+            padding:15px;
+            border-bottom:1px solid #eee;
+        }
+
+        th{
+            background:#e8fff0;
+            color:#198754;
+        }
+
+    </style>
 
 </head>
 
 <body>
 
-<header>
-    <h2>📊 Statistiques Avancées</h2>
-    <a href="/" style="color:white;text-decoration:none;">🏠 Dashboard</a>
-</header>
+<div class="topbar">
+    <h1>📊 Statistiques</h1>
+
+    <a href="/" class="btn">🏠 Dashboard</a>
+</div>
 
 <div class="container">
 
-<!-- CARDS -->
-<div class="cards">
+    <!-- KPI -->
+    <div class="grid">
 
-    <div class="card">
-        <h3>Ventes Totales</h3>
-        <p>{{ total_ventes }} FCFA</p>
+        <div class="card">
+            <h3>Produits</h3>
+            <p>{{ total_produits }}</p>
+        </div>
+
+        <div class="card">
+            <h3>Clients</h3>
+            <p>{{ total_clients }}</p>
+        </div>
+
+        <div class="card">
+            <h3>Factures</h3>
+            <p>{{ total_factures }}</p>
+        </div>
+
+        <div class="card">
+            <h3>Ventes</h3>
+            <p>{{ total_ventes }} FCFA</p>
+        </div>
+
+        <div class="card">
+            <h3>Dépenses</h3>
+            <p>{{ total_depenses }} FCFA</p>
+        </div>
+
+        <div class="card">
+            <h3>Bénéfices</h3>
+            <p>{{ benefices }} FCFA</p>
+        </div>
+
     </div>
 
-    <div class="card">
-        <h3>Bénéfices</h3>
-        <p>{{ benefices }} FCFA</p>
+    <!-- CHART -->
+    <div class="box">
+        <h2>📈 Graphique Global</h2>
+        <canvas id="chart"></canvas>
     </div>
 
-    <div class="card">
-        <h3>Dépenses</h3>
-        <p>{{ total_depenses }} FCFA</p>
+    <!-- VENTES TEMPS -->
+    <div class="box">
+
+        <h2>📅 Résumé des ventes</h2>
+
+        <p>Aujourd'hui : <b>{{ ventes_jour }} FCFA</b></p>
+        <p>Semaine : <b>{{ ventes_semaine }} FCFA</b></p>
+        <p>Mois : <b>{{ ventes_mois }} FCFA</b></p>
+
     </div>
 
-    <div class="card">
-        <h3>Factures</h3>
-        <p>{{ total_factures }}</p>
+    <!-- TOP PRODUITS -->
+    <div class="box">
+
+        <h2>🔥 Top Produits</h2>
+
+        <table>
+            <tr>
+                <th>Produit</th>
+                <th>Quantité vendue</th>
+            </tr>
+
+            {% for p in top_produits %}
+            <tr>
+                <td>{{ p.nom }}</td>
+                <td>{{ p.quantite }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+
     </div>
 
-    <div class="card">
-        <h3>Ventes Aujourd'hui</h3>
-        <p>{{ total_jour }} FCFA</p>
+    <!-- STOCK FAIBLE -->
+    <div class="box">
+
+        <h2>⚠ Stock faible</h2>
+
+        <table>
+            <tr>
+                <th>Produit</th>
+                <th>Quantité</th>
+            </tr>
+
+            {% for p in stock_faible %}
+            <tr>
+                <td>{{ p.nom }}</td>
+                <td>{{ p.quantite }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+
     </div>
-
-    <div class="card">
-        <h3>Ventes du Mois</h3>
-        <p>{{ total_mois }} FCFA</p>
-    </div>
-
-</div>
-
-<!-- TOP PRODUITS -->
-<div class="section">
-
-<h3>🔥 Top Produits</h3>
-
-{% for p in top_produits %}
-    <p>📦 {{ p.nom }} — {{ p.total_vendu }} ventes</p>
-{% endfor %}
-
-</div>
-
-<!-- ALERTES STOCK -->
-<div class="section">
-
-<h3>⚠ Produits en alerte</h3>
-
-{% for p in produits_alerte %}
-    <div class="alert orange">
-        {{ p.nom }} - Stock: {{ p.quantite }}
-    </div>
-{% endfor %}
-
-{% for p in produits_rupture %}
-    <div class="alert red">
-        {{ p.nom }} - RUPTURE
-    </div>
-{% endfor %}
-
-</div>
-
-<!-- CHART -->
-<div class="section">
-
-<canvas id="chart"></canvas>
-
-</div>
 
 </div>
 
 <script>
-
-new Chart(document.getElementById('chart'), {
-    type:'doughnut',
-    data:{
-        labels:['Ventes','Bénéfices','Dépenses'],
-        datasets:[{
-            data:[
+new Chart(document.getElementById("chart"), {
+    type: "doughnut",
+    data: {
+        labels: ["Ventes", "Dépenses", "Bénéfices"],
+        datasets: [{
+            data: [
                 {{ total_ventes }},
-                {{ benefices }},
-                {{ total_depenses }}
+                {{ total_depenses }},
+                {{ benefices }}
             ],
-            backgroundColor:['#198754','#0d6efd','#dc3545']
+            backgroundColor: ["#198754", "#dc3545", "#0d6efd"]
         }]
     }
 });
-
 </script>
 
 </body>
