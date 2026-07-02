@@ -1,0 +1,90 @@
+{% extends "layout/base.html" %}
+
+{% block content %}
+
+<h2 style="color:#198754;">⚙️ Administration</h2>
+
+<!-- KPI ADMIN -->
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:15px;margin-top:20px;">
+
+    <div class="kpi">👤 <h3>{{ total_users }}</h3><p>Utilisateurs</p></div>
+
+    <div class="kpi">📦 <h3>{{ total_produits }}</h3><p>Produits</p></div>
+
+    <div class="kpi">🧾 <h3>{{ total_factures }}</h3><p>Factures</p></div>
+
+    <div class="kpi">💰 <h3>{{ total_ventes }} FCFA</h3><p>Ventes</p></div>
+
+    <div class="kpi">💸 <h3>{{ total_depenses }} FCFA</h3><p>Dépenses</p></div>
+
+</div>
+
+<!-- PARAMETRES -->
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:25px;">
+
+    <!-- ENTREPRISE -->
+    <div style="background:white;padding:20px;border-radius:15px;">
+
+        <h3>🏢 Informations entreprise</h3>
+
+        <form>
+            <input type="text" placeholder="Nom entreprise" style="width:100%;padding:10px;margin-top:10px;">
+            <input type="text" placeholder="Téléphone" style="width:100%;padding:10px;margin-top:10px;">
+            <input type="text" placeholder="Adresse" style="width:100%;padding:10px;margin-top:10px;">
+
+            <button type="button" style="margin-top:15px;background:#198754;color:white;padding:10px;width:100%;border:none;border-radius:10px;">
+                💾 Sauvegarder
+            </button>
+        </form>
+
+    </div>
+
+    <!-- FACTURE PARAM -->
+    <div style="background:white;padding:20px;border-radius:15px;">
+
+        <h3>🧾 Paramètres factures</h3>
+
+        <p>✔ Numérotation automatique</p>
+        <p>✔ Date automatique activée</p>
+        <p>✔ Multi-produits activé</p>
+        <p>✔ Export PDF disponible</p>
+
+        <button style="margin-top:15px;background:#0d6efd;color:white;padding:10px;width:100%;border:none;border-radius:10px;">
+            📥 Exporter données
+        </button>
+
+    </div>
+
+</div>
+
+<!-- ALERTES SYSTEME -->
+<div style="margin-top:25px;background:white;padding:20px;border-radius:15px;">
+
+    <h3>🔐 Sécurité & système</h3>
+
+    <p>🟢 Système stable</p>
+    <p>🟢 Base de données connectée</p>
+    <p>🟡 Backup automatique : non activé</p>
+
+    <button style="margin-top:10px;background:#dc3545;color:white;padding:10px;width:100%;border:none;border-radius:10px;">
+        💾 Sauvegarder maintenant
+    </button>
+
+</div>
+
+<style>
+.kpi{
+    background:white;
+    padding:20px;
+    border-radius:15px;
+    text-align:center;
+    box-shadow:0 3px 10px rgba(0,0,0,0.1);
+}
+
+.kpi h3{
+    color:#198754;
+    margin:5px 0;
+}
+</style>
+
+{% endblock %}
