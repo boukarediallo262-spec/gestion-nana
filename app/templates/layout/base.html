@@ -19,12 +19,24 @@
             📊 FASO GESTION IA
         </div>
 
-        <a href="/" class="menu">🏠 Dashboard</a>
-        <a href="/produits" class="menu">📦 Produits</a>
-        <a href="/clients" class="menu">👥 Clients</a>
-        <a href="/factures" class="menu">🧾 Factures</a>
-        <a href="/depenses" class="menu">💰 Dépenses</a>
-        <a href="/statistiques" class="menu">📊 Statistiques</a>
+        <a href="/" class="menu {% if request.path == '/' %}active{% endif %}">
+        🏠 Dashboard
+        </a>
+        <a href="/produits" class="menu {% if '/produits' in request.path %}active{% endif %}">
+        📦 Produits
+        </a>
+        <a href="/clients" class="menu {% if '/clients' in request.path %}active{% endif %}">
+        👥 Clients
+        </a>
+        <a href="/factures" class="menu {% if '/factures' in request.path %}active{% endif %}">
+        🧾 Factures
+        </a>
+        <a href="/depenses" class="menu {% if '/depenses' in request.path %}active{% endif %}">
+        💰 Dépenses
+        </a>
+        <a href="/statistiques" class="menu {% if '/statistiques' in request.path %}active{% endif %}">
+        📊 Statistiques
+        </a>
         <a href="/admin" class="menu">⚙️ Administration</a>
 
         <hr style="opacity:0.3;">
