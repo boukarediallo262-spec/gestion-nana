@@ -8,6 +8,55 @@ from app.models.models import (
     Client,
     LigneFacture
 )
+#============================
+@dashboard_bp.route("/")
+def home():
+
+    total_produits = Produit.query.count()
+
+    total_clients = Client.query.count()
+
+    total_factures = Facture.query.count()
+
+    total_ventes = db.session.query(
+        func.sum(Facture.total)
+    ).scalar() or 0
+
+    total_depenses = db.session.query(
+        func.sum(Depense.montant)
+    ).scalar() or 0
+
+    benefices = total_ventes - total_depenses
+
+    stock_faible = Produit.query.filter(
+        Produit.quantite <= 5
+    ).count()
+
+    abonnement = "Premium"
+
+    return render_template(
+
+        "dashboard/index.html",
+
+        total_produits=total_produits,
+
+        total_clients=total_clients,
+
+        total_factures=total_factures,
+
+        total_ventes=total_ventes,
+
+        total_depenses=total_depenses,
+
+        benefices=benefices,
+
+        stock_faible=stock_faible,
+
+        abonnement=abonnement
+
+    )
+#===========================
+
 
 @dashboard_bp.route("/statistiques")
 def statistiques():
