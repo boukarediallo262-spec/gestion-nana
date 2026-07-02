@@ -281,3 +281,85 @@ def facture_pdf(id):
     response.headers["Content-Disposition"] = f"inline; filename=facture_{id}.pdf"
 
     return response
+#===============================================
+@dashboard_bp.route("/factures")
+def factures():
+
+    factures = Facture.query.order_by(Facture.id.desc()).all()
+
+    total_factures = db.session.query(
+        func.sum(Facture.total)
+    ).scalar() or 0
+
+    return render_template(
+        "factures.html",
+        factures=factures,
+        total_factures=total_factures
+    )
+#===============================================
+@dashboard_bp.route("/voir_facture/<int:id>")
+def voir_facture(id):
+
+    facture = Facture.query.get_or_404(id)
+
+    lignes = LigneFacture.query.filter_by(facture_id=id).all()
+
+    return render_template(
+        "voir_facture.html",
+        facture=facture,
+        lignes=lignes
+    )
+
+#===================================================
+@dashboard_bp.route("/supprimer_facture/<int:id>")
+def supprimer_facture(id):
+
+    facture = Facture.query.get_or_404(id)
+
+    db.session.delete(facture)
+    db.session.commit()
+
+    return redirect("/factures")
+
+#=========================================
+@dashboard_bp.route("/modifier_facture/<int:id>", methods=["GET", "POST"])
+def modifier_facture(id):
+
+    facture = Facture.query.get_or_404(id)
+
+    if request.method == "POST":
+
+        facture.client = request.form["client"]
+        facture.paiement = request.form["paiement"]
+
+        db.session.commit()
+
+        return redirect("/factures")
+
+    return render_template("modifier_facture.html", facture=facture)
+
+#===================================================================
+@dashboard_bp.route("/ajouter_facture", methods=["GET", "POST"])
+def ajouter_facture():
+
+    produits = Produit.query.all()
+
+    if request.method == "POST":
+
+        client = request.form["client"]
+        paiement = request.form["paiement"]
+
+        facture = Facture(
+            client=client,
+            paiement=paiement,
+            total=0
+        )
+
+        db.session.add(facture)
+        db.session.commit()
+
+        return redirect("/factures")
+
+    return render_template("ajouter_facture.html", produits=produits)
+
+#=====================================================================
