@@ -1,5 +1,7 @@
+from flask import Blueprint, render_template, request, redirect
 from sqlalchemy import func
 from datetime import datetime, date, timedelta
+
 from app.models.models import (
     db,
     Facture,
@@ -8,6 +10,13 @@ from app.models.models import (
     Client,
     LigneFacture
 )
+
+dashboard_bp = Blueprint(
+    "dashboard",
+    __name__
+)
+
+
 #============================
 @dashboard_bp.route("/")
 def home():
