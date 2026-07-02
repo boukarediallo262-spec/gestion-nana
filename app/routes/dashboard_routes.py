@@ -210,3 +210,23 @@ def statistiques():
         top_produits=top_produits,
         stock_faible=stock_faible
     )
+#=======================================
+
+@dashboard_bp.route("/admin")
+def admin():
+
+    total_users = User.query.count() if "User" in globals() else 0
+    total_produits = Produit.query.count()
+    total_factures = Facture.query.count()
+
+    total_ventes = db.session.query(func.sum(Facture.total)).scalar() or 0
+    total_depenses = db.session.query(func.sum(Depense.montant)).scalar() or 0
+
+    return render_template(
+        "admin.html",
+        total_users=total_users,
+        total_produits=total_produits,
+        total_factures=total_factures,
+        total_ventes=total_ventes,
+        total_depenses=total_depenses
+    )
