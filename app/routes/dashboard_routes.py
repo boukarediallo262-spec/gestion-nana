@@ -2,6 +2,10 @@ from flask import Blueprint, render_template, request, redirect
 from sqlalchemy import func
 from datetime import datetime, date, timedelta
 
+from flask import make_response
+from reportlab.pdfgen import canvas
+from io import BytesIO
+
 from app.models.models import (
     db,
     Facture,
@@ -230,3 +234,50 @@ def admin():
         total_ventes=total_ventes,
         total_depenses=total_depenses
     )
+#======================================================
+
+@dashboard_bp.route("/facture/pdf/<int:id>")
+def facture_pdf(id):
+
+    facture = Facture.query.get_or_404(id)
+    lignes = LigneFacture.query.filter_by(facture_id=id).all()
+
+    buffer = BytesIO()
+    pdf = canvas.Canvas(buffer)
+
+    # TITRE
+    pdf.setFont("Helvetica-Bold", 16)
+    pdf.drawString(200, 800, "FASO GESTION IA")
+
+    pdf.setFont("Helvetica", 12)
+    pdf.drawString(50, 760, f"Facture ID: {facture.id}")
+    pdf.drawString(50, 740, f"Client: {facture.client}")
+    pdf.drawString(50, 720, f"Paiement: {facture.paiement}")
+    pdf.drawString(50, 700, f"Total: {facture.total} FCFA")
+
+    pdf.drawString(50, 670, "Produits:")
+
+    y = 650
+
+    for ligne in lignes:
+        produit = Produit.query.get(ligne.produit_id)
+
+        pdf.drawString(
+            50,
+            y,
+            f"- {produit.nom} | {ligne.quantite} x {ligne.prix} = {ligne.total}"
+        )
+
+        y -= 20
+
+    pdf.drawString(50, y-20, "Merci pour votre confiance 🙏")
+
+    pdf.save()
+
+    buffer.seek(0)
+
+    response = make_response(buffer.read())
+    response.headers["Content-Type"] = "application/pdf"
+    response.headers["Content-Disposition"] = f"inline; filename=facture_{id}.pdf"
+
+    return response
