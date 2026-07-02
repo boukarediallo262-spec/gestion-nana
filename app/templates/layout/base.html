@@ -2,230 +2,60 @@
 <html lang="fr">
 
 <head>
-
     <meta charset="UTF-8">
+    <title>FASO GESTION IA</title>
 
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0">
-
-    <title>
-
-        {% block title %}
-        FASO GESTION IA
-        {% endblock %}
-
-    </title>
-
-    <!-- CSS principal -->
-    <link rel="stylesheet"
-          href="{{ url_for('static', filename='css/style.css') }}">
-
-    <!-- Icônes Font Awesome -->
-    <link rel="stylesheet"
-          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
-
+    <link rel="stylesheet" href="/static/css/layout.css">
 </head>
 
 <body>
 
-<div class="app">
+<div class="app-container">
 
-    <!-- ================= SIDEBAR ================= -->
-
+    <!-- SIDEBAR -->
     <aside class="sidebar">
 
-        <div class="logo">
+        <h2>📊 FASO IA</h2>
 
-            <h2>
+        <a href="/">🏠 Dashboard</a>
+        <a href="/produits">📦 Produits</a>
+        <a href="/clients">👥 Clients</a>
+        <a href="/factures">🧾 Factures</a>
+        <a href="/depenses">💰 Dépenses</a>
+        <a href="/statistiques">📊 Statistiques</a>
+        <a href="/admin">⚙️ Administration</a>
 
-                🌍 FASO<br>GESTION IA
+        <hr>
 
-            </h2>
-
-        </div>
-
-        <nav>
-
-            <ul>
-
-                <li>
-
-                    <a href="/">
-
-                        <i class="fas fa-home"></i>
-
-                        Dashboard
-
-                    </a>
-
-                </li>
-
-                <li>
-
-                    <a href="/produits">
-
-                        <i class="fas fa-box"></i>
-
-                        Produits
-
-                    </a>
-
-                </li>
-
-                <li>
-
-                    <a href="/clients">
-
-                        <i class="fas fa-users"></i>
-
-                        Clients
-
-                    </a>
-
-                </li>
-
-                <li>
-
-                    <a href="/factures">
-
-                        <i class="fas fa-file-invoice"></i>
-
-                        Factures
-
-                    </a>
-
-                </li>
-
-                <li>
-
-                    <a href="/depenses">
-
-                        <i class="fas fa-money-bill-wave"></i>
-
-                        Dépenses
-
-                    </a>
-
-                </li>
-
-                <li>
-
-                    <a href="/stock">
-
-                        <i class="fas fa-warehouse"></i>
-
-                        Stock
-
-                    </a>
-
-                </li>
-
-                <li>
-
-                    <a href="/statistiques">
-
-                        <i class="fas fa-chart-line"></i>
-
-                        Statistiques
-
-                    </a>
-
-                </li>
-
-                <li>
-
-                    <a href="/abonnements">
-
-                        <i class="fas fa-crown"></i>
-
-                        Abonnements
-
-                    </a>
-
-                </li>
-
-                <li>
-
-                    <a href="/parametres">
-
-                        <i class="fas fa-gear"></i>
-
-                        Paramètres
-
-                    </a>
-
-                </li>
-
-            </ul>
-
-        </nav>
+        <a href="/logout">🚪 Déconnexion</a>
 
     </aside>
 
-    <!-- ================= CONTENU ================= -->
-
-    <div class="main">
+    <!-- CONTENU -->
+    <main class="content">
 
         <!-- HEADER -->
-
         <header class="topbar">
 
-            <div>
+            <h3>Bienvenue 👋</h3>
 
-                <h1>
-
-                    {% block page_title %}
-                    Tableau de bord
-                    {% endblock %}
-
-                </h1>
-
-            </div>
-
-            <div class="topbar-right">
-
-                <span id="date"></span>
-
-                <span id="heure"></span>
-
-                <div class="profil">
-
-                    👤 Boukaré
-
-                </div>
-
+            <div class="user">
+                👤 Admin
             </div>
 
         </header>
 
-        <!-- CONTENU -->
-
-        <main class="content">
+        <!-- CONTENU DYNAMIQUE -->
+        <section class="page">
 
             {% block content %}
-
             {% endblock %}
 
-        </main>
+        </section>
 
-        <!-- FOOTER -->
-
-        <footer>
-
-            © 2026 FASO GESTION IA Premium
-
-        </footer>
-
-    </div>
+    </main>
 
 </div>
 
-<script src="{{ url_for('static', filename='js/main.js') }}"></script>
-
-{% block scripts %}
-
-{% endblock %}
-
 </body>
-
 </html>
