@@ -411,7 +411,92 @@
         </div>
 
     </div>
+<div class="dashboard-row">
 
+    <div class="dashboard-box">
+
+        <h2>📈 Evolution des ventes</h2>
+
+        <canvas id="venteChart"></canvas>
+
+    </div>
+
+    <div class="dashboard-box">
+
+        <h2>💰 Répartition financière</h2>
+
+        <canvas id="financeChart"></canvas>
+
+    </div>
+
+</div>
+
+<div class="dashboard-row">
+
+    <div class="dashboard-box">
+
+        <h2>🧾 Dernières factures</h2>
+
+        <table>
+
+            <tr>
+
+                <th>Client</th>
+
+                <th>Total</th>
+
+            </tr>
+
+            {% for f in dernieres_factures %}
+
+            <tr>
+
+                <td>{{ f.client }}</td>
+
+                <td>{{ f.total }} FCFA</td>
+
+            </tr>
+
+            {% endfor %}
+
+        </table>
+
+    </div>
+
+    <div class="dashboard-box">
+
+        <h2>⚠ Alertes Stock</h2>
+
+        {% if produits_stock %}
+
+            {% for p in produits_stock %}
+
+                <p>
+
+                    ⚠ {{ p.nom }}
+
+                    ({{ p.quantite }} restant)
+
+                </p>
+
+            {% endfor %}
+
+        {% else %}
+
+            <p>
+
+                Aucun produit en rupture.
+
+            </p>
+
+        {% endif %}
+
+    </div>
+
+</div>
+    
+
+    
 <!-- STATISTIQUES CIRCULAIRES -->
 
 <div class="chart-box">
@@ -527,7 +612,85 @@ new Chart(ventesCtx, {
 });
 
 </script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
+<script>
+
+new Chart(
+
+document.getElementById("venteChart"),
+
+{
+
+type:"bar",
+
+data:{
+
+labels:{{ jours|tojson }},
+
+datasets:[{
+
+label:"Ventes",
+
+data:{{ ventes|tojson }},
+
+backgroundColor:"#198754"
+
+}]
+
+}
+
+});
+
+new Chart(
+
+document.getElementById("financeChart"),
+
+{
+
+type:"doughnut",
+
+data:{
+
+labels:[
+
+"Ventes",
+
+"Dépenses",
+
+"Bénéfices"
+
+],
+
+datasets:[{
+
+data:[
+
+{{ total_ventes }},
+
+{{ total_depenses }},
+
+{{ benefices }}
+
+],
+
+backgroundColor:[
+
+"#198754",
+
+"#dc3545",
+
+"#0d6efd"
+
+]
+
+}]
+
+}
+
+});
+
+</script>
 <footer>
 
 
