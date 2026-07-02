@@ -58,3 +58,34 @@ body{
     padding:20px;
     overflow-y:auto;
 }
+.logo{
+    font-size:18px;
+    font-weight:bold;
+    margin-bottom:20px;
+    padding:10px;
+    background:rgba(255,255,255,0.1);
+    border-radius:10px;
+    text-align:center;
+}
+
+.menu{
+    display:block;
+    color:white;
+    text-decoration:none;
+    padding:12px;
+    border-radius:10px;
+    margin-bottom:8px;
+    transition:0.3s;
+    font-weight:500;
+}
+
+.menu:hover{
+    background:white;
+    color:#198754;
+    transform:translateX(5px);
+}
+
+.danger:hover{
+    background:#dc3545;
+    color:white;
+}
