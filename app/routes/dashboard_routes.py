@@ -159,6 +159,13 @@ def statistiques():
         func.extract("month", Facture.date_facture) == mois,
         func.extract("year", Facture.date_facture) == annee
     ).scalar() or 0
+    #++++++++++++++++++++++
+    top_clients = db.session.query(
+        Facture.client,
+        func.count(Facture.id).label("nb")
+    ).group_by(Facture.client).order_by(
+        func.count(Facture.id).desc()
+    ).limit(5).all()
 
     # ==========================
     # Top produits
@@ -198,7 +205,8 @@ def statistiques():
         ventes_jour=ventes_jour,
         ventes_semaine=ventes_semaine,
         ventes_mois=ventes_mois,
-
+        
+        top_clients=top_clients,
         top_produits=top_produits,
         stock_faible=stock_faible
     )
