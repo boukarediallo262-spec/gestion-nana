@@ -33,6 +33,36 @@ def home():
     ).count()
 
     abonnement = "Premium"
+    # ===== Dernières factures =====
+
+    dernieres_factures = Facture.query.order_by(
+        Facture.id.desc()
+    ).limit(5).all()
+
+    # ===== Stock faible =====
+
+    produits_stock = Produit.query.filter(
+        Produit.quantite <= 5
+    ).all()
+
+    # ===== Ventes des 7 derniers jours =====
+
+    jours = []
+    ventes = []
+
+    for i in range(6, -1, -1):
+
+        jour = datetime.now().date() - timedelta(days=i)
+
+        total = db.session.query(
+            func.sum(Facture.total)
+        ).filter(
+            db.func.date(Facture.date_facture) == jour
+        ).scalar() or 0
+
+        jours.append(jour.strftime("%d/%m"))
+
+        ventes.append(total)
 
     return render_template(
 
@@ -52,7 +82,11 @@ def home():
 
         stock_faible=stock_faible,
 
-        abonnement=abonnement
+        abonnement=abonnement,
+        dernieres_factures=dernieres_factures,
+        produits_stock=produits_stock,
+        jours=jours,
+        ventes=ventes
 
     )
 #===========================
