@@ -1,48 +1,203 @@
-<!DOCTYPE html>
+{% extends "layout/base.html" %}
 
-<html lang="fr">
+{% block content %}
 
-<head>
+<div class="facture">
 
-<meta charset="UTF-8">
+    <!-- EN-TETE -->
 
-<title>Voir Facture</title>
+    <div class="header">
+
+        <div>
+
+            <h1>FASO GESTION IA</h1>
+
+            <p>Système Professionnel de Gestion</p>
+
+            <p>Ouagadougou - Burkina Faso</p>
+
+        </div>
+
+        <div class="numero">
+
+            <h2>FACTURE</h2>
+
+            <h3>FCT-{{ "%06d"|format(facture.id) }}</h3>
+
+        </div>
+
+    </div>
+
+    <hr>
+
+    <!-- INFORMATIONS -->
+
+    <div class="infos">
+
+        <div>
+
+            <h3>👤 Client</h3>
+
+            <p><strong>Nom :</strong> {{ facture.client }}</p>
+
+            <p><strong>Paiement :</strong> {{ facture.paiement }}</p>
+
+        </div>
+
+        <div>
+
+            <h3>📅 Informations</h3>
+
+            <p>{{ facture.date_facture.strftime("%d/%m/%Y") }}</p>
+
+            <p>{{ facture.date_facture.strftime("%H:%M") }}</p>
+
+        </div>
+
+    </div>
+
+    <!-- TABLEAU -->
+
+    <table>
+
+        <thead>
+
+        <tr>
+
+            <th>Produit</th>
+
+            <th>Prix</th>
+
+            <th>Qté</th>
+
+            <th>Total</th>
+
+        </tr>
+
+        </thead>
+
+        <tbody>
+
+        {% for ligne in lignes %}
+
+        <tr>
+
+            <td>{{ ligne.produit.nom }}</td>
+
+            <td>{{ ligne.prix }} FCFA</td>
+
+            <td>{{ ligne.quantite }}</td>
+
+            <td>{{ ligne.total }} FCFA</td>
+
+        </tr>
+
+        {% endfor %}
+
+        </tbody>
+
+    </table>
+
+    <!-- TOTAL -->
+
+    <div class="resume">
+
+        <div>
+
+            <h2>TOTAL À PAYER</h2>
+
+        </div>
+
+        <div class="montant">
+
+            {{ facture.total }} FCFA
+
+        </div>
+
+    </div>
+
+    <!-- SIGNATURE -->
+
+    <div class="signature">
+
+        <p>Signature</p>
+
+        <br><br><br>
+
+        _______________________
+
+    </div>
+
+    <!-- BOUTONS -->
+
+    <div class="actions">
+
+        <a href="/modifier_facture/{{ facture.id }}" class="btn jaune">
+
+            ✏ Modifier
+
+        </a>
+
+        <a href="/facture/pdf/{{ facture.id }}" class="btn vert">
+
+            📄 PDF
+
+        </a>
+
+        <button onclick="window.print()" class="btn bleu">
+
+            🖨 Imprimer
+
+        </button>
+
+        <a href="/factures" class="btn gris">
+
+            ← Retour
+
+        </a>
+
+    </div>
+
+</div>
 
 <style>
 
-body{
-    font-family:Arial;
-    background:#f4fff7;
-    padding:30px;
-}
-
-.box{
+.facture{
 
     background:white;
 
-    max-width:1100px;
-
-    margin:auto;
-
-    padding:30px;
+    padding:40px;
 
     border-radius:20px;
 
-    box-shadow:0 5px 15px rgba(0,0,0,0.1);
+    box-shadow:0 5px 20px rgba(0,0,0,.1);
 
 }
 
-h1{
-    color:#198754;
-    margin-bottom:20px;
+.header{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
 }
 
-.info{
-    margin-bottom:25px;
+.numero{
+
+    text-align:right;
+
 }
 
-.info p{
-    margin:8px 0;
+.infos{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    margin:30px 0;
+
 }
 
 table{
@@ -50,8 +205,6 @@ table{
     width:100%;
 
     border-collapse:collapse;
-
-    margin-top:20px;
 
 }
 
@@ -73,127 +226,92 @@ td{
 
 }
 
-.total{
+.resume{
 
-    margin-top:25px;
+    display:flex;
 
-    text-align:right;
+    justify-content:space-between;
 
-    font-size:22px;
+    margin-top:30px;
+
+    background:#f5fff8;
+
+    padding:20px;
+
+    border-radius:12px;
+
+}
+
+.montant{
+
+    font-size:30px;
+
+    color:#198754;
 
     font-weight:bold;
 
-    color:#198754;
+}
+
+.signature{
+
+    margin-top:60px;
+
+}
+
+.actions{
+
+    margin-top:40px;
+
+    display:flex;
+
+    gap:15px;
+
+    flex-wrap:wrap;
 
 }
 
 .btn{
 
-    display:inline-block;
-
-    padding:12px 20px;
-
-    background:#198754;
+    text-decoration:none;
 
     color:white;
 
-    text-decoration:none;
+    padding:12px 20px;
 
     border-radius:10px;
 
-    margin-top:20px;
+    border:none;
+
+    cursor:pointer;
+
+    font-size:16px;
+
+}
+
+.vert{background:#198754;}
+
+.bleu{background:#0d6efd;}
+
+.jaune{background:#ffc107;color:black;}
+
+.gris{background:#6c757d;}
+
+@media print{
+
+.actions{
+
+display:none;
+
+}
+
+body{
+
+background:white;
+
+}
 
 }
 
 </style>
 
-</head>
-
-<body>
-
-<div class="box">
-
-<h1>🧾 Facture N°{{ facture.id }}</h1>
-
-<div class="info">
-
-<p><strong>Client :</strong> {{ facture.client }}</p>
-
-<p>
-    <strong>Date :</strong>
-    {{ facture.date_facture.strftime('%d/%m/%Y') }}
-</p>
-
-<p>
-    <strong>Heure :</strong>
-    {{ facture.date_facture.strftime('%H:%M') }}
-</p>
-
-<p><strong>Paiement :</strong> {{ facture.paiement }}</p>
-
-</div>
-
-<table>
-
-<tr>
-<th>Produit</th>
-<th>Prix</th>
-<th>Quantité</th>
-<th>Total</th>
-</tr>
-
-{% for ligne in lignes %}
-
-<tr>
-
-<td>{{ ligne.produit.nom }}</td>
-
-<td>{{ ligne.prix }} FCFA</td>
-
-<td>{{ ligne.quantite }}</td>
-
-<td>{{ ligne.total }} FCFA</td>
-
-</tr>
-
-{% endfor %}
-
-</table>
-
-<div class="total">
-
-TOTAL FACTURE :
-{{ facture.total }} FCFA
-
-    
-</div>
-
-<a
-href="/modifier_facture/{{ facture.id }}"
-class="btn">
-
-✏ Modifier
-
-</a>
-<a
-href="/facture_pdf/{{ facture.id }}"
-class="btn">
-
-📄 Télécharger PDF
-
-</a>
-
-<a
-href="/factures"
-class="btn"
-style="background:#6c757d; margin-left:10px;"
->
-← Retour
-</a>
-
-
-</div>
-
-</body>
-
-</html>
+{% endblock %}
