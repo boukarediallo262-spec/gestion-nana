@@ -1,40 +1,48 @@
 from flask import Flask
-from app.models.models import db
-from app.routes.dashboard_routes import dashboard_bp
+from flask_sqlalchemy import SQLAlchemy
+from flask_login import LoginManager
+
+db = SQLAlchemy()
+login_manager = LoginManager()
+
 
 def create_app():
 
     app = Flask(__name__)
 
-    app.config['SECRET_KEY'] = 'faso_secret'
+    # ==========================
+    # CONFIG
+    # ==========================
+    app.config["SECRET_KEY"] = "secret-key-faso-gestion"
+    app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///app.db"
+    app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///gestion.db'
-
-    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-
-
+    # ==========================
+    # INIT EXTENSIONS
+    # ==========================
     db.init_app(app)
-    
+    login_manager.init_app(app)
 
+    # ==========================
+    # IMPORT MODELS
+    # ==========================
+    from app.models import (
+        User,
+        Produit,
+        Client,
+        Facture,
+        Depense,
+        Categorie,
+        Fournisseur
+    )
 
+    # ==========================
+    # IMPORT BLUEPRINTS
+    # ==========================
     from app.routes.dashboard_routes import dashboard_bp
-    from app.routes.produit_routes import produit_bp
-    from app.routes.abonnement_routes import abonnement_bp
-    
-    from app.routes.client_routes import client_bp
-    from app.routes.stock_routes import stock_bp
-
+    from app.routes.facture_routes import facture_bp
 
     app.register_blueprint(dashboard_bp)
-    app.register_blueprint(produit_bp)
-    app.register_blueprint(abonnement_bp)
-    
-    app.register_blueprint(client_bp)
-    app.register_blueprint(stock_bp)
-    
-
-
-    with app.app_context():
-        db.create_all()
+    app.register_blueprint(facture_bp)
 
     return app
