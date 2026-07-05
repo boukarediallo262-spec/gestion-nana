@@ -32,6 +32,10 @@ class User(db.Model):
         db.DateTime,
         default=datetime.utcnow
     )
+    abonnement = db.Column(
+        db.String(50),
+        default="Free"
+    )
 
     # --------------------------
 
