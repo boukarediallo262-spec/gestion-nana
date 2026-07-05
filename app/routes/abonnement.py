@@ -1,42 +1,22 @@
-from flask import Blueprint, render_template, request, redirect, url_for, flash
-from app.models.models import db, User
+from datetime import datetime
 
-abonnement_bp = Blueprint('abonnement', __name__)
-
-
-# PAGE ABONNEMENT
-@abonnement_bp.route('/abonnement')
-def abonnement():
-    users = User.query.all()
-    return render_template(
-        'abonnement.html',
-        users=users
-    )
+from . import db
 
 
-# ACTIVER ABONNEMENT
-@abonnement_bp.route('/activer_abonnement/<int:user_id>')
-def activer_abonnement(user_id):
-    user = User.query.get_or_404(user_id)
+class Abonnement(db.Model):
 
-    user.abonnement = 1
+    __tablename__ = "abonnements"
 
-    db.session.commit()
+    id = db.Column(db.Integer, primary_key=True)
 
-    flash("Abonnement activé avec succès", "success")
+    nom = db.Column(db.String(100))  # Free / Premium
 
-    return redirect(url_for('abonnement.abonnement'))
+    prix = db.Column(db.Float, default=0)
 
+    actif = db.Column(db.Boolean, default=True)
 
-# DESACTIVER ABONNEMENT
-@abonnement_bp.route('/desactiver_abonnement/<int:user_id>')
-def desactiver_abonnement(user_id):
-    user = User.query.get_or_404(user_id)
+    date_debut = db.Column(db.DateTime, default=datetime.utcnow)
 
-    user.abonnement = 0
+    date_fin = db.Column(db.DateTime)
 
-    db.session.commit()
-
-    flash("Abonnement désactivé", "warning")
-
-    return redirect(url_for('abonnement.abonnement'))
+    user_id = db.Column(db.Integer, db.ForeignKey("users.id"))
