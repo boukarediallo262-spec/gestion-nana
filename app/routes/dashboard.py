@@ -6,23 +6,8 @@ from app.models import db, Produit, Client, Facture, Depense
 
 dashboard_bp = Blueprint("dashboard", __name__)
 
-from functools import wraps
-from flask import session, redirect, url_for
-
-def login_required(f):
-
-    @wraps(f)
-    def decorated_function(*args, **kwargs):
-
-        if "user_id" not in session:
-            return redirect(url_for("auth.login"))
-
-        return f(*args, **kwargs)
-
-    return decorated_function
 
 @dashboard_bp.route("/")
-@login_required
 def home():
 
     # ==========================
@@ -30,47 +15,28 @@ def home():
     # ==========================
 
     total_produits = Produit.query.count()
-
     total_clients = Client.query.count()
-
     total_factures = Facture.query.count()
 
-    total_ventes = db.session.query(
-        func.sum(Facture.total)
-    ).scalar() or 0
-
-    total_depenses = db.session.query(
-        func.sum(Depense.montant)
-    ).scalar() or 0
+    total_ventes = db.session.query(func.sum(Facture.total)).scalar() or 0
+    total_depenses = db.session.query(func.sum(Depense.montant)).scalar() or 0
 
     benefices = total_ventes - total_depenses
 
     # ==========================
-    # STOCK FAIBLE
+    # STOCK CRITIQUE
     # ==========================
 
-    stock_faible = Produit.query.filter(
+    stock_critique = Produit.query.filter(
         Produit.quantite <= Produit.stock_minimum
     ).count()
 
-    # ==========================
-    # DERNIÈRES FACTURES
-    # ==========================
-
-    dernieres_factures = Facture.query.order_by(
-        Facture.id.desc()
-    ).limit(5).all()
-
-    # ==========================
-    # PRODUITS STOCK FAIBLE
-    # ==========================
-
-    produits_stock = Produit.query.filter(
+    produits_rupture = Produit.query.filter(
         Produit.quantite <= Produit.stock_minimum
     ).limit(5).all()
 
     # ==========================
-    # VENTES 7 DERNIERS JOURS
+    # VENTES 7 JOURS
     # ==========================
 
     jours = []
@@ -90,13 +56,18 @@ def home():
         ventes.append(total)
 
     # ==========================
-    # ABONNEMENT (SIMULATION)
+    # CONSEIL IA SIMPLE
     # ==========================
 
-    abonnement = "Premium"
+    if benefices < 0:
+        conseil = "⚠ Attention : vos dépenses dépassent vos ventes"
+    elif stock_critique > 0:
+        conseil = "📦 Stock faible détecté, pensez à réapprovisionner"
+    else:
+        conseil = "✅ Votre activité est stable"
 
     # ==========================
-    # RENDER TEMPLATE
+    # RENDER
     # ==========================
 
     return render_template(
@@ -105,16 +76,16 @@ def home():
         total_produits=total_produits,
         total_clients=total_clients,
         total_factures=total_factures,
+
         total_ventes=total_ventes,
         total_depenses=total_depenses,
         benefices=benefices,
 
-        stock_faible=stock_faible,
-        dernieres_factures=dernieres_factures,
-        produits_stock=produits_stock,
+        stock_critique=stock_critique,
+        produits_rupture=produits_rupture,
 
         jours=jours,
         ventes=ventes,
 
-        abonnement=abonnement
+        conseil=conseil
     )
