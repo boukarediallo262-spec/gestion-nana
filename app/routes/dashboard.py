@@ -6,8 +6,23 @@ from app.models import db, Produit, Client, Facture, Depense
 
 dashboard_bp = Blueprint("dashboard", __name__)
 
+from functools import wraps
+from flask import session, redirect, url_for
+
+def login_required(f):
+
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+
+        if "user_id" not in session:
+            return redirect(url_for("auth.login"))
+
+        return f(*args, **kwargs)
+
+    return decorated_function
 
 @dashboard_bp.route("/")
+@login_required
 def home():
 
     # ==========================
