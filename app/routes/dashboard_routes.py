@@ -346,9 +346,13 @@ def ajouter_facture():
 
     if request.method == "POST":
 
-        client = request.form["client"]
-        paiement = request.form["paiement"]
+        client = request.form.get("client")
+        paiement = request.form.get("paiement")
 
+        produits_ids = request.form.getlist("produit_id[]")
+        quantites = request.form.getlist("quantite[]")
+
+        # 1️⃣ Créer la facture (sans total au début)
         facture = Facture(
             client=client,
             paiement=paiement,
@@ -356,10 +360,52 @@ def ajouter_facture():
         )
 
         db.session.add(facture)
+        db.session.flush()  # permet d'avoir facture.id sans commit
+
+        total_facture = 0
+
+        # 2️⃣ Parcours des produits
+        for i in range(len(produits_ids)):
+
+            produit = Produit.query.get(int(produits_ids[i]))
+            quantite = int(quantites[i])
+
+            if not produit:
+                return f"Produit introuvable"
+
+            if produit.quantite < quantite:
+                return f"Stock insuffisant pour {produit.nom}"
+
+            # calcul ligne
+            total_ligne = produit.prix * quantite
+
+            # diminuer stock
+            produit.quantite -= quantite
+
+            # créer ligne facture
+            ligne = LigneFacture(
+                facture_id=facture.id,
+                produit_id=produit.id,
+                quantite=quantite,
+                prix=produit.prix,
+                total=total_ligne
+            )
+
+            db.session.add(ligne)
+
+            total_facture += total_ligne
+
+        # 3️⃣ mise à jour total facture
+        facture.total = total_facture
+
+        # 4️⃣ sauvegarde finale
         db.session.commit()
 
         return redirect("/factures")
 
-    return render_template("ajouter_facture.html", produits=produits)
+    return render_template(
+        "ajouter_facture.html",
+        produits=produits
+    )
 
 #=====================================================================
