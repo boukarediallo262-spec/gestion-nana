@@ -57,6 +57,9 @@ class Fournisseur(db.Model):
     site_web = db.Column(
         db.String(255)
     )
+    note = db.Column(
+        db.Text
+    )
 
     # ==========================
     # INFORMATIONS
