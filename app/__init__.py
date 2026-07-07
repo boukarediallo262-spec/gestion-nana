@@ -11,38 +11,31 @@ def create_app():
     app = Flask(__name__)
 
     # ==========================
-    # CONFIG
+    # CONFIGURATION
     # ==========================
+
     app.config["SECRET_KEY"] = "secret-key-faso-gestion"
     app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///app.db"
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
     # ==========================
-    # INIT EXTENSIONS
+    # INITIALISATION
     # ==========================
+
     db.init_app(app)
     login_manager.init_app(app)
 
     # ==========================
-    # IMPORT MODELS
+    # IMPORT DES MODELES
     # ==========================
-    from app.models import (
-        User,
-        Produit,
-        Client,
-        Facture,
-        Depense,
-        Categorie,
-        Fournisseur
-    )
+
+    from app import models
 
     # ==========================
-    # IMPORT BLUEPRINTS
+    # ENREGISTREMENT DES ROUTES
     # ==========================
-    from app.routes.dashboard_routes import dashboard_bp
-    from app.routes.facture_routes import facture_bp
 
-    app.register_blueprint(dashboard_bp)
-    app.register_blueprint(facture_bp)
+    from app.routes import init_app
+    init_app(app)
 
     return app
