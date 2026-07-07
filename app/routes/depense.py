@@ -1,111 +1,156 @@
 from flask import Blueprint, render_template, request, redirect, url_for
 
-from app.models import db, Client
+from app import db
+from app.models import Depense
 
-client_bp = Blueprint("client", __name__)
+depense_bp = Blueprint("depense", __name__)
 
 
-# ==========================
-# LISTE CLIENTS
-# ==========================
+# ==========================================
+# LISTE DES DEPENSES
+# ==========================================
 
-@client_bp.route("/clients")
-def liste_clients():
+@depense_bp.route("/depenses")
+def liste_depenses():
 
-    clients = Client.query.order_by(Client.id.desc()).all()
+    depenses = Depense.query.order_by(
+        Depense.date_depense.desc()
+    ).all()
+
+    total_depenses = sum(
+        d.montant for d in depenses
+    )
 
     return render_template(
-        "clients/liste.html",
-        clients=clients
+        "depenses/liste.html",
+        depenses=depenses,
+        total_depenses=total_depenses
     )
 
 
-# ==========================
-# AJOUT CLIENT
-# ==========================
+# ==========================================
+# AJOUTER UNE DEPENSE
+# ==========================================
 
-@client_bp.route("/clients/ajouter", methods=["GET", "POST"])
-def ajouter_client():
+@depense_bp.route("/depenses/ajouter", methods=["GET", "POST"])
+def ajouter_depense():
 
     if request.method == "POST":
 
-        client = Client(
+        depense = Depense(
 
-            nom=request.form["nom"],
-            prenom=request.form.get("prenom"),
-            telephone=request.form.get("telephone"),
-            email=request.form.get("email"),
-            adresse=request.form.get("adresse"),
-            ville=request.form.get("ville"),
-            entreprise=request.form.get("entreprise"),
-            type_client=request.form.get("type_client", "Particulier")
+            titre=request.form["titre"],
+
+            description=request.form.get(
+                "description"
+            ),
+
+            montant=float(
+                request.form["montant"]
+            ),
+
+            categorie=request.form.get(
+                "categorie"
+            ),
+
+            mode_paiement=request.form.get(
+                "mode_paiement"
+            ),
+
+            fournisseur=request.form.get(
+                "fournisseur"
+            )
+
         )
 
-        db.session.add(client)
+        db.session.add(depense)
         db.session.commit()
 
-        return redirect(url_for("client.liste_clients"))
+        return redirect(
+            url_for("depense.liste_depenses")
+        )
 
     return render_template(
-        "clients/ajouter.html"
+        "depenses/ajouter.html"
     )
 
 
-# ==========================
-# MODIFIER CLIENT
-# ==========================
+# ==========================================
+# MODIFIER
+# ==========================================
 
-@client_bp.route("/clients/modifier/<int:id>", methods=["GET", "POST"])
-def modifier_client(id):
+@depense_bp.route(
+    "/depenses/modifier/<int:id>",
+    methods=["GET", "POST"]
+)
+def modifier_depense(id):
 
-    client = Client.query.get_or_404(id)
+    depense = Depense.query.get_or_404(id)
 
     if request.method == "POST":
 
-        client.nom = request.form["nom"]
-        client.prenom = request.form.get("prenom")
-        client.telephone = request.form.get("telephone")
-        client.email = request.form.get("email")
-        client.adresse = request.form.get("adresse")
-        client.ville = request.form.get("ville")
-        client.entreprise = request.form.get("entreprise")
-        client.type_client = request.form.get("type_client")
+        depense.titre = request.form["titre"]
+
+        depense.description = request.form.get(
+            "description"
+        )
+
+        depense.montant = float(
+            request.form["montant"]
+        )
+
+        depense.categorie = request.form.get(
+            "categorie"
+        )
+
+        depense.mode_paiement = request.form.get(
+            "mode_paiement"
+        )
+
+        depense.fournisseur = request.form.get(
+            "fournisseur"
+        )
 
         db.session.commit()
 
-        return redirect(url_for("client.liste_clients"))
+        return redirect(
+            url_for("depense.liste_depenses")
+        )
 
     return render_template(
-        "clients/modifier.html",
-        client=client
+        "depenses/modifier.html",
+        depense=depense
     )
 
 
-# ==========================
-# SUPPRIMER CLIENT
-# ==========================
+# ==========================================
+# DETAIL DEPENSE
+# ==========================================
 
-@client_bp.route("/clients/supprimer/<int:id>")
-def supprimer_client(id):
+@depense_bp.route("/depenses/<int:id>")
+def voir_depense(id):
 
-    client = Client.query.get_or_404(id)
-
-    db.session.delete(client)
-    db.session.commit()
-
-    return redirect(url_for("client.liste_clients"))
-
-
-# ==========================
-# DETAILS CLIENT
-# ==========================
-
-@client_bp.route("/clients/<int:id>")
-def voir_client(id):
-
-    client = Client.query.get_or_404(id)
+    depense = Depense.query.get_or_404(id)
 
     return render_template(
-        "clients/voir.html",
-        client=client
+        "depenses/voir.html",
+        depense=depense
+    )
+
+
+# ==========================================
+# SUPPRIMER
+# ==========================================
+
+@depense_bp.route("/depenses/supprimer/<int:id>")
+def supprimer_depense(id):
+
+    depense = Depense.query.get_or_404(id)
+
+    db.session.delete(depense)
+
+    db.session.commit()
+
+    return redirect(
+        url_for("depense.liste_depenses")
     )
