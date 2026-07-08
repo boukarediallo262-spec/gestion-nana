@@ -42,7 +42,7 @@ class Abonnement(db.Model):
 
     utilisateur = db.relationship(
         "User",
-        backref="abonnements"
+        back_populates="abonnements"
     )
 
     def __repr__(self):
