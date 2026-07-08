@@ -3,6 +3,8 @@ from datetime import datetime
 from . import db
 
 
+
+
 class Fournisseur(db.Model):
 
     __tablename__ = "fournisseurs"
