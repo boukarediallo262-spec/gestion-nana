@@ -1,6 +1,6 @@
-from flask_sqlalchemy import SQLAlchemy
+# app/models/__init__.py
 
-db = SQLAlchemy()
+from app import db
 
 # Import des modèles
 from .user import User
