@@ -1,28 +1,30 @@
 from datetime import datetime
-from werkzeug.security import generate_password_hash, check_password_hash
 
-from . import db
+from flask_login import UserMixin
+from app import db
 
 
-class User(db.Model):
-
+class User(UserMixin, db.Model):
     __tablename__ = "users"
 
     id = db.Column(db.Integer, primary_key=True)
 
-    nom = db.Column(db.String(120), nullable=False)
-
+    # Informations
+    nom = db.Column(db.String(100), nullable=False)
+    prenom = db.Column(db.String(100))
     email = db.Column(db.String(120), unique=True, nullable=False)
-
-    password = db.Column(db.String(255), nullable=False)
-
     telephone = db.Column(db.String(30))
 
+    # Connexion
+    mot_de_passe = db.Column(db.String(255), nullable=False)
+
+    # Rôle
     role = db.Column(
-        db.String(30),
-        default="Utilisateur"
+        db.String(20),
+        default="utilisateur"
     )
 
+    # Compte
     actif = db.Column(
         db.Boolean,
         default=True
@@ -32,26 +34,13 @@ class User(db.Model):
         db.DateTime,
         default=datetime.utcnow
     )
-    abonnement = db.Column(
-        db.String(50),
-        default="Free"
+
+    # Relation avec les abonnements
+    abonnements = db.relationship(
+        "Abonnement",
+        back_populates="utilisateur",
+        cascade="all, delete-orphan"
     )
 
-    # --------------------------
-
-    def set_password(self, mot_de_passe):
-
-        self.password = generate_password_hash(
-            mot_de_passe
-        )
-
-    def check_password(self, mot_de_passe):
-
-        return check_password_hash(
-            self.password,
-            mot_de_passe
-        )
-
     def __repr__(self):
-
         return f"<User {self.nom}>"
