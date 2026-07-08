@@ -10,3 +10,4 @@ from .client import Client
 from .fournisseur import Fournisseur
 from .depense import Depense
 from .facture import Facture, LigneFacture
+from .abonnement import Abonnement
