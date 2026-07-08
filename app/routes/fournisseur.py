@@ -119,5 +119,6 @@ def voir_fournisseur(id):
 
     return render_template(
         "fournisseurs/voir.html",
-        fournisseur=fournisseur)
+        fournisseur=fournisseur
+    )
    
