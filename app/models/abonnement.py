@@ -39,6 +39,19 @@ class Abonnement(db.Model):
         db.ForeignKey("users.id")
     )
 
+     mode_paiement = db.Column(
+        db.String(50),
+        default="Orange Money"
+    )
+
+    reference_paiement = db.Column(
+        db.String(100)
+    )
+
+    date_paiement = db.Column(
+        db.DateTime
+    )
+
     utilisateur = db.relationship(
         "User",
         back_populates="abonnements"
