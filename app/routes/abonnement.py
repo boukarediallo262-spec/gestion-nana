@@ -1,22 +1,13 @@
-from datetime import datetime
+from flask import Blueprint, render_template
 
-from . import db
+abonnement_bp = Blueprint(
+    "abonnement",
+    __name__,
+    url_prefix="/abonnement"
+)
 
 
-class Abonnement(db.Model):
+@abonnement_bp.route("/")
+def index():
 
-    __tablename__ = "abonnements"
-
-    id = db.Column(db.Integer, primary_key=True)
-
-    nom = db.Column(db.String(100))  # Free / Premium
-
-    prix = db.Column(db.Float, default=0)
-
-    actif = db.Column(db.Boolean, default=True)
-
-    date_debut = db.Column(db.DateTime, default=datetime.utcnow)
-
-    date_fin = db.Column(db.DateTime)
-
-    user_id = db.Column(db.Integer, db.ForeignKey("users.id"))
+    return render_template("abonnement/index.html")
