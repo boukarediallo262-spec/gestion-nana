@@ -11,7 +11,7 @@ class Abonnement(db.Model):
     type = db.Column(
         db.String(50),
         nullable=False,
-        default="Gratuit"
+        default="Standard"
     )
 
     date_debut = db.Column(
@@ -31,10 +31,9 @@ class Abonnement(db.Model):
 
     montant = db.Column(
         db.Float,
-        default=0
+        default=20000
     )
 
-    # Relation avec User
     user_id = db.Column(
         db.Integer,
         db.ForeignKey("users.id")
@@ -44,6 +43,35 @@ class Abonnement(db.Model):
         "User",
         back_populates="abonnements"
     )
+
+    # ==========================
+    # PROPRIÉTÉS
+    # ==========================
+
+    @property
+    def jours_restants(self):
+        """Retourne le nombre de jours restants."""
+        aujourd_hui = datetime.utcnow()
+
+        if self.date_fin <= aujourd_hui:
+            return 0
+
+        return (self.date_fin - aujourd_hui).days
+
+    @property
+    def est_expire(self):
+        return datetime.utcnow() > self.date_fin
+
+    @property
+    def statut(self):
+
+        if self.est_expire:
+            return "Expiré"
+
+        if self.jours_restants <= 7:
+            return "Expire bientôt"
+
+        return "Actif"
 
     def __repr__(self):
         return f"<Abonnement {self.type}>"
