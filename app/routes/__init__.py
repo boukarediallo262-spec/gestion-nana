@@ -14,6 +14,7 @@ from .produit import produit_bp
 from .depense import depense_bp
 from .categorie import categorie_bp
 from .fournisseur import fournisseur_bp
+from .abonnement import abonnement_bp
 from .auth import auth_bp
 
 
@@ -29,4 +30,5 @@ def init_app(app):
     app.register_blueprint(depense_bp)
     app.register_blueprint(categorie_bp)
     app.register_blueprint(fournisseur_bp)
+    app.register_blueprint(abonnement_bp)
     app.register_blueprint(auth_bp)
