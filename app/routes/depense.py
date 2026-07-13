@@ -3,6 +3,15 @@ from flask import Blueprint, render_template, request, redirect, url_for
 from app import db
 from app.models import Depense
 
+from flask_login import login_required
+from app.utils.abonnement import abonnement_requis
+
+@depense_bp.route("/")
+@login_required
+@abonnement_requis
+def depenses():
+    ...
+
 depense_bp = Blueprint("depense", __name__)
 
 
