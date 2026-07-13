@@ -12,7 +12,11 @@ from app.utils.abonnement import abonnement_requis
 def factures():
     ...
 
-facture_bp = Blueprint("facture", __name__)
+facture_bp = Blueprint(
+    "facture",
+    __name__,
+    url_prefix="/factures"
+)
 
 
 # ==========================
