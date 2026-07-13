@@ -2,6 +2,15 @@ from flask import Blueprint, render_template, request, redirect, url_for
 
 from app.models import db, Client
 
+from flask_login import login_required
+from app.utils.abonnement import abonnement_requis
+
+@client_bp.route("/")
+@login_required
+@abonnement_requis
+def clients():
+    ...
+
 client_bp = Blueprint("client", __name__)
 
 
