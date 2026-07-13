@@ -1,7 +1,7 @@
 # app/models/__init__.py
 
 from app import db
-
+ 
 # Import des modèles
 from .user import User
 from .categorie import Categorie
