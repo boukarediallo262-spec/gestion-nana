@@ -6,11 +6,7 @@ from app.models import db, Facture, Produit, Client, LigneFacture
 from flask_login import login_required
 from app.utils.abonnement import abonnement_requis
 
-@facture_bp.route("/")
-@login_required
-@abonnement_requis
-def factures():
-    ...
+
 
 facture_bp = Blueprint(
     "facture",
@@ -18,7 +14,11 @@ facture_bp = Blueprint(
     url_prefix="/factures"
 )
 
-
+@facture_bp.route("/")
+@login_required
+@abonnement_requis
+def factures():
+    ...
 # ==========================
 # LISTE FACTURES
 # ==========================
