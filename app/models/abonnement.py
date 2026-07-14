@@ -39,7 +39,7 @@ class Abonnement(db.Model):
         db.ForeignKey("users.id")
     )
 
-     mode_paiement = db.Column(
+    mode_paiement = db.Column(
         db.String(50),
         default="Orange Money"
     )
@@ -63,7 +63,6 @@ class Abonnement(db.Model):
 
     @property
     def jours_restants(self):
-        """Retourne le nombre de jours restants."""
         aujourd_hui = datetime.utcnow()
 
         if self.date_fin <= aujourd_hui:
