@@ -12,9 +12,17 @@ from app.utils.abonnement import abonnement_requis
 def depenses():
     ...
 
-depense_bp = Blueprint("depense", __name__)
+depense_bp = Blueprint(
+    "depense",
+    __name__,
+    url_prefix="/depenses"
+)
 
-
+@depense_bp.route("/")
+@login_required
+@abonnement_requis
+def depenses():
+ 
 # ==========================================
 # LISTE DES DEPENSES
 # ==========================================
