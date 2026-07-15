@@ -4,12 +4,16 @@ from app.models import db, Produit, Categorie, Fournisseur
 from flask_login import login_required
 from app.utils.abonnement import abonnement_requis
 
+
+produit_bp = Blueprint(
+    "produit",
+    __name__,
+    url_prefix="/produits"
+)
+
 @produit_bp.route("/")
 @login_required
-@abonnement_requis
-def produits():
-    ...
-produit_bp = Blueprint("produit", __name__)
+def liste_produits():
 
 
 # ==========================
