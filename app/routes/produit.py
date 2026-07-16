@@ -13,9 +13,9 @@ produit_bp = Blueprint(
 
 @produit_bp.route("/")
 def produits():
-    return render_template(
-        "produits/index.html"
-    )
+    return "Produits OK"
+    
+    
 
 
 # ==========================
