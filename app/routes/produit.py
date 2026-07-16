@@ -12,8 +12,10 @@ produit_bp = Blueprint(
 )
 
 @produit_bp.route("/")
-@login_required
-def liste_produits():
+def produits():
+    return render_template(
+        "produits/index.html"
+    )
 
 
 # ==========================
