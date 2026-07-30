@@ -16,27 +16,33 @@ class Abonnement(db.Model):
 
     date_debut = db.Column(
         db.DateTime,
-        default=datetime.utcnow
+        default=datetime.utcnow,
+        nullable=False
     )
 
     date_fin = db.Column(
         db.DateTime,
-        default=lambda: datetime.utcnow() + timedelta(days=30)
+        default=lambda: datetime.utcnow() + timedelta(days=30),
+        nullable=False
     )
 
     actif = db.Column(
         db.Boolean,
-        default=True
+        default=True,
+        nullable=False
     )
 
     montant = db.Column(
         db.Float,
-        default=20000
+        default=20000,
+        nullable=False
     )
 
     user_id = db.Column(
         db.Integer,
-        db.ForeignKey("users.id")
+        db.ForeignKey("users.id"),
+        nullable=False,
+        index=True
     )
 
     mode_paiement = db.Column(
@@ -45,21 +51,16 @@ class Abonnement(db.Model):
     )
 
     reference_paiement = db.Column(
-        db.String(100)
+        db.String(100),
+        unique=True
     )
 
-    date_paiement = db.Column(
-        db.DateTime
-    )
+    date_paiement = db.Column(db.DateTime)
 
     utilisateur = db.relationship(
         "User",
         back_populates="abonnements"
     )
-
-    # ==========================
-    # PROPRIÉTÉS
-    # ==========================
 
     @property
     def jours_restants(self):
@@ -72,10 +73,13 @@ class Abonnement(db.Model):
 
     @property
     def est_expire(self):
-        return datetime.utcnow() > self.date_fin
+        return datetime.utcnow() >= self.date_fin
 
     @property
     def statut(self):
+
+        if not self.actif:
+            return "Inactif"
 
         if self.est_expire:
             return "Expiré"
