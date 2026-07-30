@@ -7,14 +7,18 @@ login_manager = LoginManager()
 
 
 def create_app():
+    print("Début create_app")
+
 
     app = Flask(__name__)
+    print("Configuration OK")
 
     app.config["SECRET_KEY"] = "secret-key-faso-gestion"
     app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///app.db"
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
     db.init_app(app)
+    print("DB OK")
 
     login_manager.init_app(app)
     login_manager.login_view = "auth.login"
@@ -29,8 +33,10 @@ def create_app():
 
     from app.routes import init_app
     init_app(app)
+    print("Routes OK")
 
     with app.app_context():
         db.create_all()
+        print("Fin create_app")
 
     return app
