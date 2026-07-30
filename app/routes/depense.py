@@ -1,16 +1,13 @@
 from flask import Blueprint, render_template, request, redirect, url_for
+from flask_login import login_required
 
 from app import db
 from app.models import Depense
-
-from flask_login import login_required
 from app.utils.abonnement import abonnement_requis
 
-@depense_bp.route("/")
-@login_required
-@abonnement_requis
-def depenses():
-    ...
+# ==========================================
+# BLUEPRINT
+# ==========================================
 
 depense_bp = Blueprint(
     "depense",
@@ -18,16 +15,13 @@ depense_bp = Blueprint(
     url_prefix="/depenses"
 )
 
-@depense_bp.route("/")
-@login_required
-@abonnement_requis
-def depenses():
- 
 # ==========================================
 # LISTE DES DEPENSES
 # ==========================================
 
-@depense_bp.route("/depenses")
+@depense_bp.route("/")
+@login_required
+@abonnement_requis
 def liste_depenses():
 
     depenses = Depense.query.order_by(
@@ -35,7 +29,7 @@ def liste_depenses():
     ).all()
 
     total_depenses = sum(
-        d.montant for d in depenses
+        depense.montant for depense in depenses
     )
 
     return render_template(
@@ -44,62 +38,40 @@ def liste_depenses():
         total_depenses=total_depenses
     )
 
-
 # ==========================================
 # AJOUTER UNE DEPENSE
 # ==========================================
 
-@depense_bp.route("/depenses/ajouter", methods=["GET", "POST"])
+@depense_bp.route("/ajouter", methods=["GET", "POST"])
+@login_required
+@abonnement_requis
 def ajouter_depense():
 
     if request.method == "POST":
 
         depense = Depense(
-
             titre=request.form["titre"],
-
-            description=request.form.get(
-                "description"
-            ),
-
-            montant=float(
-                request.form["montant"]
-            ),
-
-            categorie=request.form.get(
-                "categorie"
-            ),
-
-            mode_paiement=request.form.get(
-                "mode_paiement"
-            ),
-
-            fournisseur=request.form.get(
-                "fournisseur"
-            )
-
+            description=request.form.get("description"),
+            montant=float(request.form["montant"]),
+            categorie=request.form.get("categorie"),
+            mode_paiement=request.form.get("mode_paiement"),
+            fournisseur=request.form.get("fournisseur")
         )
 
         db.session.add(depense)
         db.session.commit()
 
-        return redirect(
-            url_for("depense.liste_depenses")
-        )
+        return redirect(url_for("depense.liste_depenses"))
 
-    return render_template(
-        "depenses/ajouter.html"
-    )
-
+    return render_template("depenses/ajouter.html")
 
 # ==========================================
 # MODIFIER
 # ==========================================
 
-@depense_bp.route(
-    "/depenses/modifier/<int:id>",
-    methods=["GET", "POST"]
-)
+@depense_bp.route("/modifier/<int:id>", methods=["GET", "POST"])
+@login_required
+@abonnement_requis
 def modifier_depense(id):
 
     depense = Depense.query.get_or_404(id)
@@ -107,44 +79,28 @@ def modifier_depense(id):
     if request.method == "POST":
 
         depense.titre = request.form["titre"]
-
-        depense.description = request.form.get(
-            "description"
-        )
-
-        depense.montant = float(
-            request.form["montant"]
-        )
-
-        depense.categorie = request.form.get(
-            "categorie"
-        )
-
-        depense.mode_paiement = request.form.get(
-            "mode_paiement"
-        )
-
-        depense.fournisseur = request.form.get(
-            "fournisseur"
-        )
+        depense.description = request.form.get("description")
+        depense.montant = float(request.form["montant"])
+        depense.categorie = request.form.get("categorie")
+        depense.mode_paiement = request.form.get("mode_paiement")
+        depense.fournisseur = request.form.get("fournisseur")
 
         db.session.commit()
 
-        return redirect(
-            url_for("depense.liste_depenses")
-        )
+        return redirect(url_for("depense.liste_depenses"))
 
     return render_template(
         "depenses/modifier.html",
         depense=depense
     )
 
-
 # ==========================================
-# DETAIL DEPENSE
+# DETAIL D'UNE DEPENSE
 # ==========================================
 
-@depense_bp.route("/depenses/<int:id>")
+@depense_bp.route("/<int:id>")
+@login_required
+@abonnement_requis
 def voir_depense(id):
 
     depense = Depense.query.get_or_404(id)
@@ -154,20 +110,18 @@ def voir_depense(id):
         depense=depense
     )
 
-
 # ==========================================
 # SUPPRIMER
 # ==========================================
 
-@depense_bp.route("/depenses/supprimer/<int:id>")
+@depense_bp.route("/supprimer/<int:id>")
+@login_required
+@abonnement_requis
 def supprimer_depense(id):
 
     depense = Depense.query.get_or_404(id)
 
     db.session.delete(depense)
-
     db.session.commit()
 
-    return redirect(
-        url_for("depense.liste_depenses")
-    )
+    return redirect(url_for("depense.liste_depenses"))
