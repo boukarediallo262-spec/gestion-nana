@@ -9,33 +9,62 @@ class User(UserMixin, db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
 
-    # Informations
+    # ==========================
+    # Informations personnelles
+    # ==========================
+
     nom = db.Column(db.String(100), nullable=False)
     prenom = db.Column(db.String(100))
-    email = db.Column(db.String(120), unique=True, nullable=False)
-    telephone = db.Column(db.String(30))
+    email = db.Column(
+        db.String(120),
+        unique=True,
+        nullable=False,
+        index=True
+    )
+    telephone = db.Column(
+        db.String(30),
+        unique=True
+    )
 
-    # Connexion
-    mot_de_passe = db.Column(db.String(255), nullable=False)
+    # ==========================
+    # Authentification
+    # ==========================
 
-    # Rôle
+    mot_de_passe = db.Column(
+        db.String(255),
+        nullable=False
+    )
+
+    # ==========================
+    # Gestion des droits
+    # ==========================
+
     role = db.Column(
         db.String(20),
-        default="utilisateur"
+        default="utilisateur",
+        nullable=False
     )
 
-    # Compte
     actif = db.Column(
         db.Boolean,
-        default=True
+        default=True,
+        nullable=False
     )
+
+    # ==========================
+    # Dates
+    # ==========================
 
     date_creation = db.Column(
         db.DateTime,
-        default=datetime.utcnow
+        default=datetime.utcnow,
+        nullable=False
     )
 
-    # Relation avec les abonnements
+    # ==========================
+    # Relations
+    # ==========================
+
     abonnements = db.relationship(
         "Abonnement",
         back_populates="utilisateur",
