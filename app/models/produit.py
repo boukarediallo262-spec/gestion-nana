@@ -16,33 +16,33 @@ class Produit(db.Model):
 
     nom = db.Column(
         db.String(150),
-        nullable=False
+        nullable=False,
+        index=True
     )
 
-    description = db.Column(
-        db.Text
-    )
+    description = db.Column(db.Text)
 
     reference = db.Column(
         db.String(50),
-        unique=True
+        unique=True,
+        index=True
     )
 
     code_barre = db.Column(
         db.String(100),
-        unique=True
+        unique=True,
+        index=True
     )
 
-    image = db.Column(
-        db.String(255)
-    )
+    image = db.Column(db.String(255))
 
     # ========= CATEGORIE =========
 
     categorie_id = db.Column(
         db.Integer,
         db.ForeignKey("categories.id"),
-        nullable=False
+        nullable=False,
+        index=True
     )
 
     categorie = db.relationship(
@@ -54,7 +54,8 @@ class Produit(db.Model):
 
     fournisseur_id = db.Column(
         db.Integer,
-        db.ForeignKey("fournisseurs.id")
+        db.ForeignKey("fournisseurs.id"),
+        index=True
     )
 
     fournisseur = db.relationship(
@@ -66,7 +67,8 @@ class Produit(db.Model):
 
     prix_achat = db.Column(
         db.Float,
-        default=0
+        default=0,
+        nullable=False
     )
 
     prix = db.Column(
@@ -76,44 +78,51 @@ class Produit(db.Model):
 
     tva = db.Column(
         db.Float,
-        default=0
+        default=0,
+        nullable=False
     )
 
     # ========= STOCK =========
 
     quantite = db.Column(
         db.Integer,
-        default=0
+        default=0,
+        nullable=False
     )
 
     stock_minimum = db.Column(
         db.Integer,
-        default=5
+        default=5,
+        nullable=False
     )
 
     unite = db.Column(
         db.String(20),
-        default="Pièce"
+        default="Pièce",
+        nullable=False
     )
 
     # ========= ETAT =========
 
     actif = db.Column(
         db.Boolean,
-        default=True
+        default=True,
+        nullable=False
     )
 
     # ========= DATES =========
 
     date_creation = db.Column(
         db.DateTime,
-        default=datetime.utcnow
+        default=datetime.utcnow,
+        nullable=False
     )
 
     date_modification = db.Column(
         db.DateTime,
         default=datetime.utcnow,
-        onupdate=datetime.utcnow
+        onupdate=datetime.utcnow,
+        nullable=False
     )
 
     # ========= RELATIONS =========
