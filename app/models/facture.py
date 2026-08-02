@@ -1,14 +1,13 @@
 from datetime import datetime
 
-from . import db
+from app import db
 
 
-# ==========================
-# FACTURE PRINCIPALE
-# ==========================
+# ==========================================================
+# FACTURE
+# ==========================================================
 
 class Facture(db.Model):
-
     __tablename__ = "factures"
 
     id = db.Column(
@@ -23,7 +22,8 @@ class Facture(db.Model):
     client_id = db.Column(
         db.Integer,
         db.ForeignKey("clients.id"),
-        nullable=False
+        nullable=False,
+        index=True
     )
 
     client = db.relationship(
@@ -32,44 +32,39 @@ class Facture(db.Model):
     )
 
     # ==========================
-    # INFOS FACTURE
+    # INFORMATIONS
     # ==========================
+
+    reference = db.Column(
+        db.String(100),
+        unique=True,
+        nullable=False,
+        index=True
+    )
 
     date_facture = db.Column(
         db.DateTime,
-        default=datetime.utcnow
+        default=datetime.utcnow,
+        nullable=False
     )
 
     statut = db.Column(
         db.String(50),
-        default="Non payée"
-    )  
-    # Non payée / Payée / Partielle
+        default="Non payée",
+        nullable=False,
+        index=True
+    )
 
     paiement = db.Column(
         db.String(50),
-        default="Cash"
-    )
-
-    reference = db.Column(
-        db.String(100),
-        unique=True
+        default="Cash",
+        nullable=False
     )
 
     total = db.Column(
         db.Float,
-        default=0
-    )
-
-    # ==========================
-    # RELATION LIGNES
-    # ==========================
-
-    lignes = db.relationship(
-        "LigneFacture",
-        back_populates="facture",
-        cascade="all, delete",
-        lazy=True
+        default=0,
+        nullable=False
     )
 
     # ==========================
@@ -78,44 +73,64 @@ class Facture(db.Model):
 
     date_creation = db.Column(
         db.DateTime,
-        default=datetime.utcnow
+        default=datetime.utcnow,
+        nullable=False
     )
 
     date_modification = db.Column(
         db.DateTime,
         default=datetime.utcnow,
-        onupdate=datetime.utcnow
+        onupdate=datetime.utcnow,
+        nullable=False
     )
 
     # ==========================
-    # MÉTHODES INTELLIGENTES
+    # RELATIONS
     # ==========================
 
-    def calculer_total(self):
-        """Recalcule automatiquement le total de la facture"""
-        self.total = sum(
-            ligne.total for ligne in self.lignes
-        )
-        return self.total
+    lignes = db.relationship(
+        "LigneFacture",
+        back_populates="facture",
+        cascade="all, delete-orphan",
+        lazy=True
+    )
+
+    # ==========================
+    # PROPRIÉTÉS
+    # ==========================
 
     @property
     def est_payee(self):
-        return self.statut == "Payée"
+        return self.statut.lower() == "payée"
 
     @property
     def nombre_articles(self):
-        return len(self.lignes)
+        return sum(
+            ligne.quantite
+            for ligne in self.lignes
+        )
+
+    # ==========================
+    # MÉTHODES
+    # ==========================
+
+    def calculer_total(self):
+        self.total = sum(
+            ligne.total
+            for ligne in self.lignes
+        )
+        return self.total
 
     def __repr__(self):
-        return f"<Facture {self.id} - {self.client_id}>"
+        return f"<Facture {self.reference}>"
 
 
-# ==========================
-# LIGNES DE FACTURE
-# ==========================
+
+# ==========================================================
+# LIGNE DE FACTURE
+# ==========================================================
 
 class LigneFacture(db.Model):
-
     __tablename__ = "lignes_facture"
 
     id = db.Column(
@@ -123,10 +138,15 @@ class LigneFacture(db.Model):
         primary_key=True
     )
 
+    # ==========================
+    # FACTURE
+    # ==========================
+
     facture_id = db.Column(
         db.Integer,
         db.ForeignKey("factures.id"),
-        nullable=False
+        nullable=False,
+        index=True
     )
 
     facture = db.relationship(
@@ -134,10 +154,15 @@ class LigneFacture(db.Model):
         back_populates="lignes"
     )
 
+    # ==========================
+    # PRODUIT
+    # ==========================
+
     produit_id = db.Column(
         db.Integer,
         db.ForeignKey("produits.id"),
-        nullable=False
+        nullable=False,
+        index=True
     )
 
     produit = db.relationship(
@@ -145,8 +170,13 @@ class LigneFacture(db.Model):
         back_populates="lignes_facture"
     )
 
+    # ==========================
+    # INFORMATIONS
+    # ==========================
+
     quantite = db.Column(
         db.Integer,
+        default=1,
         nullable=False
     )
 
@@ -157,8 +187,13 @@ class LigneFacture(db.Model):
 
     total = db.Column(
         db.Float,
+        default=0,
         nullable=False
     )
+
+    # ==========================
+    # MÉTHODES
+    # ==========================
 
     def calculer_total(self):
         self.total = self.quantite * self.prix
