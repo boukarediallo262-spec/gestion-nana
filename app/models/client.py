@@ -1,10 +1,13 @@
 from datetime import datetime
 
-from . import db
+from app import db
 
+
+# ==========================================================
+# CLIENT
+# ==========================================================
 
 class Client(db.Model):
-
     __tablename__ = "clients"
 
     # ==========================
@@ -17,12 +20,13 @@ class Client(db.Model):
     )
 
     # ==========================
-    # INFOS CLIENT
+    # INFORMATIONS
     # ==========================
 
     nom = db.Column(
         db.String(150),
-        nullable=False
+        nullable=False,
+        index=True
     )
 
     prenom = db.Column(
@@ -30,11 +34,13 @@ class Client(db.Model):
     )
 
     telephone = db.Column(
-        db.String(30)
+        db.String(30),
+        index=True
     )
 
     email = db.Column(
-        db.String(120)
+        db.String(120),
+        index=True
     )
 
     adresse = db.Column(
@@ -47,7 +53,8 @@ class Client(db.Model):
 
     pays = db.Column(
         db.String(100),
-        default="Burkina Faso"
+        default="Burkina Faso",
+        nullable=False
     )
 
     entreprise = db.Column(
@@ -55,17 +62,20 @@ class Client(db.Model):
     )
 
     # ==========================
-    # STATUT CLIENT
+    # TYPE CLIENT
     # ==========================
 
     type_client = db.Column(
         db.String(50),
-        default="Particulier"
-    )  # Particulier / Entreprise / VIP
+        default="Particulier",
+        nullable=False,
+        index=True
+    )
 
     actif = db.Column(
         db.Boolean,
-        default=True
+        default=True,
+        nullable=False
     )
 
     # ==========================
@@ -74,27 +84,30 @@ class Client(db.Model):
 
     date_creation = db.Column(
         db.DateTime,
-        default=datetime.utcnow
+        default=datetime.utcnow,
+        nullable=False
     )
 
     date_modification = db.Column(
         db.DateTime,
         default=datetime.utcnow,
-        onupdate=datetime.utcnow
+        onupdate=datetime.utcnow,
+        nullable=False
     )
 
     # ==========================
-    # RELATION FACTURES
+    # RELATIONS
     # ==========================
 
     factures = db.relationship(
         "Facture",
         back_populates="client",
+        cascade="all, delete-orphan",
         lazy=True
     )
 
     # ==========================
-    # PROPRIÉTÉS IMPORTANTES
+    # PROPRIÉTÉS
     # ==========================
 
     @property
@@ -104,17 +117,29 @@ class Client(db.Model):
     @property
     def total_depense(self):
         return sum(
-            facture.total for facture in self.factures
+            facture.total
+            for facture in self.factures
         )
 
     @property
     def dernier_achat(self):
         if not self.factures:
             return None
+
         return max(
             self.factures,
-            key=lambda f: f.date_facture
+            key=lambda facture: facture.date_facture
         )
 
+    @property
+    def nom_complet(self):
+        if self.prenom:
+            return f"{self.prenom} {self.nom}"
+        return self.nom
+
+    # ==========================
+    # REPRÉSENTATION
+    # ==========================
+
     def __repr__(self):
-        return f"<Client {self.nom}>"
+        return f"<Client {self.nom_complet}>"
