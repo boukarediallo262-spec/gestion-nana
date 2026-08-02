@@ -1,15 +1,14 @@
 from datetime import datetime
 
-from . import db
+from app import db
 
+
+# ==========================================================
+# DEPENSE
+# ==========================================================
 
 class Depense(db.Model):
-
     __tablename__ = "depenses"
-
-    # ==========================
-    # IDENTIFIANT
-    # ==========================
 
     id = db.Column(
         db.Integer,
@@ -17,41 +16,44 @@ class Depense(db.Model):
     )
 
     # ==========================
-    # INFOS DEPENSE
+    # INFORMATIONS
     # ==========================
 
     titre = db.Column(
         db.String(150),
-        nullable=False
+        nullable=False,
+        index=True
     )
 
     description = db.Column(
         db.Text
     )
 
-    montant = db.Column(
-        db.Float,
-        nullable=False
-    )
-
     categorie = db.Column(
         db.String(100),
-        default="Générale"
-    )
-    # Ex: Salaires, Transport, Achat, Électricité...
-
-    mode_paiement = db.Column(
-        db.String(50),
-        default="Cash"
+        nullable=False,
+        default="Autres",
+        index=True
     )
 
     fournisseur = db.Column(
         db.String(150)
     )
 
-    reference = db.Column(
-        db.String(100),
-        unique=True
+    # ==========================
+    # MONTANT
+    # ==========================
+
+    montant = db.Column(
+        db.Float,
+        nullable=False,
+        default=0
+    )
+
+    mode_paiement = db.Column(
+        db.String(50),
+        nullable=False,
+        default="Espèces"
     )
 
     # ==========================
@@ -60,30 +62,45 @@ class Depense(db.Model):
 
     date_depense = db.Column(
         db.DateTime,
-        default=datetime.utcnow
+        default=datetime.utcnow,
+        nullable=False,
+        index=True
     )
 
     date_creation = db.Column(
         db.DateTime,
-        default=datetime.utcnow
+        default=datetime.utcnow,
+        nullable=False
+    )
+
+    date_modification = db.Column(
+        db.DateTime,
+        default=datetime.utcnow,
+        onupdate=datetime.utcnow,
+        nullable=False
     )
 
     # ==========================
     # ETAT
     # ==========================
 
-    validee = db.Column(
+    actif = db.Column(
         db.Boolean,
-        default=True
+        default=True,
+        nullable=False
     )
 
     # ==========================
-    # PROPRIÉTÉS UTILES
+    # PROPRIÉTÉS
     # ==========================
 
     @property
-    def est_importante(self):
-        return self.montant >= 50000
+    def montant_formate(self):
+        return f"{self.montant:,.0f} FCFA".replace(",", " ")
+
+    # ==========================
+    # REPRÉSENTATION
+    # ==========================
 
     def __repr__(self):
-        return f"<Depense {self.titre} - {self.montant}>"
+        return f"<Depense {self.titre}>"
