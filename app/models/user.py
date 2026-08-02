@@ -1,33 +1,58 @@
 from datetime import datetime
 
 from flask_login import UserMixin
+from werkzeug.security import (
+    generate_password_hash,
+    check_password_hash
+)
+
 from app import db
 
+
+# ==========================================================
+# UTILISATEUR
+# ==========================================================
 
 class User(UserMixin, db.Model):
     __tablename__ = "users"
 
-    id = db.Column(db.Integer, primary_key=True)
-
     # ==========================
-    # Informations personnelles
+    # IDENTIFIANT
     # ==========================
 
-    nom = db.Column(db.String(100), nullable=False)
-    prenom = db.Column(db.String(100))
+    id = db.Column(
+        db.Integer,
+        primary_key=True
+    )
+
+    # ==========================
+    # INFORMATIONS PERSONNELLES
+    # ==========================
+
+    nom = db.Column(
+        db.String(100),
+        nullable=False,
+        index=True
+    )
+
+    prenom = db.Column(
+        db.String(100)
+    )
+
     email = db.Column(
         db.String(120),
         unique=True,
         nullable=False,
         index=True
     )
+
     telephone = db.Column(
         db.String(30),
         unique=True
     )
 
     # ==========================
-    # Authentification
+    # AUTHENTIFICATION
     # ==========================
 
     mot_de_passe = db.Column(
@@ -36,7 +61,7 @@ class User(UserMixin, db.Model):
     )
 
     # ==========================
-    # Gestion des droits
+    # ROLE
     # ==========================
 
     role = db.Column(
@@ -45,6 +70,10 @@ class User(UserMixin, db.Model):
         nullable=False
     )
 
+    # ==========================
+    # ETAT DU COMPTE
+    # ==========================
+
     actif = db.Column(
         db.Boolean,
         default=True,
@@ -52,7 +81,7 @@ class User(UserMixin, db.Model):
     )
 
     # ==========================
-    # Dates
+    # DATES
     # ==========================
 
     date_creation = db.Column(
@@ -61,15 +90,72 @@ class User(UserMixin, db.Model):
         nullable=False
     )
 
+    date_modification = db.Column(
+        db.DateTime,
+        default=datetime.utcnow,
+        onupdate=datetime.utcnow,
+        nullable=False
+    )
+
     # ==========================
-    # Relations
+    # RELATIONS
     # ==========================
 
     abonnements = db.relationship(
         "Abonnement",
         back_populates="utilisateur",
-        cascade="all, delete-orphan"
+        cascade="all, delete-orphan",
+        lazy=True
     )
 
+    # ==========================
+    # SECURITE
+    # ==========================
+
+    def set_password(self, password):
+        """
+        Hash le mot de passe avant enregistrement.
+        """
+        self.mot_de_passe = generate_password_hash(password)
+
+    def check_password(self, password):
+        """
+        Vérifie le mot de passe.
+        """
+        return check_password_hash(
+            self.mot_de_passe,
+            password
+        )
+
+    # ==========================
+    # PROPRIETES
+    # ==========================
+
+    @property
+    def abonnement_actif(self):
+        """
+        Retourne le premier abonnement actif.
+        """
+        for abonnement in self.abonnements:
+            if abonnement.actif and not abonnement.est_expire:
+                return abonnement
+        return None
+
+    @property
+    def est_admin(self):
+        return self.role.lower() == "admin"
+
+    @property
+    def nom_complet(self):
+        if self.prenom:
+            return f"{self.prenom} {self.nom}"
+        return self.nom
+
+    # ==========================
+    # REPRESENTATION
+    # ==========================
+
     def __repr__(self):
-        return f"<User {self.nom}>"
+        return (
+            f"<User {self.nom_complet}>"
+        )
