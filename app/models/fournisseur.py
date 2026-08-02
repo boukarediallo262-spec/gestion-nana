@@ -1,16 +1,17 @@
 from datetime import datetime
 
-from . import db
+from app import db
 
 
-
+# ==========================================================
+# FOURNISSEUR
+# ==========================================================
 
 class Fournisseur(db.Model):
-
     __tablename__ = "fournisseurs"
 
     # ==========================
-    # CLÉ PRIMAIRE
+    # IDENTIFIANT
     # ==========================
 
     id = db.Column(
@@ -19,12 +20,13 @@ class Fournisseur(db.Model):
     )
 
     # ==========================
-    # IDENTITÉ
+    # INFORMATIONS
     # ==========================
 
     nom = db.Column(
         db.String(150),
-        nullable=False
+        nullable=False,
+        index=True
     )
 
     entreprise = db.Column(
@@ -36,11 +38,13 @@ class Fournisseur(db.Model):
     )
 
     telephone = db.Column(
-        db.String(30)
+        db.String(30),
+        index=True
     )
 
     email = db.Column(
-        db.String(120)
+        db.String(120),
+        index=True
     )
 
     adresse = db.Column(
@@ -53,18 +57,20 @@ class Fournisseur(db.Model):
 
     pays = db.Column(
         db.String(100),
-        default="Burkina Faso"
+        default="Burkina Faso",
+        nullable=False
     )
 
     site_web = db.Column(
         db.String(255)
     )
+
     note = db.Column(
         db.Text
     )
 
     # ==========================
-    # INFORMATIONS
+    # DESCRIPTION
     # ==========================
 
     description = db.Column(
@@ -73,7 +79,8 @@ class Fournisseur(db.Model):
 
     actif = db.Column(
         db.Boolean,
-        default=True
+        default=True,
+        nullable=False
     )
 
     # ==========================
@@ -82,17 +89,19 @@ class Fournisseur(db.Model):
 
     date_creation = db.Column(
         db.DateTime,
-        default=datetime.utcnow
+        default=datetime.utcnow,
+        nullable=False
     )
 
     date_modification = db.Column(
         db.DateTime,
         default=datetime.utcnow,
-        onupdate=datetime.utcnow
+        onupdate=datetime.utcnow,
+        nullable=False
     )
 
     # ==========================
-    # RELATION PRODUITS
+    # RELATIONS
     # ==========================
 
     produits = db.relationship(
@@ -111,9 +120,24 @@ class Fournisseur(db.Model):
 
     @property
     def produits_actifs(self):
-        return len(
-            [p for p in self.produits if p.actif]
+        return sum(
+            1
+            for produit in self.produits
+            if produit.actif
         )
+
+    @property
+    def valeur_stock(self):
+        return sum(
+            produit.valeur_stock
+            for produit in self.produits
+        )
+
+    @property
+    def nom_affichage(self):
+        if self.entreprise:
+            return f"{self.entreprise} ({self.nom})"
+        return self.nom
 
     # ==========================
     # REPRÉSENTATION
