@@ -8,13 +8,13 @@ Initialisation des Blueprints de FASO GESTION IA.
 Toutes les routes de l'application sont enregistrées ici.
 """
 
+
 # ==========================================================
 # IMPORT DES BLUEPRINTS
 # ==========================================================
 
 from .auth import auth_bp
 from .dashboard import dashboard_bp
-
 from .client import client_bp
 from .fournisseur import fournisseur_bp
 from .categorie import categorie_bp
@@ -25,7 +25,7 @@ from .abonnement import abonnement_bp
 
 
 # ==========================================================
-# ENREGISTREMENT
+# ENREGISTREMENT DES ROUTES
 # ==========================================================
 
 def init_app(app):
@@ -34,21 +34,18 @@ def init_app(app):
     """
 
     blueprints = [
-
         auth_bp,
-
         dashboard_bp,
-
         client_bp,
         fournisseur_bp,
         categorie_bp,
         produit_bp,
         facture_bp,
         depense_bp,
-
-        abonnement_bp
-
+        abonnement_bp,
     ]
 
     for blueprint in blueprints:
         app.register_blueprint(blueprint)
+
+    print("Tous les Blueprints sont enregistrés.")
