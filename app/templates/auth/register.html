@@ -2,23 +2,107 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>Register</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Créer un compte - FASO GESTION IA</title>
 </head>
+
 <body>
 
-<h1>Créer compte</h1>
+    <h1>Créer un compte</h1>
 
-<form method="POST">
+    <!-- Messages Flask -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div>
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
 
-<input type="text" name="username">
 
-<input type="password" name="password">
+    <form method="POST" action="{{ url_for('auth.register') }}">
 
-<button type="submit">
-Créer
-</button>
+        <!-- NOM -->
+        <div>
+            <label for="nom">Nom</label>
 
-</form>
+            <input
+                type="text"
+                id="nom"
+                name="nom"
+                required
+            >
+        </div>
+
+
+        <!-- PRÉNOM -->
+        <div>
+            <label for="prenom">Prénom</label>
+
+            <input
+                type="text"
+                id="prenom"
+                name="prenom"
+                required
+            >
+        </div>
+
+
+        <!-- EMAIL -->
+        <div>
+            <label for="email">Email</label>
+
+            <input
+                type="email"
+                id="email"
+                name="email"
+                required
+            >
+        </div>
+
+
+        <!-- TÉLÉPHONE -->
+        <div>
+            <label for="telephone">Téléphone</label>
+
+            <input
+                type="text"
+                id="telephone"
+                name="telephone"
+            >
+        </div>
+
+
+        <!-- MOT DE PASSE -->
+        <div>
+            <label for="password">Mot de passe</label>
+
+            <input
+                type="password"
+                id="password"
+                name="password"
+                required
+                minlength="6"
+            >
+        </div>
+
+
+        <button type="submit">
+            Créer mon compte
+        </button>
+
+    </form>
+
+
+    <p>
+        Vous avez déjà un compte ?
+        <a href="{{ url_for('auth.login') }}">
+            Se connecter
+        </a>
+    </p>
 
 </body>
 </html>
