@@ -1,11 +1,76 @@
+
 <!DOCTYPE html>
 <html lang="fr">
 
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>FASO GESTION IA</title>
 
     <link rel="stylesheet" href="/static/css/layout.css">
+
+    <style>
+        .subscription-alert {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 16px;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 600;
+            margin-left: 15px;
+            flex-wrap: wrap;
+        }
+
+        .subscription-alert a {
+            text-decoration: none;
+            font-weight: bold;
+            margin-left: 8px;
+            white-space: nowrap;
+        }
+
+        .subscription-alert.actif {
+            background: #e7f8ee;
+            color: #167542;
+            border: 1px solid #b7e7ca;
+        }
+
+        .subscription-alert.attention {
+            background: #fff5dc;
+            color: #946200;
+            border: 1px solid #f1d58c;
+        }
+
+        .subscription-alert.expire,
+        .subscription-alert.inactif,
+        .subscription-alert.aucun {
+            background: #fdeaea;
+            color: #b42318;
+            border: 1px solid #f3b8b5;
+        }
+
+        .subscription-alert a {
+            color: inherit;
+        }
+
+        .subscription-icon {
+            font-size: 19px;
+        }
+
+        @media (max-width: 768px) {
+            .subscription-alert {
+                margin: 10px 0;
+                width: 100%;
+                box-sizing: border-box;
+            }
+
+            .topbar {
+                flex-wrap: wrap;
+            }
+        }
+    </style>
+
 </head>
 
 <body>
@@ -20,34 +85,42 @@
         </div>
 
         <a href="/" class="menu {% if request.path == '/' %}active{% endif %}">
-        🏠 Dashboard
+            🏠 Dashboard
         </a>
+
         <a href="/produits" class="menu {% if '/produits' in request.path %}active{% endif %}">
-        📦 Produits
+            📦 Produits
         </a>
+
         <a href="/clients" class="menu {% if '/clients' in request.path %}active{% endif %}">
-        👥 Clients
+            👥 Clients
         </a>
+
         <a href="/factures" class="menu {% if '/factures' in request.path %}active{% endif %}">
-        🧾 Factures
+            🧾 Factures
         </a>
+
         <a href="/depenses" class="menu {% if '/depenses' in request.path %}active{% endif %}">
-        💰 Dépenses
+            💰 Dépenses
         </a>
+
         <a href="/statistiques" class="menu {% if '/statistiques' in request.path %}active{% endif %}">
-        📊 Statistiques
+            📊 Statistiques
         </a>
-        <a href="/admin" class="menu">⚙️ Administration</a>
+
+        <a href="/admin" class="menu">
+            ⚙️ Administration
+        </a>
 
         <hr style="opacity:0.3;">
-       
-        <li>
-            <a href="{{ url_for('abonnement.index') }}">
-                👑 Gestion des abonnements
-            </a>
-        </li>
 
-        <a href="/logout" class="menu danger">🚪 Déconnexion</a>
+        <a href="{{ url_for('abonnement.index') }}" class="menu">
+            👑 Gestion des abonnements
+        </a>
+
+        <a href="/logout" class="menu danger">
+            🚪 Déconnexion
+        </a>
 
     </aside>
 
@@ -62,17 +135,44 @@
             <div class="user">
                 👤 Admin
             </div>
-            <div class="card bg-success text-white p-2">
 
-                <strong>👑 PREMIUM</strong>
+            <!-- NOTIFICATION ABONNEMENT -->
+            {% if abonnement_notification %}
 
-                <br>
+                <div class="subscription-alert {{ abonnement_notification.statut }}">
 
-                30 jours restants
+                    <span class="subscription-icon">
 
-            </div>
+                        {% if abonnement_notification.statut == "actif" %}
+                            ✅
+                        {% elif abonnement_notification.statut == "attention" %}
+                            ⚠️
+                        {% else %}
+                            🚨
+                        {% endif %}
 
-         </header>
+                    </span>
+
+                    <span>
+                        {{ abonnement_notification.message }}
+
+                        {% if abonnement_notification.date_fin %}
+                            <br>
+                            <small>
+                                Date de fin : {{ abonnement_notification.date_fin }}
+                            </small>
+                        {% endif %}
+                    </span>
+
+                    <a href="{{ url_for('abonnement.index') }}">
+                        Gérer mon abonnement →
+                    </a>
+
+                </div>
+
+            {% endif %}
+
+        </header>
 
         <!-- CONTENU DYNAMIQUE -->
         <section class="page">
