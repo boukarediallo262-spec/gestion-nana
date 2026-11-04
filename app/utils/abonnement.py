@@ -1,3 +1,4 @@
+
 from functools import wraps
 from datetime import datetime
 
@@ -12,6 +13,9 @@ def abonnement_requis(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
 
+        if not current_user.is_authenticated:
+            return redirect(url_for("auth.login"))
+
         abonnement = (
             Abonnement.query
             .filter_by(user_id=current_user.id)
@@ -23,7 +27,11 @@ def abonnement_requis(f):
             flash("Vous n'avez aucun abonnement.", "warning")
             return redirect(url_for("abonnement.index"))
 
-        if abonnement.date_fin < datetime.utcnow():
+        if not abonnement.actif:
+            flash("Votre abonnement est inactif.", "danger")
+            return redirect(url_for("abonnement.index"))
+
+        if abonnement.date_fin <= datetime.utcnow():
             flash("Votre abonnement a expiré.", "danger")
             return redirect(url_for("abonnement.index"))
 
