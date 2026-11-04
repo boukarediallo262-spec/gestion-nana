@@ -2,173 +2,498 @@
 
 {% block content %}
 
-<h2 style="margin-bottom:20px; color:#198754;">
-    📊 Dashboard
-</h2>
+<div class="dashboard-page">
 
-<!-- KPI -->
-<div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:15px;">
-  <div class="kpi-container">
-
-    <div class="kpi-card">📦 Produits <h2>{{ total_produits }}</h2></div>
-
-    <div class="kpi-card">👥 Clients <h2>{{ total_clients }}</h2></div>
-
-    <div class="kpi-card">🧾 Factures <h2>{{ total_factures }}</h2></div>
-
-    <div class="kpi-card">💰 Ventes <h2>{{ total_ventes }} FCFA</h2></div>
-
-    <div class="kpi-card danger">💸 Dépenses <h2>{{ total_depenses }} FCFA</h2></div>
-
-    <div class="kpi-card success">📈 Bénéfices <h2>{{ benefices }} FCFA</h2></div>
-
-</div>  
-
-    
-
-</div>
-<div class="alert-box">
-
-    <h3>🤖 Conseil IA</h3>
-
-    <p>{{ conseil }}</p>
-
-</div>
-
-
-<!-- SECTION BAS -->
-<div style="display:grid; grid-template-columns:2fr 1fr; gap:20px; margin-top:25px;">
-
-    <!-- GRAPHIQUE -->
-    <div style="background:white; padding:20px; border-radius:15px;">
-        <h3 style="color:#198754;">📊 Évolution des ventes</h3>
-        <canvas id="chartVentes"></canvas>
-
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-<script>
-
-new Chart(document.getElementById("chartVentes"), {
-
-    type: "line",
-
-    data: {
-
-        labels: {{ jours | tojson }},
-
-        datasets: [{
-
-            label: "Ventes 7 jours",
-
-            data: {{ ventes | tojson }},
-
-            borderColor: "#198754",
-
-            fill: true
-
-        }]
-
-    }
-
-});
-
-</script>
+    <!-- EN-TÊTE -->
+    <div class="dashboard-header">
+        <div>
+            <h1>Tableau de bord</h1>
+            <p>Vue générale de votre activité commerciale</p>
+        </div>
+        <div class="dashboard-date">
+            <span>📅</span>
+            {{ now().strftime("%d/%m/%Y") if now is defined else "IGESTION" }}
+        </div>
     </div>
 
-    <!-- ALERTES -->
-    <div style="background:white; padding:20px; border-radius:15px;">
-        <h3 style="color:#198754;">⚠️ Stock faible</h3>
+    <!-- INDICATEURS -->
+    <div class="kpi-grid">
 
-        {% for p in produits_stock %}
-            <p>⚠ {{ p.nom }} ({{ p.quantite }})</p>
-        {% else %}
-            <p>Aucune alerte</p>
-        {% endfor %}
+        <div class="kpi-card">
+            <div class="kpi-icon blue">📦</div>
+            <div class="kpi-label">Produits</div>
+            <div class="kpi-value">{{ total_produits }}</div>
+            <div class="kpi-description">Produits enregistrés</div>
+        </div>
+
+        <div class="kpi-card">
+            <div class="kpi-icon purple">👥</div>
+            <div class="kpi-label">Clients</div>
+            <div class="kpi-value">{{ total_clients }}</div>
+            <div class="kpi-description">Clients enregistrés</div>
+        </div>
+
+        <div class="kpi-card">
+            <div class="kpi-icon orange">🧾</div>
+            <div class="kpi-label">Factures</div>
+            <div class="kpi-value">{{ total_factures }}</div>
+            <div class="kpi-description">Factures enregistrées</div>
+        </div>
+
+        <div class="kpi-card">
+            <div class="kpi-icon green">💰</div>
+            <div class="kpi-label">Ventes totales</div>
+            <div class="kpi-value">
+                {{ "{:,.0f}".format(total_ventes|float).replace(",", " ") }}
+                <small>FCFA</small>
+            </div>
+            <div class="kpi-description">Chiffre d'affaires cumulé</div>
+        </div>
+
+        <div class="kpi-card">
+            <div class="kpi-icon red">💸</div>
+            <div class="kpi-label">Dépenses totales</div>
+            <div class="kpi-value">
+                {{ "{:,.0f}".format(total_depenses|float).replace(",", " ") }}
+                <small>FCFA</small>
+            </div>
+            <div class="kpi-description">Charges enregistrées</div>
+        </div>
+
+        <div class="kpi-card">
+            <div class="kpi-icon {% if benefices >= 0 %}green{% else %}red{% endif %}">
+                📈
+            </div>
+            <div class="kpi-label">Solde estimé</div>
+            <div class="kpi-value {% if benefices < 0 %}negative{% else %}positive{% endif %}">
+                {{ "{:,.0f}".format(benefices|float).replace(",", " ") }}
+                <small>FCFA</small>
+            </div>
+            <div class="kpi-description">Ventes moins dépenses</div>
+        </div>
 
     </div>
 
+    <!-- CONSEIL IA -->
+    <div class="ai-card">
+        <div class="ai-icon">🤖</div>
+        <div>
+            <h3>BOUBA AI — Conseil de gestion</h3>
+            <p>{{ conseil }}</p>
+        </div>
+    </div>
+
+    <!-- GRAPHIQUE ET STOCK -->
+    <div class="dashboard-grid">
+
+        <div class="panel sales-panel">
+            <div class="panel-header">
+                <div>
+                    <h3>Évolution des ventes</h3>
+                    <p>Activité des 7 derniers jours</p>
+                </div>
+                <span class="panel-icon">📊</span>
+            </div>
+
+            <div class="chart-container">
+                <canvas id="chartVentes"></canvas>
+            </div>
+        </div>
+
+        <div class="panel stock-panel">
+            <div class="panel-header">
+                <div>
+                    <h3>Stock critique</h3>
+                    <p>{{ stock_critique }} produit(s) à surveiller</p>
+                </div>
+                <span class="panel-icon">⚠️</span>
+            </div>
+
+            {% for p in produits_rupture %}
+                <div class="stock-item">
+                    <div class="stock-product">
+                        <strong>{{ p.nom }}</strong>
+                        <span>Stock : {{ p.quantite }}</span>
+                    </div>
+                    <span class="stock-warning">À réapprovisionner</span>
+                </div>
+            {% else %}
+                <div class="empty-state">
+                    <span>✅</span>
+                    <p>Aucun produit en stock critique.</p>
+                </div>
+            {% endfor %}
+        </div>
+
+    </div>
+
+    <!-- DERNIÈRES FACTURES -->
+    <div class="panel invoices-panel">
+        <div class="panel-header">
+            <div>
+                <h3>Dernières factures</h3>
+                <p>Les 5 dernières factures enregistrées</p>
+            </div>
+            <span class="panel-icon">🧾</span>
+        </div>
+
+        <div class="table-responsive">
+            <table class="dashboard-table">
+                <thead>
+                    <tr>
+                        <th>Client</th>
+                        <th>Date</th>
+                        <th>Montant</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for f in dernieres_factures %}
+                    <tr>
+                        <td>{{ f.client }}</td>
+                        <td>
+                            {{ f.date_facture.strftime("%d/%m/%Y") if f.date_facture else "—" }}
+                        </td>
+                        <td class="invoice-total">
+                            {{ "{:,.0f}".format(f.total|float).replace(",", " ") }} FCFA
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="3" class="empty-table">
+                            Aucune facture enregistrée pour le moment.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
 </div>
 
-<!-- DERNIERES FACTURES -->
-<div style="margin-top:20px; background:white; padding:20px; border-radius:15px;">
-
-    <h3 style="color:#198754;">🧾 Dernières factures</h3>
-
-    <table width="100%" style="margin-top:10px;">
-        <tr>
-            <th>Client</th>
-            <th>Total</th>
-        </tr>
-
-        {% for f in dernieres_factures %}
-        <tr>
-            <td>{{ f.client }}</td>
-            <td>{{ f.total }} FCFA</td>
-        </tr>
-        {% endfor %}
-    </table>
-
-</div>
-
-<!-- CHART -->
+<!-- GRAPHIQUE -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script>
-new Chart(document.getElementById("chart"), {
-    type: "line",
-    data: {
-        labels: {{ jours|tojson }},
-        datasets: [{
-            label: "Ventes",
-            data: {{ ventes|tojson }},
-            borderColor: "#198754",
-            fill: true
-        }]
+document.addEventListener("DOMContentLoaded", function () {
+
+    const canvas = document.getElementById("chartVentes");
+
+    if (canvas) {
+        new Chart(canvas, {
+            type: "line",
+            data: {
+                labels: {{ jours | tojson }},
+                datasets: [{
+                    label: "Ventes en FCFA",
+                    data: {{ ventes | tojson }},
+                    borderColor: "#16856b",
+                    backgroundColor: "rgba(22, 133, 107, 0.10)",
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.4,
+                    pointRadius: 4,
+                    pointHoverRadius: 7
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: "top"
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                return value.toLocaleString("fr-FR") + " F";
+                            }
+                        }
+                    }
+                }
+            }
+        });
     }
+
 });
 </script>
 
 <style>
-
-.kpi-container{
-    display:grid;
-    grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
-    gap:20px;
-    margin:20px;
+.dashboard-page {
+    padding: 10px;
+    color: #243447;
 }
 
-.kpi-card{
-    background:white;
-    padding:20px;
-    border-radius:15px;
-    box-shadow:0 5px 15px rgba(0,0,0,0.1);
-    text-align:center;
-    font-weight:bold;
+.dashboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 25px;
 }
 
-.kpi-card h2{
-    margin-top:10px;
-    color:#198754;
+.dashboard-header h1 {
+    font-size: 26px;
+    margin: 0;
+    font-weight: 750;
 }
 
-.danger h2{ color:#dc3545; }
-.success h2{ color:#198754; }
-
-.alert-box{
-    margin:20px;
-    padding:20px;
-    background:#fff3cd;
-    border-left:5px solid #ffc107;
+.dashboard-header p {
+    color: #7b8794;
+    margin: 6px 0 0;
 }
 
-.stock-box{
-    margin:20px;
-    padding:20px;
-    background:#f8d7da;
-    border-left:5px solid #dc3545;
+.dashboard-date {
+    background: white;
+    border: 1px solid #e8edf1;
+    padding: 10px 15px;
+    border-radius: 10px;
+    font-size: 13px;
 }
 
-</style>
+.kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 16px;
+}
+
+.kpi-card {
+    background: white;
+    border: 1px solid #edf0f3;
+    border-radius: 15px;
+    padding: 20px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.035);
+}
+
+.kpi-icon {
+    width: 42px;
+    height: 42px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+    font-size: 20px;
+    margin-bottom: 14px;
+}
+
+.blue { background: #e8f1ff; }
+.purple { background: #f0eaff; }
+.orange { background: #fff1df; }
+.green { background: #e4f7ef; }
+.red { background: #ffe9e9; }
+
+.kpi-label {
+    color: #778392;
+    font-size: 13px;
+}
+
+.kpi-value {
+    font-size: 23px;
+    font-weight: 750;
+    margin: 8px 0;
+    overflow-wrap: anywhere;
+}
+
+.kpi-value small {
+    font-size: 11px;
+    color: #84909c;
+}
+
+.kpi-description {
+    color: #98a2ad;
+    font-size: 11px;
+}
+
+.positive { color: #16856b; }
+.negative { color: #dc3545; }
+
+.ai-card {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin: 22px 0;
+    padding: 20px;
+    background: #edf7ff;
+    border: 1px solid #d8ebfa;
+    border-radius: 14px;
+}
+
+.ai-icon {
+    font-size: 30px;
+}
+
+.ai-card h3 {
+    margin: 0 0 7px;
+    color: #155b83;
+}
+
+.ai-card p {
+    margin: 0;
+    color: #43596b;
+}
+
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 18px;
+    margin-bottom: 20px;
+}
+
+.panel {
+    background: white;
+    border: 1px solid #edf0f3;
+    border-radius: 15px;
+    padding: 20px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.035);
+    min-width: 0;
+}
+
+.panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.panel-header h3 {
+    margin: 0;
+    font-size: 17px;
+}
+
+.panel-header p {
+    color: #89939e;
+    font-size: 12px;
+    margin: 6px 0 0;
+}
+
+.panel-icon {
+    font-size: 23px;
+}
+
+.chart-container {
+    position: relative;
+    height: 280px;
+    width: 100%;
+}
+
+.stock-item {
+    padding: 13px 0;
+    border-bottom: 1px solid #edf0f3;
+}
+
+.stock-product {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    font-size: 13px;
+}
+
+.stock-product span {
+    color: #dc3545;
+}
+
+.stock-warning {
+    display: inline-block;
+    margin-top: 7px;
+    padding: 4px 8px;
+    background: #fff0f0;
+    color: #c0392b;
+    border-radius: 6px;
+    font-size: 10px;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 35px 10px;
+    color: #16856b;
+}
+
+.empty-state span {
+    font-size: 30px;
+}
+
+.empty-state p {
+    color: #778392;
+    font-size: 13px;
+}
+
+.table-responsive {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.dashboard-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 400px;
+}
+
+.dashboard-table th,
+.dashboard-table td {
+    padding: 14px 12px;
+    text-align: left;
+    border-bottom: 1px solid #edf0f3;
+    font-size: 13px;
+}
+
+.dashboard-table th {
+    color: #89939e;
+    font-weight: 600;
+    background: #fafbfc;
+}
+
+.invoice-total {
+    color: #16856b;
+    font-weight: 700;
+}
+
+.empty-table {
+    text-align: center !important;
+    color: #89939e;
+    padding: 25px !important;
+}
+
+@media (max-width: 900px) {
+    .kpi-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .dashboard-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 520px) {
+    .dashboard-page {
+        padding: 5px;
+    }
+
+    .dashboard-header {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .kpi-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .kpi-card {
+        padding: 16px;
+    }
+
+    .panel {
+        padding: 15px;
+    }
+
+    .chart-container {
+        height: 230px;
+    }
+}
 </style>
 
 {% endblock %}
