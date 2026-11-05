@@ -31,7 +31,10 @@ def create_app():
     app.config["SECRET_KEY"] = "secret-key-faso-gestion"
     app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///app.db"
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-
+    
+    # MODE SIMULATION DES ABONNEMENTS
+    app.config["SIMULATION_MODE"] = True
+    
     print("Configuration OK")
 
     # INITIALISATION DATABASE
