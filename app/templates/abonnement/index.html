@@ -2,103 +2,561 @@
 
 {% block content %}
 
-<div class="container mt-4">
+<style>
+    .subscription-page {
+        padding: 25px 0 45px;
+        color: #1e293b;
+    }
 
-    <h2 class="mb-4">
-        👑 Abonnement FASO GESTION IA
-    </h2>
+    .subscription-hero {
+        text-align: center;
+        padding: 35px 20px;
+        margin-bottom: 30px;
+        border-radius: 20px;
+        background: linear-gradient(135deg, #102b46, #176b61);
+        color: white;
+    }
 
-    <div class="row">
+    .subscription-hero h1 {
+        font-size: 2rem;
+        font-weight: 800;
+        margin-bottom: 12px;
+    }
+
+    .subscription-hero p {
+        max-width: 650px;
+        margin: auto;
+        color: #dcece9;
+        font-size: 1rem;
+    }
+
+    .subscription-label {
+        display: inline-block;
+        padding: 7px 15px;
+        margin-bottom: 15px;
+        border-radius: 30px;
+        background: rgba(255,255,255,.15);
+        font-size: .8rem;
+        font-weight: 700;
+        letter-spacing: 1px;
+    }
+
+    .subscription-intro {
+        text-align: center;
+        margin: 35px 0 25px;
+    }
+
+    .subscription-intro h2 {
+        font-size: 1.6rem;
+        font-weight: 800;
+    }
+
+    .subscription-intro p {
+        color: #64748b;
+    }
+
+    .plans-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 18px;
+        align-items: stretch;
+    }
+
+    .plan-card {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        background: white;
+        border: 1px solid #e2e8f0;
+        border-radius: 17px;
+        overflow: hidden;
+        box-shadow: 0 7px 25px rgba(15, 23, 42, .06);
+        transition: transform .2s, box-shadow .2s;
+    }
+
+    .plan-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 35px rgba(15, 23, 42, .12);
+    }
+
+    .plan-card.featured {
+        border: 2px solid #d69e22;
+    }
+
+    .plan-popular {
+        position: absolute;
+        top: 13px;
+        right: -31px;
+        width: 120px;
+        padding: 6px;
+        transform: rotate(45deg);
+        background: #d69e22;
+        color: white;
+        text-align: center;
+        font-size: 10px;
+        font-weight: 800;
+    }
+
+    .plan-header {
+        padding: 25px 20px 18px;
+        border-bottom: 1px solid #edf0f4;
+    }
+
+    .plan-name {
+        font-size: 1.15rem;
+        font-weight: 800;
+        margin-bottom: 8px;
+    }
+
+    .plan-description {
+        min-height: 42px;
+        color: #64748b;
+        font-size: .85rem;
+    }
+
+    .plan-price {
+        margin-top: 18px;
+        font-size: 2rem;
+        font-weight: 800;
+        color: #142b45;
+        white-space: nowrap;
+    }
+
+    .plan-price small {
+        font-size: .8rem;
+        font-weight: 500;
+        color: #64748b;
+    }
+
+    .plan-body {
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+    }
+
+    .plan-features {
+        list-style: none;
+        padding: 0;
+        margin: 0 0 22px;
+        flex: 1;
+    }
+
+    .plan-features li {
+        display: flex;
+        gap: 9px;
+        margin-bottom: 13px;
+        font-size: .86rem;
+        color: #334155;
+        line-height: 1.4;
+    }
+
+    .feature-check {
+        color: #15966b;
+        font-weight: 900;
+    }
+
+    .plan-button {
+        display: block;
+        width: 100%;
+        padding: 12px 10px;
+        border: none;
+        border-radius: 9px;
+        text-align: center;
+        font-weight: 700;
+        font-size: .9rem;
+        cursor: default;
+    }
+
+    .btn-free {
+        background: #e8edf3;
+        color: #26384c;
+    }
+
+    .btn-standard {
+        background: #176b61;
+        color: white;
+    }
+
+    .btn-premium {
+        background: #d69e22;
+        color: #172033;
+    }
+
+    .btn-business {
+        background: #172b46;
+        color: white;
+    }
+
+    .plan-note {
+        margin-top: 10px;
+        text-align: center;
+        font-size: .72rem;
+        color: #94a3b8;
+    }
+
+    .comparison-section {
+        margin-top: 45px;
+        padding: 25px;
+        background: white;
+        border: 1px solid #e2e8f0;
+        border-radius: 16px;
+        box-shadow: 0 5px 20px rgba(15, 23, 42, .04);
+    }
+
+    .comparison-section h3 {
+        font-weight: 800;
+        margin-bottom: 20px;
+    }
+
+    .comparison-table th {
+        background: #f1f5f9;
+        color: #334155;
+        white-space: nowrap;
+    }
+
+    .comparison-table td,
+    .comparison-table th {
+        padding: 13px;
+        vertical-align: middle;
+        font-size: .88rem;
+    }
+
+    .comparison-check {
+        color: #15966b;
+        font-weight: 800;
+    }
+
+    .subscription-footer {
+        text-align: center;
+        padding: 30px 15px;
+        margin-top: 30px;
+        background: #f1f5f9;
+        border-radius: 15px;
+    }
+
+    .subscription-footer h4 {
+        font-weight: 800;
+    }
+
+    .subscription-footer p {
+        color: #64748b;
+        margin-bottom: 0;
+    }
+
+    @media (max-width: 1100px) {
+        .plans-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+    }
+
+    @media (max-width: 576px) {
+        .plans-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .subscription-hero h1 {
+            font-size: 1.55rem;
+        }
+
+        .plan-description {
+            min-height: auto;
+        }
+
+        .comparison-section {
+            padding: 15px;
+            overflow-x: auto;
+        }
+    }
+</style>
+
+<div class="container-fluid subscription-page">
+
+    <!-- EN-TÊTE -->
+    <div class="subscription-hero">
+
+        <span class="subscription-label">IGESTION • ABONNEMENTS</span>
+
+        <h1>Choisissez la formule adaptée à votre entreprise</h1>
+
+        <p>
+            Développez votre activité avec une solution complète de gestion.
+            Choisissez votre formule et profitez des outils adaptés à vos besoins.
+        </p>
+
+    </div>
+
+    <!-- INTRODUCTION -->
+    <div class="subscription-intro">
+
+        <h2>Nos quatre formules</h2>
+
+        <p>
+            Des solutions flexibles pour les petites boutiques,
+            les magasins et les entreprises en pleine croissance.
+        </p>
+
+        <span class="badge bg-success">Facturation mensuelle</span>
+
+    </div>
+
+    <!-- CARTES DES ABONNEMENTS -->
+    <div class="plans-grid">
+
+        <!-- GRATUIT -->
+        <div class="plan-card">
+
+            <div class="plan-header">
+
+                <div class="plan-name">🌱 GRATUIT</div>
+
+                <div class="plan-description">
+                    Pour découvrir IGESTION et commencer à organiser son activité.
+                </div>
+
+                <div class="plan-price">
+                    0 <small>FCFA / mois</small>
+                </div>
+
+            </div>
+
+            <div class="plan-body">
+
+                <ul class="plan-features">
+                    <li><span class="feature-check">✓</span> Tableau de bord</li>
+                    <li><span class="feature-check">✓</span> Gestion des produits</li>
+                    <li><span class="feature-check">✓</span> Gestion des clients</li>
+                    <li><span class="feature-check">✓</span> Gestion des ventes et factures</li>
+                    <li><span class="feature-check">✓</span> Gestion des dépenses</li>
+                    <li><span class="feature-check">✓</span> Stock limité</li>
+                    <li><span class="feature-check">✓</span> Découverte de Bouba AI</li>
+                </ul>
+
+                <button type="button" class="plan-button btn-free">
+                    Formule gratuite
+                </button>
+
+                <div class="plan-note">Sans engagement</div>
+
+            </div>
+
+        </div>
 
         <!-- STANDARD -->
+        <div class="plan-card">
 
-        <div class="col-md-6">
+            <div class="plan-header">
 
-            <div class="card shadow">
+                <div class="plan-name">🚀 STANDARD</div>
 
-                <div class="card-header bg-success text-white">
-
-                    <h3>STANDARD</h3>
-
-                    <h4>20 000 FCFA / mois</h4>
-
+                <div class="plan-description">
+                    Pour les boutiques et magasins qui veulent mieux gérer leurs opérations.
                 </div>
 
-                <div class="card-body">
-
-                    <ul>
-
-                        <li>✔ Gestion des produits</li>
-
-                        <li>✔ Gestion des clients</li>
-
-                        <li>✔ Gestion des fournisseurs</li>
-
-                        <li>✔ Gestion des dépenses</li>
-
-                        <li>✔ Gestion des factures</li>
-
-                        <li>✔ Tableau de bord</li>
-
-                    </ul>
-
-                    <button class="btn btn-success w-100">
-
-                        Souscrire
-
-                    </button>
-
+                <div class="plan-price">
+                    5 000 <small>FCFA / mois</small>
                 </div>
+
+            </div>
+
+            <div class="plan-body">
+
+                <ul class="plan-features">
+                    <li><span class="feature-check">✓</span> Tout le contenu de Gratuit</li>
+                    <li><span class="feature-check">✓</span> Gestion avancée du stock</li>
+                    <li><span class="feature-check">✓</span> Gestion des fournisseurs</li>
+                    <li><span class="feature-check">✓</span> Gestion des achats</li>
+                    <li><span class="feature-check">✓</span> Suivi des recettes et dépenses</li>
+                    <li><span class="feature-check">✓</span> Rapports de gestion</li>
+                    <li><span class="feature-check">✓</span> Assistance Bouba AI</li>
+                </ul>
+
+                <button type="button" class="plan-button btn-standard">
+                    Choisir Standard
+                </button>
+
+                <div class="plan-note">Abonnement mensuel</div>
 
             </div>
 
         </div>
 
         <!-- PREMIUM -->
+        <div class="plan-card featured">
 
-        <div class="col-md-6">
+            <div class="plan-popular">POPULAIRE</div>
 
-            <div class="card shadow border-warning">
+            <div class="plan-header">
 
-                <div class="card-header bg-warning">
+                <div class="plan-name">👑 PREMIUM</div>
 
-                    <h3>👑 PREMIUM</h3>
-
-                    <h4>40 000 FCFA / mois</h4>
-
+                <div class="plan-description">
+                    Pour les commerces en développement qui recherchent plus de contrôle.
                 </div>
 
-                <div class="card-body">
-
-                    <ul>
-
-                        <li>✔ Tout le Standard</li>
-
-                        <li>⭐ Assistant IA</li>
-
-                        <li>⭐ Rapports intelligents</li>
-
-                        <li>⭐ Prévisions de ventes</li>
-
-                        <li>⭐ Sauvegarde Cloud</li>
-
-                        <li>⭐ Support prioritaire</li>
-
-                        <li>⭐ Toutes les futures mises à jour</li>
-
-                    </ul>
-
-                    <button class="btn btn-warning w-100">
-
-                        Passer Premium
-
-                    </button>
-
+                <div class="plan-price">
+                    10 000 <small>FCFA / mois</small>
                 </div>
 
             </div>
 
+            <div class="plan-body">
+
+                <ul class="plan-features">
+                    <li><span class="feature-check">✓</span> Tout le contenu de Standard</li>
+                    <li><span class="feature-check">✓</span> Rapports intelligents</li>
+                    <li><span class="feature-check">✓</span> Analyses et prévisions de ventes</li>
+                    <li><span class="feature-check">✓</span> Gestion financière avancée</li>
+                    <li><span class="feature-check">✓</span> Suivi des marges et bénéfices</li>
+                    <li><span class="feature-check">✓</span> Historique et analyses approfondies</li>
+                    <li><span class="feature-check">✓</span> Assistance prioritaire</li>
+                </ul>
+
+                <button type="button" class="plan-button btn-premium">
+                    Choisir Premium
+                </button>
+
+                <div class="plan-note">Abonnement mensuel</div>
+
+            </div>
+
         </div>
+
+        <!-- BUSINESS -->
+        <div class="plan-card">
+
+            <div class="plan-header">
+
+                <div class="plan-name">🏢 BUSINESS</div>
+
+                <div class="plan-description">
+                    Pour les entreprises avec plusieurs équipes et établissements.
+                </div>
+
+                <div class="plan-price">
+                    20 000 <small>FCFA / mois</small>
+                </div>
+
+            </div>
+
+            <div class="plan-body">
+
+                <ul class="plan-features">
+                    <li><span class="feature-check">✓</span> Tout le contenu de Premium</li>
+                    <li><span class="feature-check">✓</span> Gestion multi-établissements</li>
+                    <li><span class="feature-check">✓</span> Gestion avancée des utilisateurs</li>
+                    <li><span class="feature-check">✓</span> Gestion des rôles et permissions</li>
+                    <li><span class="feature-check">✓</span> Analyses globales de l'entreprise</li>
+                    <li><span class="feature-check">✓</span> Gestion multi-devises</li>
+                    <li><span class="feature-check">✓</span> Assistance prioritaire renforcée</li>
+                </ul>
+
+                <button type="button" class="plan-button btn-business">
+                    Choisir Business
+                </button>
+
+                <div class="plan-note">Abonnement mensuel</div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- TABLEAU COMPARATIF -->
+    <div class="comparison-section">
+
+        <h3>📊 Comparaison des formules</h3>
+
+        <div class="table-responsive">
+
+            <table class="table table-bordered comparison-table">
+
+                <thead>
+                    <tr>
+                        <th>Fonctionnalités</th>
+                        <th>Gratuit</th>
+                        <th>Standard</th>
+                        <th>Premium</th>
+                        <th>Business</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    <tr>
+                        <td>Gestion des produits</td>
+                        <td class="comparison-check">✓</td>
+                        <td class="comparison-check">✓</td>
+                        <td class="comparison-check">✓</td>
+                        <td class="comparison-check">✓</td>
+                    </tr>
+
+                    <tr>
+                        <td>Ventes et facturation</td>
+                        <td class="comparison-check">✓</td>
+                        <td class="comparison-check">✓</td>
+                        <td class="comparison-check">✓</td>
+                        <td class="comparison-check">✓</td>
+                    </tr>
+
+                    <tr>
+                        <td>Gestion des fournisseurs</td>
+                        <td>—</td>
+                        <td class="comparison-check">✓</td>
+                        <td class="comparison-check">✓</td>
+                        <td class="comparison-check">✓</td>
+                    </tr>
+
+                    <tr>
+                        <td>Rapports avancés</td>
+                        <td>—</td>
+                        <td>—</td>
+                        <td class="comparison-check">✓</td>
+                        <td class="comparison-check">✓</td>
+                    </tr>
+
+                    <tr>
+                        <td>Prévisions intelligentes</td>
+                        <td>—</td>
+                        <td>—</td>
+                        <td class="comparison-check">✓</td>
+                        <td class="comparison-check">✓</td>
+                    </tr>
+
+                    <tr>
+                        <td>Multi-établissements</td>
+                        <td>—</td>
+                        <td>—</td>
+                        <td>—</td>
+                        <td class="comparison-check">✓</td>
+                    </tr>
+
+                    <tr>
+                        <td>Gestion multi-devises</td>
+                        <td>—</td>
+                        <td>—</td>
+                        <td>—</td>
+                        <td class="comparison-check">✓</td>
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+    <!-- BAS DE PAGE -->
+    <div class="subscription-footer">
+
+        <h4>Votre entreprise mérite une meilleure gestion.</h4>
+
+        <p>
+            IGESTION vous accompagne dans le suivi de vos ventes,
+            de vos stocks, de vos dépenses et de vos performances.
+        </p>
 
     </div>
 
