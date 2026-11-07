@@ -1,566 +1,517 @@
+
 <!DOCTYPE html>
 <html lang="fr">
-
 <head>
-
     <meta charset="UTF-8">
-
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>Gestion Produits - FASO GESTION IA</title>
+    <title>Gestion des produits - FASO GESTION IA</title>
 
     <style>
-
-        *{
-            margin:0;
-            padding:0;
-            box-sizing:border-box;
-            font-family:Arial;
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
         }
 
-        body{
-            background:#f4fff7;
+        body {
+            background: #f4fff7;
+            color: #222;
         }
 
-        /* HEADER */
-
-        .topbar{
-
-            background:linear-gradient(135deg,#198754,#0d6b42);
-
-            padding:20px 30px;
-
-            display:flex;
-
-            justify-content:space-between;
-
-            align-items:center;
-
-            color:white;
-
-            box-shadow:0 4px 10px rgba(0,0,0,0.15);
-
+        .topbar {
+            background: linear-gradient(135deg, #198754, #0d6b42);
+            padding: 20px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: white;
+            flex-wrap: wrap;
+            gap: 15px;
         }
 
-        .topbar h1{
-            font-size:32px;
+        .topbar h1 {
+            font-size: 26px;
         }
 
-        .top-actions{
-            display:flex;
-            gap:15px;
+        .top-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
         }
 
-        .btn{
-
-            background:white;
-
-            color:#198754;
-
-            text-decoration:none;
-
-            padding:12px 18px;
-
-            border-radius:10px;
-
-            font-weight:bold;
-
-            transition:0.3s;
-
+        .btn {
+            background: white;
+            color: #198754;
+            text-decoration: none;
+            padding: 12px 18px;
+            border-radius: 8px;
+            font-weight: bold;
         }
 
-        .btn:hover{
-            transform:scale(1.05);
+        .container {
+            padding: 30px;
+            max-width: 1500px;
+            margin: auto;
         }
 
-        /* CONTAINER */
-
-        .container{
-            padding:35px;
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
         }
 
-        /* STATS */
-
-        .stats{
-
-            display:grid;
-
-            grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
-
-            gap:20px;
-
-            margin-bottom:35px;
-
+        .stat-card {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 4px 12px rgba(0,0,0,.07);
         }
 
-        .stat-card{
-
-            background:white;
-
-            padding:25px;
-
-            border-radius:20px;
-
-            box-shadow:0 5px 15px rgba(0,0,0,0.08);
-
+        .stat-card h3 {
+            color: #198754;
+            margin-bottom: 12px;
+            font-size: 17px;
         }
 
-        .stat-card h3{
-            color:#198754;
-            margin-bottom:10px;
-            font-size:20px;
+        .stat-card p {
+            font-size: 30px;
+            font-weight: bold;
         }
 
-        .stat-card p{
-            font-size:32px;
-            font-weight:bold;
-            color:#222;
+        .form-box, .table-box {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 4px 12px rgba(0,0,0,.07);
+            margin-bottom: 30px;
         }
 
-        /* FORM */
-
-        .form-box{
-
-            background:white;
-
-            padding:30px;
-
-            border-radius:20px;
-
-            box-shadow:0 5px 15px rgba(0,0,0,0.08);
-
-            margin-bottom:40px;
-
+        .form-box h2, .table-box h2 {
+            color: #198754;
+            margin-bottom: 20px;
         }
 
-        .form-box h2{
-
-            margin-bottom:25px;
-
-            color:#198754;
-
-            font-size:28px;
-
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 15px;
         }
 
-        form{
-
-            display:grid;
-
-            grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
-
-            gap:20px;
-
+        .field {
+            display: flex;
+            flex-direction: column;
+            gap: 7px;
         }
 
-        input{
-
-            padding:15px;
-
-            border-radius:12px;
-
-            border:1px solid #ccc;
-
-            font-size:16px;
-
-            outline:none;
-
+        .field label {
+            font-weight: bold;
+            font-size: 14px;
         }
 
-        input:focus{
-            border:2px solid #198754;
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 15px;
         }
 
-        button{
-
-            background:#198754;
-
-            color:white;
-
-            border:none;
-
-            padding:15px;
-
-            border-radius:12px;
-
-            font-size:17px;
-
-            font-weight:bold;
-
-            cursor:pointer;
-
-            transition:0.3s;
-
+        textarea {
+            resize: vertical;
+            min-height: 45px;
         }
 
-        button:hover{
-            background:#146c43;
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #198754;
         }
 
-        /* TABLE */
-
-        .table-box{
-
-            background:white;
-
-            border-radius:20px;
-
-            overflow:hidden;
-
-            box-shadow:0 5px 15px rgba(0,0,0,0.08);
-
+        .form-actions {
+            margin-top: 20px;
         }
 
-        .table-header{
-
-            background:#198754;
-
-            color:white;
-
-            padding:20px;
-
-            font-size:24px;
-
-            font-weight:bold;
-
+        button {
+            border: none;
+            border-radius: 8px;
+            padding: 12px 18px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 15px;
         }
 
-        table{
-
-            width:100%;
-
-            border-collapse:collapse;
-
+        .btn-add {
+            background: #198754;
+            color: white;
         }
 
-        th{
-
-            background:#e8fff0;
-
-            color:#198754;
-
-            padding:18px;
-
-            text-align:left;
-
+        .btn-add:hover {
+            background: #146c43;
         }
 
-        td{
-
-            padding:18px;
-
-            border-bottom:1px solid #eee;
-
+        .table-responsive {
+            overflow-x: auto;
         }
 
-        tr:hover{
-            background:#f7fff9;
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 750px;
         }
 
-        /* ACTIONS */
-
-        .action-btn{
-
-            padding:10px 14px;
-
-            border-radius:8px;
-
-            text-decoration:none;
-
-            color:white;
-
-            font-size:14px;
-
-            font-weight:bold;
-
-            margin-right:8px;
-
+        th {
+            background: #e8fff0;
+            color: #198754;
+            padding: 14px;
+            text-align: left;
         }
 
-        .edit{
-            background:#0d6efd;
+        td {
+            padding: 14px;
+            border-bottom: 1px solid #eee;
         }
 
-        .delete{
-            background:#dc3545;
+        tr:hover {
+            background: #f7fff9;
         }
 
-        /* STOCK */
-
-        .stock-ok{
-            color:green;
-            font-weight:bold;
+        .action-btn {
+            display: inline-block;
+            padding: 8px 11px;
+            border-radius: 6px;
+            text-decoration: none;
+            color: white;
+            font-size: 13px;
+            font-weight: bold;
+            margin: 2px;
         }
 
-        .stock-low{
-            color:red;
-            font-weight:bold;
+        .edit {
+            background: #0d6efd;
         }
 
-        /* EMPTY */
-
-        .empty{
-
-            text-align:center;
-
-            padding:40px;
-
-            color:#777;
-
-            font-size:18px;
-
+        .delete {
+            background: #dc3545;
+            border: none;
         }
 
-        /* FOOTER */
-
-        footer{
-
-            text-align:center;
-
-            padding:25px;
-
-            color:#666;
-
+        .stock-ok {
+            color: #198754;
+            font-weight: bold;
         }
 
-        @media(max-width:768px){
+        .stock-low {
+            color: #dc3545;
+            font-weight: bold;
+        }
 
-            .topbar{
-                flex-direction:column;
-                gap:15px;
+        .empty {
+            text-align: center;
+            padding: 35px;
+            color: #777;
+        }
+
+        .flash {
+            padding: 12px 15px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+            background: #e8fff0;
+            color: #146c43;
+        }
+
+        .delete-form {
+            display: inline;
+        }
+
+        footer {
+            text-align: center;
+            padding: 25px;
+            color: #666;
+        }
+
+        @media(max-width: 600px) {
+            .container {
+                padding: 15px;
             }
 
-            .top-actions{
-                flex-wrap:wrap;
-                justify-content:center;
+            .topbar {
+                padding: 18px;
             }
 
+            .topbar h1 {
+                font-size: 21px;
+            }
         }
-
     </style>
-
 </head>
 
 <body>
 
-    <!-- HEADER -->
+<header class="topbar">
+    <h1>📦 Gestion des produits</h1>
 
-    <div class="topbar">
-
-        <h1>📦 Gestion des Produits</h1>
-
-        <div class="top-actions">
-
-            <a href="/" class="btn">
-                🏠 Dashboard
-            </a>
-
-            <a href="/stock" class="btn">
-                📊 Stock
-            </a>
-
-        </div>
-
+    <div class="top-actions">
+        <a href="/" class="btn">🏠 Tableau de bord</a>
+        <a href="/stock" class="btn">📊 Stock</a>
     </div>
+</header>
 
+<main class="container">
 
-    <div class="container">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for categorie_message, message in messages %}
+                <div class="flash">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
 
-        <!-- STATS -->
+    {% set ns = namespace(disponibles=0, alertes=0) %}
 
-        <div class="stats">
+    {% for p in produits %}
+        {% if p.quantite > 0 %}
+            {% set ns.disponibles = ns.disponibles + 1 %}
+        {% endif %}
 
-            <div class="stat-card">
+        {% if p.stock_faible %}
+            {% set ns.alertes = ns.alertes + 1 %}
+        {% endif %}
+    {% endfor %}
 
-                <h3>Total Produits</h3>
+    <section class="stats">
 
-                <p>{{ produits|length }}</p>
-
-            </div>
-
-            <div class="stat-card">
-
-                <h3>Produits Disponibles</h3>
-
-                <p>
-
-                    {% set total = 0 %}
-
-                    {% for p in produits %}
-                        {% if p.quantite > 0 %}
-                            {% set total = total + 1 %}
-                        {% endif %}
-                    {% endfor %}
-
-                    {{ total }}
-
-                </p>
-
-            </div>
-
-            <div class="stat-card">
-
-                <h3>Alertes Stock</h3>
-
-                <p>
-
-                    {% set alertes = 0 %}
-
-                    {% for p in produits %}
-                        {% if p.quantite <= 5 %}
-                            {% set alertes = alertes + 1 %}
-                        {% endif %}
-                    {% endfor %}
-
-                    {{ alertes }}
-
-                </p>
-
-            </div>
-
+        <div class="stat-card">
+            <h3>Total des produits</h3>
+            <p>{{ produits|length }}</p>
         </div>
 
+        <div class="stat-card">
+            <h3>Produits disponibles</h3>
+            <p>{{ ns.disponibles }}</p>
+        </div>
 
-        <!-- FORMULAIRE -->
+        <div class="stat-card">
+            <h3>Alertes de stock</h3>
+            <p>{{ ns.alertes }}</p>
+        </div>
 
-        <div class="form-box">
+    </section>
 
-            <h2>➕ Ajouter un Produit</h2>
+    <section class="form-box">
 
-            <form method="POST">
+        <h2>➕ Ajouter un produit</h2>
 
-                <input
-                    type="text"
-                    name="nom"
-                    placeholder="Nom du produit"
-                    required
-                >
+        <form method="POST" action="{{ url_for('produit.ajouter') }}">
 
-                <input
-                    type="number"
-                    name="prix"
-                    placeholder="Prix"
-                    required
-                >
+            <div class="form-grid">
 
-                <input
-                    type="number"
-                    name="quantite"
-                    placeholder="Quantité"
-                    required
-                >
+                <div class="field">
+                    <label for="nom">Nom du produit *</label>
+                    <input type="text" id="nom" name="nom" required>
+                </div>
 
-                <button type="submit">
-                    Ajouter Produit
+                <div class="field">
+                    <label for="reference">Référence</label>
+                    <input type="text" id="reference" name="reference">
+                </div>
+
+                <div class="field">
+                    <label for="code_barre">Code-barres</label>
+                    <input type="text" id="code_barre" name="code_barre">
+                </div>
+
+                <div class="field">
+                    <label for="categorie_id">Catégorie *</label>
+
+                    {% if categories is defined %}
+                        <select id="categorie_id" name="categorie_id" required>
+                            <option value="">Choisir une catégorie</option>
+                            {% for categorie in categories %}
+                                <option value="{{ categorie.id }}">
+                                    {{ categorie.nom }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    {% else %}
+                        <input type="number" id="categorie_id"
+                               name="categorie_id" min="1" required>
+                    {% endif %}
+                </div>
+
+                <div class="field">
+                    <label for="fournisseur_id">Fournisseur</label>
+
+                    <select id="fournisseur_id" name="fournisseur_id">
+                        <option value="">Aucun fournisseur</option>
+                        {% if fournisseurs is defined %}
+                            {% for fournisseur in fournisseurs %}
+                                <option value="{{ fournisseur.id }}">
+                                    {{ fournisseur.nom_affichage }}
+                                </option>
+                            {% endfor %}
+                        {% endif %}
+                    </select>
+                </div>
+
+                <div class="field">
+                    <label for="prix_achat">Prix d'achat</label>
+                    <input type="number" id="prix_achat" name="prix_achat"
+                           min="0" step="0.01" value="0">
+                </div>
+
+                <div class="field">
+                    <label for="prix">Prix de vente *</label>
+                    <input type="number" id="prix" name="prix"
+                           min="0" step="0.01" required>
+                </div>
+
+                <div class="field">
+                    <label for="tva">TVA (%)</label>
+                    <input type="number" id="tva" name="tva"
+                           min="0" step="0.01" value="0">
+                </div>
+
+                <div class="field">
+                    <label for="quantite">Stock initial</label>
+                    <input type="number" id="quantite" name="quantite"
+                           min="0" step="1" value="0" required>
+                </div>
+
+                <div class="field">
+                    <label for="stock_minimum">Stock minimum</label>
+                    <input type="number" id="stock_minimum"
+                           name="stock_minimum" min="0" step="1" value="5">
+                </div>
+
+                <div class="field">
+                    <label for="unite">Unité</label>
+                    <input type="text" id="unite" name="unite"
+                           value="Pièce">
+                </div>
+
+                <div class="field">
+                    <label for="image">Adresse de l'image</label>
+                    <input type="text" id="image" name="image">
+                </div>
+
+                <div class="field">
+                    <label for="description">Description</label>
+                    <textarea id="description" name="description"></textarea>
+                </div>
+
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn-add">
+                    Enregistrer le produit
                 </button>
+            </div>
 
-            </form>
+        </form>
 
-        </div>
+    </section>
 
+    <section class="table-box">
 
-        <!-- TABLEAU -->
+        <h2>📋 Liste des produits</h2>
 
-        <div class="table-box">
+        {% if produits %}
 
-            <div class="table-header">
+            <div class="table-responsive">
 
-                📋 Liste des Produits
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Produit</th>
+                            <th>Référence</th>
+                            <th>Catégorie</th>
+                            <th>Prix de vente</th>
+                            <th>Quantité</th>
+                            <th>État du stock</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        {% for produit in produits %}
+                            <tr>
+
+                                <td>{{ produit.id }}</td>
+
+                                <td>{{ produit.nom }}</td>
+
+                                <td>{{ produit.reference or '—' }}</td>
+
+                                <td>
+                                    {{ produit.categorie.nom if produit.categorie else '—' }}
+                                </td>
+
+                                <td>
+                                    {{ "%.2f"|format(produit.prix) }} FCFA
+                                </td>
+
+                                <td>
+                                    {{ produit.quantite }} {{ produit.unite }}
+                                </td>
+
+                                <td>
+                                    {% if produit.stock_faible %}
+                                        <span class="stock-low">
+                                            ⚠ Stock faible
+                                        </span>
+                                    {% else %}
+                                        <span class="stock-ok">
+                                            ✔ Disponible
+                                        </span>
+                                    {% endif %}
+                                </td>
+
+                                <td>
+
+                                    <a href="{{ url_for('produit.modifier', id=produit.id) }}"
+                                       class="action-btn edit">
+                                        Modifier
+                                    </a>
+
+                                    <form class="delete-form"
+                                          method="POST"
+                                          action="{{ url_for('produit.supprimer', id=produit.id) }}"
+                                          onsubmit="return confirm('Voulez-vous vraiment supprimer ce produit ?');">
+
+                                        <button type="submit" class="action-btn delete">
+                                            Supprimer
+                                        </button>
+
+                                    </form>
+
+                                </td>
+
+                            </tr>
+                        {% endfor %}
+
+                    </tbody>
+                </table>
 
             </div>
 
-            {% if produits %}
-
-            <table>
-
-                <tr>
-
-                    <th>ID</th>
-                    <th>Produit</th>
-                    <th>Prix</th>
-                    <th>Quantité</th>
-                    <th>État</th>
-                    <th>Actions</th>
-
-                </tr>
-
-                {% for produit in produits %}
-
-                <tr>
-
-                    <td>{{ produit.id }}</td>
-
-                    <td>{{ produit.nom }}</td>
-
-                    <td>{{ produit.prix }} FCFA</td>
-
-                    <td>{{ produit.quantite }}</td>
-
-                    <td>
-
-                        {% if produit.quantite <= 5 %}
-
-                            <span class="stock-low">
-                                ⚠ Stock Faible
-                            </span>
-
-                        {% else %}
-
-                            <span class="stock-ok">
-                                ✔ Disponible
-                            </span>
-
-                        {% endif %}
-
-                    </td>
-
-                    <td>
-
-                        <a
-                           href="/modifier_produit/{{ produit.id }}"
-                           class="action-btn edit">
-
-                           Modifier
-
-                        </a>
-
-                        <a
-                           href="/supprimer_produit/{{ produit.id }}"
-                           class="action-btn delete">
-
-                           Supprimer
-
-                        </a>
-
-                    </td>
-
-                </tr>
-
-                {% endfor %}
-
-            </table>
-
-            {% else %}
+        {% else %}
 
             <div class="empty">
-
-                Aucun produit enregistré.
-
+                Aucun produit enregistré pour le moment.
             </div>
 
-            {% endif %}
+        {% endif %}
 
-        </div>
+    </section>
 
-    </div>
+</main>
 
-
-    <footer>
-
-        © 2026 FASO GESTION IA — Gestion Professionnelle des Produits
-
-    </footer>
+<footer>
+    © 2026 FASO GESTION IA — Gestion professionnelle
+</footer>
 
 </body>
-
-</html>    
+</html>
