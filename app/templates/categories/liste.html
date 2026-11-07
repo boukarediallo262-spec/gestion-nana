@@ -1,0 +1,70 @@
+
+{% extends "layout/base.html" %}
+
+{% block content %}
+
+<div class="page-header">
+    <h1>📂 Gestion des catégories</h1>
+    <p>Organisez vos produits par catégorie.</p>
+</div>
+
+<div class="card" style="background:white; padding:25px; border-radius:12px; margin-bottom:20px;">
+
+    <h3>Ajouter une catégorie</h3>
+
+    <form method="POST" action="{{ url_for('categorie.ajouter_categorie') }}">
+
+        <div style="margin-bottom:15px;">
+            <label>Nom de la catégorie *</label>
+            <input type="text" name="nom" required
+                   placeholder="Exemple : Boissons"
+                   style="width:100%;padding:12px;border:1px solid #ddd;border-radius:8px;">
+        </div>
+
+        <div style="margin-bottom:15px;">
+            <label>Description</label>
+            <textarea name="description"
+                      placeholder="Description de la catégorie"
+                      style="width:100%;padding:12px;border:1px solid #ddd;border-radius:8px;"></textarea>
+        </div>
+
+        <button type="submit" style="background:#198754;color:white;padding:12px 20px;border:0;border-radius:8px;cursor:pointer;">
+            + Ajouter la catégorie
+        </button>
+
+    </form>
+</div>
+
+<div class="card" style="background:white;padding:25px;border-radius:12px;">
+
+    <h3>Liste des catégories ({{ categories|length }})</h3>
+
+    {% if categories %}
+
+    <table style="width:100%;border-collapse:collapse;">
+        <thead>
+            <tr>
+                <th style="padding:12px;text-align:left;">Nom</th>
+                <th style="padding:12px;text-align:left;">Description</th>
+                <th style="padding:12px;text-align:left;">Produits</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            {% for categorie in categories %}
+            <tr>
+                <td style="padding:12px;">{{ categorie.nom }}</td>
+                <td style="padding:12px;">{{ categorie.description or '-' }}</td>
+                <td style="padding:12px;">{{ categorie.nombre_produits }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    {% else %}
+        <p>Aucune catégorie enregistrée pour le moment.</p>
+    {% endif %}
+
+</div>
+
+{% endblock %}
