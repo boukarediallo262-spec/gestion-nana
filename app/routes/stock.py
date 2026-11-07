@@ -1,37 +1,61 @@
-from flask import Blueprint, render_template, redirect, url_for
-from app.models.models import Produit, db
 
-stock_bp = Blueprint('stock', __name__)
+from flask import Blueprint, render_template
+from flask_login import login_required
 
-# ==============================
-# PAGE STOCK
-# ==============================
-@stock_bp.route('/stock')
+from app import db
+from app.models import Produit
+from app.utils.abonnement import abonnement_requis
+
+
+# ==========================================
+# BLUEPRINT STOCK
+# ==========================================
+
+stock_bp = Blueprint("stock", __name__)
+
+
+# ==========================================
+# PAGE PRINCIPALE DU STOCK
+# ==========================================
+
+@stock_bp.route("/stock", methods=["GET"])
+@login_required
+@abonnement_requis
 def stock():
 
-    produits = Produit.query.order_by(Produit.id.desc()).all()
-
-    total_stock = 0
-
-    for produit in produits:
-        total_stock += produit.quantite
-
-    return render_template(
-        'stock.html',
-        produits=produits,
-        total_stock=total_stock
+    produits = (
+        Produit.query
+        .filter_by(actif=True)
+        .order_by(Produit.nom.asc())
+        .all()
     )
 
+    total_produits = len(produits)
 
-# ==============================
-# SUPPRIMER PRODUIT
-# ==============================
-@stock_bp.route('/supprimer_stock/<int:id>')
-def supprimer_stock(id):
+    total_stock = sum(
+        produit.quantite for produit in produits
+    )
 
-    produit = Produit.query.get_or_404(id)
+    produits_disponibles = sum(
+        1 for produit in produits
+        if produit.quantite > 0
+    )
 
-    db.session.delete(produit)
-    db.session.commit()
+    produits_en_alerte = sum(
+        1 for produit in produits
+        if produit.stock_faible
+    )
 
-    return redirect(url_for('stock.stock'))
+    valeur_stock = sum(
+        produit.valeur_achat_stock for produit in produits
+    )
+
+    return render_template(
+        "stock.html",
+        produits=produits,
+        total_produits=total_produits,
+        total_stock=total_stock,
+        produits_disponibles=produits_disponibles,
+        produits_en_alerte=produits_en_alerte,
+        valeur_stock=valeur_stock
+    )
