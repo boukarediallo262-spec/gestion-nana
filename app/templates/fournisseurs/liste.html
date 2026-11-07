@@ -1,0 +1,87 @@
+
+{% extends "layout/base.html" %}
+
+{% block content %}
+
+<div class="page-header">
+    <h1>🚚 Gestion des fournisseurs</h1>
+    <p>Enregistrez et gérez vos fournisseurs.</p>
+</div>
+
+<div style="background:white;padding:25px;border-radius:12px;margin-bottom:20px;">
+
+    <h3>Ajouter un fournisseur</h3>
+
+    <form method="POST" action="{{ url_for('fournisseur.ajouter_fournisseur') }}">
+
+        <div style="margin-bottom:15px;">
+            <label>Nom du fournisseur *</label>
+            <input type="text" name="nom" required
+                   placeholder="Nom du fournisseur"
+                   style="width:100%;padding:12px;border:1px solid #ddd;border-radius:8px;">
+        </div>
+
+        <div style="margin-bottom:15px;">
+            <label>Téléphone</label>
+            <input type="text" name="telephone"
+                   placeholder="Numéro de téléphone"
+                   style="width:100%;padding:12px;border:1px solid #ddd;border-radius:8px;">
+        </div>
+
+        <div style="margin-bottom:15px;">
+            <label>Email</label>
+            <input type="email" name="email"
+                   placeholder="Adresse email"
+                   style="width:100%;padding:12px;border:1px solid #ddd;border-radius:8px;">
+        </div>
+
+        <div style="margin-bottom:15px;">
+            <label>Adresse</label>
+            <textarea name="adresse"
+                      placeholder="Adresse du fournisseur"
+                      style="width:100%;padding:12px;border:1px solid #ddd;border-radius:8px;"></textarea>
+        </div>
+
+        <button type="submit" style="background:#198754;color:white;padding:12px 20px;border:0;border-radius:8px;cursor:pointer;">
+            + Ajouter le fournisseur
+        </button>
+
+    </form>
+
+</div>
+
+<div style="background:white;padding:25px;border-radius:12px;">
+
+    <h3>Liste des fournisseurs ({{ fournisseurs|length }})</h3>
+
+    {% if fournisseurs %}
+
+    <table style="width:100%;border-collapse:collapse;">
+        <thead>
+            <tr>
+                <th style="padding:12px;text-align:left;">Nom</th>
+                <th style="padding:12px;text-align:left;">Téléphone</th>
+                <th style="padding:12px;text-align:left;">Email</th>
+                <th style="padding:12px;text-align:left;">Adresse</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            {% for fournisseur in fournisseurs %}
+            <tr>
+                <td style="padding:12px;">{{ fournisseur.nom }}</td>
+                <td style="padding:12px;">{{ fournisseur.telephone or '-' }}</td>
+                <td style="padding:12px;">{{ fournisseur.email or '-' }}</td>
+                <td style="padding:12px;">{{ fournisseur.adresse or '-' }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    {% else %}
+        <p>Aucun fournisseur enregistré pour le moment.</p>
+    {% endif %}
+
+</div>
+
+{% endblock %}
