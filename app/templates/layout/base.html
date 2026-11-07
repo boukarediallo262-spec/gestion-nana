@@ -114,6 +114,14 @@
             📦 Ajoute de Produits
         </a>
 
+        <a href="{{ url_for('categorie.liste_categories') }}" class="menu">
+            📂 Catégories
+        </a>
+
+        <a href="{{ url_for('fournisseur.liste_fournisseurs') }}" class="menu">
+            🚚 Fournisseurs
+        </a>
+
         <a href="/stock" class="menu stock-menu {% if '/stock' in request.path %}active{% endif %}">
             📊 Stock
         </a>
