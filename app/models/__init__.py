@@ -11,3 +11,4 @@ from .depense import Depense
 from .facture import Facture, LigneFacture
 from .abonnement import Abonnement
 from .transaction import Transaction
+from .transaction_abonnement import TransactionAbonnement
