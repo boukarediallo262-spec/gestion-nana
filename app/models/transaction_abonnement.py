@@ -5,13 +5,9 @@ from app import db
 
 
 class TransactionAbonnement(db.Model):
-
     __tablename__ = "transactions_abonnement"
 
-    id = db.Column(
-        db.Integer,
-        primary_key=True
-    )
+    id = db.Column(db.Integer, primary_key=True)
 
     user_id = db.Column(
         db.Integer,
@@ -26,16 +22,8 @@ class TransactionAbonnement(db.Model):
         nullable=True
     )
 
-    formule = db.Column(
-        db.String(50),
-        nullable=False
-    )
-
-    montant = db.Column(
-        db.Float,
-        nullable=False,
-        default=0
-    )
+    formule = db.Column(db.String(50), nullable=False)
+    montant = db.Column(db.Float, nullable=False, default=0)
 
     mode_paiement = db.Column(
         db.String(50),
@@ -60,9 +48,7 @@ class TransactionAbonnement(db.Model):
         default=True
     )
 
-    message = db.Column(
-        db.String(255)
-    )
+    message = db.Column(db.String(255))
 
     date_creation = db.Column(
         db.DateTime,
@@ -78,13 +64,9 @@ class TransactionAbonnement(db.Model):
         )
     )
 
-    abonnement = db.relationship(
-        "Abonnement",
-        backref=db.backref(
-            "transactions",
-            lazy=True
-        )
-    )
+    # Pas de backref "transactions" :
+    # ce nom existe déjà dans le modèle Abonnement.
+    abonnement = db.relationship("Abonnement")
 
     def __repr__(self):
         return (
