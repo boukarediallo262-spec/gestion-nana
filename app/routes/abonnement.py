@@ -9,12 +9,13 @@ from flask import (
     redirect,
     url_for,
     flash,
-    current_app
+    current_app,
 )
+
 from flask_login import login_required, current_user
 
 from app import db
-from app.models import Abonnement, Transaction
+from app.models import Abonnement, TransactionAbonnement
 
 
 abonnement_bp = Blueprint(
@@ -24,96 +25,128 @@ abonnement_bp = Blueprint(
 )
 
 
+# ==========================================================
+# FORMULES ET TARIFS
+# ==========================================================
+
 FORMULES = {
-    "Gratuit": {
+    "GRATUIT": {
         "montant": 0,
-        "duree": None
+        "duree": None,
     },
-    "Standard": {
+    "STANDARD": {
         "montant": 5000,
-        "duree": 30
+        "duree": 30,
     },
-    "Premium": {
+    "PREMIUM": {
         "montant": 10000,
-        "duree": 30
+        "duree": 30,
     },
-    "Business": {
+    "BUSINESS": {
         "montant": 20000,
-        "duree": 30
-    }
+        "duree": 30,
+    },
 }
 
+
+# ==========================================================
+# PAGE DES ABONNEMENTS
+# ==========================================================
 
 @abonnement_bp.route("/")
 @login_required
 def index():
 
-    abonnement_actuel = (
-        Abonnement.query
-        .filter_by(user_id=current_user.id, actif=True)
-        .order_by(Abonnement.date_debut.desc())
-        .first()
-    )
+    abonnement_actuel = current_user.abonnement_actif
 
-    transactions = (
-        Transaction.query
+    historique = (
+        TransactionAbonnement.query
         .filter_by(user_id=current_user.id)
-        .order_by(Transaction.date_transaction.desc())
-        .limit(10)
+        .order_by(TransactionAbonnement.date_creation.desc())
+        .limit(20)
         .all()
     )
 
     return render_template(
         "abonnement/index.html",
-        formules=FORMULES,
         abonnement_actuel=abonnement_actuel,
-        transactions=transactions
+        historique=historique,
+        simulation_mode=current_app.config.get(
+            "SIMULATION_MODE", False
+        ),
     )
 
 
-@abonnement_bp.route("/simulation", methods=["POST"])
+# ==========================================================
+# SIMULATION D'UNE SOUSCRIPTION
+# ==========================================================
+
+@abonnement_bp.route(
+    "/simuler/<formule>",
+    methods=["POST"]
+)
 @login_required
-def simulation():
+def simuler(formule):
 
     # Vérification du mode simulation
     if not current_app.config.get("SIMULATION_MODE", False):
-        flash("Le simulateur de paiement est désactivé.", "danger")
+        flash(
+            "Le mode simulation est désactivé.",
+            "danger"
+        )
         return redirect(url_for("abonnement.index"))
 
-    formule = request.form.get("formule", "").strip()
-    resultat = request.form.get("resultat", "").strip().lower()
+    formule = formule.upper()
 
+    # Vérification de la formule
     if formule not in FORMULES:
-        flash("Formule d'abonnement inconnue.", "danger")
+        flash(
+            "Cette formule d'abonnement n'existe pas.",
+            "danger"
+        )
         return redirect(url_for("abonnement.index"))
 
-    if resultat not in ["accepte", "refuse"]:
-        flash("Résultat de simulation invalide.", "danger")
-        return redirect(url_for("abonnement.index"))
+    informations = FORMULES[formule]
 
-    configuration = FORMULES[formule]
-    montant = configuration["montant"]
+    montant = informations["montant"]
 
-    # Une formule gratuite ne nécessite pas de paiement
-    if formule == "Gratuit" and resultat == "refuse":
-        flash("La formule gratuite ne nécessite aucun paiement.", "warning")
-        return redirect(url_for("abonnement.index"))
+    maintenant = datetime.utcnow()
 
     reference = "SIM-" + token_hex(8).upper()
 
+    # ======================================================
+    # RESULTAT DU PAIEMENT SIMULE
+    # ======================================================
+
+    if formule == "GRATUIT":
+        resultat = "acceptee"
+    else:
+        resultat = request.form.get("resultat", "").lower()
+
+        if resultat not in ["acceptee", "refusee"]:
+            flash(
+                "Choisissez un résultat de simulation valide.",
+                "warning"
+            )
+            return redirect(url_for("abonnement.index"))
+
     try:
 
-        # Enregistrement d'une tentative refusée
-        if resultat == "refuse":
+        # ==================================================
+        # PAIEMENT REFUSE
+        # ==================================================
 
-            transaction = Transaction(
+        if resultat == "refusee":
+
+            transaction = TransactionAbonnement(
                 user_id=current_user.id,
                 formule=formule,
                 montant=montant,
-                mode_paiement="SIMULATION",
-                statut="REFUSEE",
+                mode_paiement="Simulation",
                 reference=reference,
-                message="Paiement fictif refusé pendant le test."
+                statut="refusee",
+                simulation=True,
+                message="Paiement simulé refusé. Aucun abonnement activé."
             )
 
             db.session.add(transaction)
@@ -121,30 +154,25 @@ def simulation():
 
             flash(
                 "Simulation terminée : paiement refusé. "
-                "Aucun nouvel abonnement n'a été activé.",
+                "Votre abonnement actuel reste inchangé.",
                 "warning"
             )
 
             return redirect(url_for("abonnement.index"))
 
-        maintenant = datetime.utcnow()
+        # ==================================================
+        # CREATION DU NOUVEL ABONNEMENT
+        # ==================================================
 
-        # Désactivation des anciens abonnements actifs
-        anciens_abonnements = Abonnement.query.filter_by(
-            user_id=current_user.id,
-            actif=True
-        ).all()
+        if formule == "GRATUIT":
 
-        for ancien in anciens_abonnements:
-            ancien.actif = False
-
-        # Durée de la formule
-        if formule == "Gratuit":
-            date_fin = datetime(2099, 12, 31)
-        else:
-            date_fin = maintenant + timedelta(
-                days=configuration["duree"]
+            date_fin = datetime(
+                9999, 12, 31, 23, 59, 59
             )
+
+        else:
+
+            date_fin = maintenant + timedelta(days=30)
 
         nouvel_abonnement = Abonnement(
             type=formule,
@@ -153,41 +181,90 @@ def simulation():
             actif=True,
             montant=montant,
             user_id=current_user.id,
-            mode_paiement="SIMULATION",
+            mode_paiement="Gratuit" if montant == 0 else "Simulation",
             reference_paiement=reference,
-            date_paiement=maintenant
+            date_paiement=maintenant,
         )
 
         db.session.add(nouvel_abonnement)
+
+        # Génération de l'identifiant
         db.session.flush()
 
-        transaction = Transaction(
+        # ==================================================
+        # DESACTIVATION DES ANCIENS ABONNEMENTS
+        # ==================================================
+
+        anciens_abonnements = (
+            Abonnement.query
+            .filter_by(
+                user_id=current_user.id,
+                actif=True
+            )
+            .filter(
+                Abonnement.id != nouvel_abonnement.id
+            )
+            .all()
+        )
+
+        for ancien in anciens_abonnements:
+            ancien.actif = False
+
+        # ==================================================
+        # ENREGISTREMENT DE LA TRANSACTION
+        # ==================================================
+
+        transaction = TransactionAbonnement(
             user_id=current_user.id,
             abonnement_id=nouvel_abonnement.id,
             formule=formule,
             montant=montant,
-            mode_paiement="SIMULATION",
-            statut="ACCEPTEE",
+            mode_paiement="Simulation",
             reference=reference,
-            message="Paiement fictif accepté pendant le test."
+            statut="acceptee",
+            simulation=True,
+            message=(
+                "Activation gratuite permanente."
+                if formule == "GRATUIT"
+                else "Paiement simulé accepté. "
+                     "Abonnement activé pour 30 jours."
+            )
         )
 
         db.session.add(transaction)
+
+        # Enregistrement atomique
         db.session.commit()
 
-        flash(
-            f"Simulation réussie ! Votre formule {formule} "
-            "est maintenant activée.",
-            "success"
+        if formule == "GRATUIT":
+
+            flash(
+                "Votre formule GRATUIT a été activée "
+                "sans expiration.",
+                "success"
+            )
+
+        else:
+
+            flash(
+                f"Simulation réussie ! "
+                f"La formule {formule} est activée "
+                f"pour 30 jours.",
+                "success"
+            )
+
+    except Exception as erreur:
+
+        db.session.rollback()
+
+        current_app.logger.exception(
+            "Erreur pendant la simulation d'abonnement : %s",
+            erreur
         )
 
-    except Exception:
-        db.session.rollback()
-        current_app.logger.exception(
-            "Erreur pendant la simulation d'abonnement"
-        )
         flash(
-            "Une erreur est survenue pendant la simulation.",
+            "Une erreur est survenue. "
+            "Aucun changement d'abonnement n'a été confirmé.",
             "danger"
         )
 
