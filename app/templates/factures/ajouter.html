@@ -1,234 +1,343 @@
+
 <!DOCTYPE html>
 <html lang="fr">
 
 <head>
-
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Nouvelle Facture</title>
+    <title>Nouvelle facture - IGESTION</title>
 
     <style>
-
-        body{
-            font-family:Arial;
-            background:#f4fff7;
-            padding:30px;
-        }
- 
-        .box{
-
-            background:white;
-
-            max-width:700px;
-
-            margin:auto;
-
-            padding:30px;
-
-            border-radius:20px;
-
-            box-shadow:0 5px 15px rgba(0,0,0,0.1);
-
+        * {
+            box-sizing: border-box;
         }
 
-        h1{
-            color:#198754;
-            margin-bottom:25px;
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4fff7;
+            padding: 30px;
+            color: #263238;
         }
 
-        input,select{
-
-            width:100%;
-
-            padding:15px;
-
-            margin-bottom:20px;
-
-            border-radius:10px;
-
-            border:1px solid #ccc;
-
+        .box {
+            background: white;
+            max-width: 900px;
+            margin: auto;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
         }
 
-        button{
-
-            background:#198754;
-
-            color:white;
-
-            border:none;
-
-            padding:15px;
-
-            width:100%;
-
-            border-radius:10px;
-
-            font-size:18px;
-
-            cursor:pointer;
-
+        h1 {
+            color: #198754;
+            margin-bottom: 10px;
         }
-    .box{
-        background:white;
-        max-width:900px;
-        margin:auto;
-        padding:30px;
-        border-radius:20px;
-        box-shadow:0 5px 15px rgba(0,0,0,0.1);
-    }
 
-    .ligne-produit{
-        display:flex;
-        gap:10px;
-    }
+        .description {
+            color: #777;
+            margin-bottom: 25px;
+        }
 
-    .ligne-produit select{
-        flex:3;
-    }
+        label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
 
-    .ligne-produit input{
-        flex:1;
-    }
+        input, select {
+            width: 100%;
+            padding: 13px;
+            margin-bottom: 18px;
+            border-radius: 10px;
+            border: 1px solid #ccc;
+            background: white;
+        }
 
+        .ligne-produit {
+            display: grid;
+            grid-template-columns: 3fr 1fr auto;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .ligne-produit select,
+        .ligne-produit input {
+            margin-bottom: 12px;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 14px 18px;
+            border: none;
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: bold;
+            cursor: pointer;
+            text-align: center;
+        }
+
+        .btn-ajouter {
+            background: #e8f5e9;
+            color: #198754;
+            margin-bottom: 20px;
+        }
+
+        .btn-enregistrer {
+            background: #198754;
+            color: white;
+            flex: 2;
+        }
+
+        .btn-retour {
+            background: #6c757d;
+            color: white;
+            flex: 1;
+        }
+
+        .btn-supprimer {
+            background: #dc3545;
+            color: white;
+            padding: 10px 13px;
+            margin-bottom: 12px;
+        }
+
+        .actions {
+            display: flex;
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .section-title {
+            margin-top: 25px;
+            color: #198754;
+        }
+
+        @media(max-width: 600px) {
+            body {
+                padding: 12px;
+            }
+
+            .box {
+                padding: 18px;
+            }
+
+            .ligne-produit {
+                grid-template-columns: 1fr;
+                gap: 0;
+                border: 1px solid #eee;
+                padding: 12px;
+                border-radius: 10px;
+                margin-bottom: 12px;
+            }
+
+            .btn-supprimer {
+                width: 100%;
+            }
+
+            .actions {
+                flex-direction: column;
+            }
+        }
     </style>
-
 </head>
 
 <body>
 
 <div class="box">
 
-    <h1>🧾 Nouvelle Facture</h1>
+    <h1>🧾 Nouvelle facture</h1>
 
- <form method="POST">
+    <p class="description">
+        Sélectionnez un client, ajoutez les produits et leurs quantités.
+    </p>
 
-    <input
-        type="text"
-        name="client"
-        placeholder="Nom du client"
-        required
-    >
-
-    <select name="paiement" required>
-
-        <option value="">
-            Mode de paiement
-        </option>
-
-        <option value="Espèces">
-            Espèces
-        </option>
-
-        <option value="Mobile Money">
-            Mobile Money
-        </option>
-
-        <option value="Bancaire">
-            Bancaire
-        </option>
-
-        <option value="En attente">
-            En attente
-        </option>
-
-    </select>
-
-    <h3>Produits</h3>
-
-<div id="produits-container">
-
-    <div class="ligne-produit">
-
-        <select name="produit_id[]" required>
-
-            <option value="">
-                Choisir un produit
-            </option>
-
-            {% for produit in produits %}
-
-            <option value="{{ produit.id }}">
-                {{ produit.nom }}
-                -
-                {{ produit.prix }} FCFA
-                -
-                Stock: {{ produit.quantite }}
-            </option>
-
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for categorie, message in messages %}
+                <div style="
+                    padding:12px;
+                    margin-bottom:12px;
+                    border-radius:8px;
+                    background:#f8d7da;
+                    color:#842029;
+                ">
+                    {{ message }}
+                </div>
             {% endfor %}
+        {% endif %}
+    {% endwith %}
 
+    {% if not clients %}
+        <div style="padding:15px;background:#fff3cd;color:#664d03;border-radius:10px;margin-bottom:20px;">
+            Aucun client enregistré. Veuillez d'abord ajouter un client.
+            <br><br>
+            <a href="{{ url_for('client.index') }}">Accéder aux clients</a>
+        </div>
+    {% endif %}
+
+    {% if not produits %}
+        <div style="padding:15px;background:#fff3cd;color:#664d03;border-radius:10px;margin-bottom:20px;">
+            Aucun produit actif disponible. Veuillez d'abord ajouter un produit.
+            <br><br>
+            <a href="{{ url_for('produit.index') }}">Accéder aux produits</a>
+        </div>
+    {% endif %}
+
+    <form method="POST" id="form-facture">
+
+        <h3 class="section-title">1. Informations client</h3>
+
+        <label for="client_id">Client *</label>
+
+        <select name="client_id" id="client_id" required>
+            <option value="">-- Sélectionner un client --</option>
+
+            {% for client in clients %}
+                <option value="{{ client.id }}">
+                    {{ client.nom }}
+                    {% if client.prenom %} {{ client.prenom }}{% endif %}
+                    {% if client.telephone %} - {{ client.telephone }}{% endif %}
+                </option>
+            {% endfor %}
         </select>
 
-        <input
-            type="number"
-            name="quantite[]"
-            placeholder="Quantité"
-            required
+        <label for="paiement">Mode de paiement *</label>
+
+        <select name="paiement" id="paiement" required>
+            <option value="">-- Choisir le paiement --</option>
+            <option value="Espèces">Espèces</option>
+            <option value="Mobile Money">Mobile Money</option>
+            <option value="Bancaire">Bancaire</option>
+            <option value="En attente">En attente</option>
+        </select>
+
+        <h3 class="section-title">2. Produits</h3>
+
+        <div id="produits-container">
+
+            <div class="ligne-produit">
+
+                <div>
+                    <label>Produit *</label>
+
+                    <select name="produit_id[]" required>
+                        <option value="">-- Choisir un produit --</option>
+
+                        {% for produit in produits %}
+                            <option
+                                value="{{ produit.id }}"
+                                {% if produit.quantite <= 0 %}disabled{% endif %}
+                            >
+                                {{ produit.nom }}
+                                - {{ produit.prix }} FCFA
+                                - Stock : {{ produit.quantite }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div>
+                    <label>Quantité *</label>
+
+                    <input
+                        type="number"
+                        name="quantite[]"
+                        min="1"
+                        step="1"
+                        value="1"
+                        required
+                    >
+                </div>
+
+                <div>
+                    <label>&nbsp;</label>
+                    <button
+                        type="button"
+                        class="btn btn-supprimer"
+                        onclick="supprimerLigne(this)"
+                        disabled
+                    >
+                        Retirer
+                    </button>
+                </div>
+
+            </div>
+
+        </div>
+
+        <button
+            type="button"
+            class="btn btn-ajouter"
+            onclick="ajouterLigne()"
         >
+            ➕ Ajouter un produit
+        </button>
 
-    </div>
+        <div class="actions">
 
-</div>
+            <a
+                href="{{ url_for('facture.index') }}"
+                class="btn btn-retour"
+            >
+                ← Retour
+            </a>
 
-<button
-    type="button"
-    onclick="ajouterLigne()">
+            <button
+                type="submit"
+                class="btn btn-enregistrer"
+                {% if not clients or not produits %}disabled{% endif %}
+            >
+                💾 Enregistrer la facture
+            </button>
 
-    ➕ Ajouter un produit
+        </div>
 
-</button>
-<br>
-
-<div style="display:flex;gap:15px;">
-
-    <a
-        href="/factures"
-        style="
-            flex:1;
-            background:#6c757d;
-            color:white;
-            text-decoration:none;
-            text-align:center;
-            padding:15px;
-            border-radius:10px;
-            font-weight:bold;
-        ">
-        ← Retour
-    </a>
-
-    <button
-        type="submit"
-        style="
-            flex:2;
-            width:auto;
-        ">
-        💾 Enregistrer Facture
-    </button>
+    </form>
 
 </div>
-<br><br>
 
-</form>   
-</div>
 <script>
+
+function actualiserBoutonsSuppression() {
+
+    const lignes = document.querySelectorAll(".ligne-produit");
+
+    lignes.forEach((ligne) => {
+        const bouton = ligne.querySelector(".btn-supprimer");
+        bouton.disabled = lignes.length === 1;
+    });
+}
 
 function ajouterLigne() {
 
-    let container =
-        document.getElementById("produits-container");
+    const container = document.getElementById("produits-container");
+    const premiereLigne = container.querySelector(".ligne-produit");
 
-    let ligne =
-        container.children[0].cloneNode(true);
+    const nouvelleLigne = premiereLigne.cloneNode(true);
 
-    ligne.querySelector("input").value = "";
+    nouvelleLigne.querySelector("select").selectedIndex = 0;
+    nouvelleLigne.querySelector("input").value = 1;
 
-    ligne.querySelector("select").selectedIndex = 0;
+    container.appendChild(nouvelleLigne);
 
-    container.appendChild(ligne);
-
+    actualiserBoutonsSuppression();
 }
 
+function supprimerLigne(bouton) {
+
+    const container = document.getElementById("produits-container");
+
+    if (container.children.length > 1) {
+        bouton.closest(".ligne-produit").remove();
+    }
+
+    actualiserBoutonsSuppression();
+}
+
+actualiserBoutonsSuppression();
+
 </script>
+
 </body>
 </html>
