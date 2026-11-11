@@ -1,464 +1,169 @@
-<!DOCTYPE html>
-<html lang="fr">
 
-<head>
+{% extends "layout/base.html" %}
 
-    <meta charset="UTF-8">
+{% block content %}
 
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<div class="container-fluid py-4">
 
-    <title>Modifier Produit - FASO GESTION IA</title>
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold text-success">Modifier un produit</h2>
+            <p class="text-muted">Mettre à jour les informations du produit.</p>
+        </div>
 
-    <style>
-
-        *{
-            margin:0;
-            padding:0;
-            box-sizing:border-box;
-            font-family:Arial, sans-serif;
-        }
-
-        body{
-
-            background:#f4fff7;
-
-            min-height:100vh;
-
-        }
-
-        /* HEADER */
-
-        .topbar{
-
-            background:linear-gradient(135deg,#198754,#0d6b42);
-
-            color:white;
-
-            padding:20px 30px;
-
-            display:flex;
-
-            justify-content:space-between;
-
-            align-items:center;
-
-            box-shadow:0 4px 10px rgba(0,0,0,0.15);
-
-        }
-
-        .topbar h1{
-            font-size:30px;
-        }
-
-        .topbar a{
-
-            background:white;
-
-            color:#198754;
-
-            text-decoration:none;
-
-            padding:12px 18px;
-
-            border-radius:10px;
-
-            font-weight:bold;
-
-            transition:0.3s;
-
-        }
-
-        .topbar a:hover{
-            transform:scale(1.05);
-        }
-
-        /* CONTAINER */
-
-        .container{
-
-            width:100%;
-
-            max-width:800px;
-
-            margin:40px auto;
-
-            padding:20px;
-
-        }
-
-        /* CARD */
-
-        .card{
-
-            background:white;
-
-            padding:40px;
-
-            border-radius:25px;
-
-            box-shadow:0 5px 20px rgba(0,0,0,0.08);
-
-        }
-
-        .card h2{
-
-            color:#198754;
-
-            margin-bottom:10px;
-
-            font-size:34px;
-
-        }
-
-        .subtitle{
-
-            color:#666;
-
-            margin-bottom:35px;
-
-            font-size:17px;
-
-        }
-
-        /* FORM */
-
-        form{
-
-            display:flex;
-
-            flex-direction:column;
-
-            gap:25px;
-
-        }
-
-        .input-group{
-
-            display:flex;
-
-            flex-direction:column;
-
-            gap:10px;
-
-        }
-
-        label{
-
-            color:#198754;
-
-            font-weight:bold;
-
-            font-size:16px;
-
-        }
-
-        input{
-
-            padding:16px;
-
-            border-radius:14px;
-
-            border:1px solid #ccc;
-
-            font-size:16px;
-
-            outline:none;
-
-            transition:0.3s;
-
-        }
-
-        input:focus{
-
-            border:2px solid #198754;
-
-            box-shadow:0 0 8px rgba(25,135,84,0.2);
-
-        }
-
-        /* INFO BOX */
-
-        .info-box{
-
-            background:#e8fff0;
-
-            border-left:5px solid #198754;
-
-            padding:18px;
-
-            border-radius:12px;
-
-            color:#146c43;
-
-            margin-bottom:20px;
-
-        }
-
-        /* BUTTONS */
-
-        .actions{
-
-            display:flex;
-
-            gap:15px;
-
-            flex-wrap:wrap;
-
-            margin-top:10px;
-
-        }
-
-        button{
-
-            background:#198754;
-
-            color:white;
-
-            border:none;
-
-            padding:16px 25px;
-
-            border-radius:14px;
-
-            font-size:16px;
-
-            font-weight:bold;
-
-            cursor:pointer;
-
-            transition:0.3s;
-
-            flex:1;
-
-        }
-
-        button:hover{
-
-            background:#146c43;
-
-            transform:translateY(-2px);
-
-        }
-
-        .cancel{
-
-            background:#dc3545;
-
-            color:white;
-
-            text-decoration:none;
-
-            padding:16px 25px;
-
-            border-radius:14px;
-
-            text-align:center;
-
-            font-weight:bold;
-
-            transition:0.3s;
-
-            flex:1;
-
-        }
-
-        .cancel:hover{
-
-            background:#bb2d3b;
-
-            transform:translateY(-2px);
-
-        }
-
-        /* FOOTER */
-
-        footer{
-
-            text-align:center;
-
-            padding:30px;
-
-            color:#666;
-
-            margin-top:30px;
-
-        }
-
-        /* MOBILE */
-
-        @media(max-width:768px){
-
-            .topbar{
-
-                flex-direction:column;
-
-                gap:15px;
-
-                text-align:center;
-
-            }
-
-            .card{
-
-                padding:25px;
-
-            }
-
-            .actions{
-
-                flex-direction:column;
-
-            }
-
-        }
-
-    </style>
-
-</head>
-
-<body>
-
-    <!-- HEADER -->
-
-    <div class="topbar">
-
-        <h1>✏ Modifier Produit</h1>
-
-        <a href="/produits">
-
-            ← Retour Produits
-
+        <a href="{{ url_for('produit.index') }}" class="btn btn-secondary">
+            ← Retour aux produits
         </a>
-
     </div>
 
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for categorie, message in messages %}
+                <div class="alert alert-{{ categorie }} alert-dismissible fade show">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
 
-    <!-- CONTAINER -->
-
-    <div class="container">
-
-        <div class="card">
-
-            <h2>
-
-                Mise à jour du produit
-
-            </h2>
-
-            <p class="subtitle">
-
-                Modifiez les informations du produit puis enregistrez les changements.
-
-            </p>
-
-
-            <!-- INFO -->
-
-            <div class="info-box">
-
-                Produit ID :
-                <strong>#{{ produit.id }}</strong>
-
-            </div>
-
-
-            <!-- FORM -->
+    <div class="card border-0 shadow-sm">
+        <div class="card-body p-4">
 
             <form method="POST">
 
-                <!-- NOM -->
+                <div class="row">
 
-                <div class="input-group">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold">Nom du produit *</label>
+                        <input type="text" name="nom" class="form-control"
+                               value="{{ produit.nom or '' }}" required>
+                    </div>
 
-                    <label>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold">Référence</label>
+                        <input type="text" name="reference" class="form-control"
+                               value="{{ produit.reference or '' }}">
+                    </div>
 
-                        Nom du produit
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold">Code-barres</label>
+                        <input type="text" name="code_barre" class="form-control"
+                               value="{{ produit.code_barre or '' }}">
+                    </div>
 
-                    </label>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold">Image (URL)</label>
+                        <input type="text" name="image" class="form-control"
+                               value="{{ produit.image or '' }}">
+                    </div>
 
-                    <input
-                        type="text"
-                        name="nom"
-                        value="{{ produit.nom }}"
-                        required
-                    >
+                    <div class="col-12 mb-3">
+                        <label class="form-label fw-bold">Description</label>
+                        <textarea name="description" class="form-control" rows="3">{{ produit.description or '' }}</textarea>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold">Catégorie *</label>
+                        <select name="categorie_id" class="form-select" required>
+                            <option value="">Choisir une catégorie</option>
+                            {% for categorie in categories %}
+                                <option value="{{ categorie.id }}"
+                                    {% if produit.categorie_id == categorie.id %}selected{% endif %}>
+                                    {{ categorie.nom }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold">Fournisseur</label>
+                        <select name="fournisseur_id" class="form-select">
+                            <option value="">Aucun fournisseur</option>
+                            {% for fournisseur in fournisseurs %}
+                                <option value="{{ fournisseur.id }}"
+                                    {% if produit.fournisseur_id == fournisseur.id %}selected{% endif %}>
+                                    {{ fournisseur.nom }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label fw-bold">Prix d'achat (FCFA)</label>
+                        <input type="number" name="prix_achat" class="form-control"
+                               min="0" step="0.01"
+                               value="{{ produit.prix_achat or 0 }}" required>
+                    </div>
+
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label fw-bold">Prix de vente (FCFA) *</label>
+                        <input type="number" name="prix" class="form-control"
+                               min="0" step="0.01"
+                               value="{{ produit.prix or 0 }}" required>
+                    </div>
+
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label fw-bold">TVA (%)</label>
+                        <input type="number" name="tva" class="form-control"
+                               min="0" step="0.01"
+                               value="{{ produit.tva or 0 }}">
+                    </div>
+
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label fw-bold">Quantité en stock</label>
+                        <input type="number" name="quantite" class="form-control"
+                               min="0" step="1"
+                               value="{{ produit.quantite or 0 }}" required>
+                    </div>
+
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label fw-bold">Stock minimum</label>
+                        <input type="number" name="stock_minimum" class="form-control"
+                               min="0" step="1"
+                               value="{{ produit.stock_minimum or 5 }}">
+                    </div>
+
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label fw-bold">Unité</label>
+                        <select name="unite" class="form-select">
+                            {% for unite in ['Pièce', 'Kg', 'Litre', 'Carton', 'Sac', 'Paquet', 'Boîte', 'Mètre'] %}
+                                <option value="{{ unite }}"
+                                    {% if produit.unite == unite %}selected{% endif %}>
+                                    {{ unite }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="col-12 mb-4">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox"
+                                   name="actif" id="actif"
+                                   {% if produit.actif %}checked{% endif %}>
+                            <label class="form-check-label fw-bold" for="actif">
+                                Produit actif
+                            </label>
+                        </div>
+                    </div>
 
                 </div>
 
-
-                <!-- PRIX -->
-
-                <div class="input-group">
-
-                    <label>
-
-                        Prix du produit (FCFA)
-
-                    </label>
-
-                    <input
-                        type="number"
-                        name="prix"
-                        value="{{ produit.prix }}"
-                        required
-                    >
-
-                </div>
-
-
-                <!-- QUANTITE -->
-
-                <div class="input-group">
-
-                    <label>
-
-                        Quantité en stock
-
-                    </label>
-
-                    <input
-                        type="number"
-                        name="quantite"
-                        value="{{ produit.quantite }}"
-                        required
-                    >
-
-                </div>
-
-
-                <!-- ACTIONS -->
-
-                <div class="actions">
-
-                    <button type="submit">
-
-                        💾 Sauvegarder les modifications
-
+                <div class="d-flex gap-2 flex-wrap">
+                    <button type="submit" class="btn btn-success px-4">
+                        💾 Enregistrer les modifications
                     </button>
 
-                    <a href="/produits" class="cancel">
-
-                        ❌ Annuler
-
+                    <a href="{{ url_for('produit.index') }}" class="btn btn-outline-secondary">
+                        Annuler
                     </a>
-
                 </div>
 
             </form>
 
         </div>
-
     </div>
 
+</div>
 
-    <!-- FOOTER -->
-
-    <footer>
-
-        © 2026 FASO GESTION IA — Gestion Professionnelle
-
-    </footer>
-
-</body>
-
-</html>               
+{% endblock %}
