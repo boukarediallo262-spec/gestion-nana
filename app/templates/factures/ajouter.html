@@ -5,13 +5,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>Nouvelle facture - IGESTION</title>
+    <title>Nouvelle facture - FASO GESTION IA</title>
 
     <style>
-        * {
-            box-sizing: border-box;
-        }
+        * { box-sizing: border-box; }
 
         body {
             font-family: Arial, sans-serif;
@@ -29,15 +26,9 @@
             box-shadow: 0 5px 20px rgba(0,0,0,0.08);
         }
 
-        h1 {
-            color: #198754;
-            margin-bottom: 10px;
-        }
+        h1 { color: #198754; margin-bottom: 10px; }
 
-        .description {
-            color: #777;
-            margin-bottom: 25px;
-        }
+        .description { color: #777; margin-bottom: 25px; }
 
         label {
             display: block;
@@ -62,9 +53,7 @@
         }
 
         .ligne-produit select,
-        .ligne-produit input {
-            margin-bottom: 12px;
-        }
+        .ligne-produit input { margin-bottom: 12px; }
 
         .btn {
             display: inline-block;
@@ -113,14 +102,30 @@
             color: #198754;
         }
 
-        @media(max-width: 600px) {
-            body {
-                padding: 12px;
-            }
+        .alerte {
+            padding: 15px;
+            background: #fff3cd;
+            color: #664d03;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
 
-            .box {
-                padding: 18px;
-            }
+        .message {
+            padding: 12px;
+            margin-bottom: 12px;
+            border-radius: 8px;
+            background: #f8d7da;
+            color: #842029;
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        @media(max-width: 600px) {
+            body { padding: 12px; }
+            .box { padding: 18px; }
 
             .ligne-produit {
                 grid-template-columns: 1fr;
@@ -131,13 +136,8 @@
                 margin-bottom: 12px;
             }
 
-            .btn-supprimer {
-                width: 100%;
-            }
-
-            .actions {
-                flex-direction: column;
-            }
+            .btn-supprimer { width: 100%; }
+            .actions { flex-direction: column; }
         }
     </style>
 </head>
@@ -155,32 +155,24 @@
     {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
             {% for categorie, message in messages %}
-                <div style="
-                    padding:12px;
-                    margin-bottom:12px;
-                    border-radius:8px;
-                    background:#f8d7da;
-                    color:#842029;
-                ">
-                    {{ message }}
-                </div>
+                <div class="message">{{ message }}</div>
             {% endfor %}
         {% endif %}
     {% endwith %}
 
     {% if not clients %}
-        <div style="padding:15px;background:#fff3cd;color:#664d03;border-radius:10px;margin-bottom:20px;">
+        <div class="alerte">
             Aucun client enregistré. Veuillez d'abord ajouter un client.
             <br><br>
-            <a href="{{ url_for('client.index') }}">Accéder aux clients</a>
+            <a href="/clients/">Accéder aux clients</a>
         </div>
     {% endif %}
 
     {% if not produits %}
-        <div style="padding:15px;background:#fff3cd;color:#664d03;border-radius:10px;margin-bottom:20px;">
+        <div class="alerte">
             Aucun produit actif disponible. Veuillez d'abord ajouter un produit.
             <br><br>
-            <a href="{{ url_for('produit.index') }}">Accéder aux produits</a>
+            <a href="/produits/">Accéder aux produits</a>
         </div>
     {% endif %}
 
@@ -276,10 +268,7 @@
 
         <div class="actions">
 
-            <a
-                href="{{ url_for('facture.index') }}"
-                class="btn btn-retour"
-            >
+            <a href="/factures/" class="btn btn-retour">
                 ← Retour
             </a>
 
@@ -298,9 +287,7 @@
 </div>
 
 <script>
-
 function actualiserBoutonsSuppression() {
-
     const lignes = document.querySelectorAll(".ligne-produit");
 
     lignes.forEach((ligne) => {
@@ -310,7 +297,6 @@ function actualiserBoutonsSuppression() {
 }
 
 function ajouterLigne() {
-
     const container = document.getElementById("produits-container");
     const premiereLigne = container.querySelector(".ligne-produit");
 
@@ -320,12 +306,10 @@ function ajouterLigne() {
     nouvelleLigne.querySelector("input").value = 1;
 
     container.appendChild(nouvelleLigne);
-
     actualiserBoutonsSuppression();
 }
 
 function supprimerLigne(bouton) {
-
     const container = document.getElementById("produits-container");
 
     if (container.children.length > 1) {
@@ -336,7 +320,6 @@ function supprimerLigne(bouton) {
 }
 
 actualiserBoutonsSuppression();
-
 </script>
 
 </body>
