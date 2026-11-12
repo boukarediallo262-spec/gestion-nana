@@ -138,9 +138,12 @@
             💰 Dépenses
         </a>
 
-        <a href="/statistiques" class="menu {% if '/statistiques' in request.path %}active{% endif %}">
-            📊 Statistiques
+        
+        <a href="{{ url_for('dashboard.home') }}"
+           class="menu {% if request.path == '/' %}active{% endif %}">
+             📊 Statistiques
         </a>
+
 
         <a href="/admin" class="menu {% if '/admin' in request.path %}active{% endif %}">
             ⚙️ Administration
